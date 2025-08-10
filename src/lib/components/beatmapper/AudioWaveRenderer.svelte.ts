@@ -1,4 +1,21 @@
+import { untrack } from "svelte";
 
+export function getTimeString(time: number) {
+    const t = Math.floor(time);
+    const m = `${Math.floor(t / 60)}`.padStart(2, "0");
+    const s = `${t % 60}`.padStart(2, "0");
+    const ms = Math.floor(
+        (time - t) * 1000,
+    );
+    return `${m}:${s}.${ms}`;
+}
+
+export const Shared = $state({
+    hoverTime: 0,
+    startTime: 0,
+    endTime: 0,
+    currentTime: 0
+})
 
 
 export class WaveRenderer {
@@ -45,6 +62,14 @@ export class WaveRenderer {
         this.duration = 0;
 
         this.init();
+
+        $effect(() => {
+            // disgusting jank
+            Shared.startTime = this.startTime;
+            Shared.endTime = this.endTime;
+            Shared.hoverTime = this.pointer.timer;
+            Shared.currentTime = this.currentTime;
+        })
     }
 
     updateSamples(sampleRate: number, sampleChunkSize: number, chunks: Float32Array) {
@@ -127,8 +152,14 @@ export class WaveRenderer {
         this.setupEvents();
     }
 
+    shift(offset: number) {
+        this.startTime = Math.max(0, Math.min(this.duration, this.startTime + offset));
+        this.endTime = Math.max(0, Math.min(this.duration, this.endTime + offset));
 
+        this.needRender = true;
+    }
 
+    mouseDown = false;
     setupEvents() {
         // zoom
         this.canvas.addEventListener("wheel", (e) => {
@@ -141,12 +172,29 @@ export class WaveRenderer {
                 x: e.offsetX,
                 y: e.offsetY,
                 timer: (e.offsetX / this.width) * (this.endTime - this.startTime) + this.startTime
+            };
+
+
+            if (e.buttons & 4) {
+                this.shift(-(e.movementX / this.width) * (this.endTime - this.startTime));
             }
         });
 
         this.canvas.addEventListener("click", (e) => {
             this.currentTime = this.pointToTime(e.offsetX);
+        });
+
+        document.addEventListener("keyup", (e) => {
+            if (e.key === "ArrowLeft") {
+                this.shift(-1);
+            }
+
+            if (e.key === "ArrowRight") {
+                this.shift(1);
+            }
         })
+
+
     }
 
     lastTime = 0;
@@ -186,7 +234,7 @@ export class WaveRenderer {
 
         const bpmGap = this.width / ((this.endTime - this.startTime) / timePerBeat);
 
-        if (bpmGap > 5) {
+        if (bpmGap > 10) {
             this.ctx.strokeStyle = "#3d3331";
             this.ctx.lineWidth = 2;
             for (let b = ((timePerBeat - (this.startTime % timePerBeat)) / timePerBeat) * bpmGap + (this.bpmOffset * bpmGap); b < this.width; b += bpmGap) {

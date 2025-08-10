@@ -1,5 +1,8 @@
 <script lang="ts">
-    import { WaveRenderer } from "$lib/components/beatmapper/AudioWaveRenderer.svelte";
+    import {
+        getTimeString,
+        WaveRenderer,
+    } from "$lib/components/beatmapper/AudioWaveRenderer.svelte";
     import { onMount } from "svelte";
 
     interface Props {
@@ -81,6 +84,9 @@
 
     onMount(() => {
         document.addEventListener("keypress", (e) => {
+            if ((e.target as Node).nodeName === "INPUT") {
+                return;
+            }
             if (e.key === " ") {
                 paused = !paused;
             }
@@ -89,10 +95,9 @@
 </script>
 
 {#snippet TimerLabel(time: number, x: number, y: number)}
-    {@const t = Math.round(time)}
     {#if time > 0}
         <div class="label" style="--x: {x}px; --y: {y}px;">
-            {`${Math.floor(t / 60)}`.padStart(2, "0")}:{`${t % 60}`.padStart(2, "0")}
+            {getTimeString(time)}
         </div>
     {/if}
 {/snippet}
@@ -107,7 +112,9 @@
     <canvas bind:this={canvas} width="1000" height="300"></canvas>
 </div>
 
-<p>Start: {renderer?.startTime}, End: {renderer?.endTime}</p>
+<p>
+    Start: {getTimeString(renderer?.startTime ?? 0)}, End: {getTimeString(renderer?.endTime ?? 0)}
+</p>
 
 {#if renderer}
     <audio bind:currentTime={renderer.currentTime} bind:this={audioPlayer} bind:paused></audio>
@@ -121,6 +128,12 @@
 </button>
 
 <style>
+    button,
+    input {
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        margin: 0.25rem;
+    }
     canvas {
         border: 1px solid var(--border);
         background-color: var(--bg2);
