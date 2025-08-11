@@ -30,29 +30,27 @@
 
     onMount(() => {
         document.addEventListener("keyup", (e) => {
-            console.log((e.target as Node).nodeName);
-
             if ((e.target as Node).nodeName === "INPUT") {
                 return;
             }
 
             if (e.key === "1") {
                 beats.push({
-                    time: Shared.hoverTime,
+                    time: $state.snapshot(Shared.hoverTime), // ????????
                     value: 0,
                 });
             }
 
             if (e.key === "2") {
                 beats.push({
-                    time: Shared.hoverTime,
+                    time: $state.snapshot(Shared.hoverTime),
                     value: 1,
                 });
             }
 
             if (e.key === "3") {
                 beats.push({
-                    time: Shared.hoverTime,
+                    time: $state.snapshot(Shared.hoverTime),
                     value: 2,
                 });
             }

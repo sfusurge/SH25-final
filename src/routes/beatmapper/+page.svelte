@@ -31,8 +31,6 @@
 
     let importedFiles: FileList | undefined = $state();
     async function importMap() {
-        console.log(importedFiles?.length);
-        
         if (importedFiles?.length !== 1) {
             importedFiles = undefined;
             return;
@@ -90,6 +88,33 @@
         Loading audio...
     {/snippet}
 </svelte:boundary>
+
+<h1>Instruction</h1>
+<ul>
+    <li>
+        First upload a audio file to display and play it
+    </li>
+    <li>
+        Scroll wheen in the audio track to zoom in/out (jank)
+    </li>
+    <li>
+        Middle mouse and drag to shift the track, or use arrow keys to shift by 1 second
+    </li>
+    <li>
+        Left click to set play progress (orange line)
+    </li>
+    <li>
+        Set the bpm/offset to maybe used as a guide when setting notes
+    </li>
+    <li>
+        When hovering over a time, press 1, 2, 3 key to set a note
+    </li>
+    <li>
+        Click on a note to delete it.
+    </li>
+    <li>Type in the title and click export to download as a file</li>
+    <li>Use import input field and Import button to load a previously downloaded file</li>
+</ul>
 
 <style>
     button,

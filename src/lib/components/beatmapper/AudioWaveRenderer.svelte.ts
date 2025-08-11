@@ -89,8 +89,6 @@ export class WaveRenderer {
         this.bpm = bpm;
         this.bpmOffset = bpmOffset;
         this.needRender = true;
-
-        console.log(bpm, bpmOffset);
     }
 
     /**
@@ -230,7 +228,6 @@ export class WaveRenderer {
 
         // render bpm markers
         const timePerBeat = 60 / this.bpm;
-        console.log(timePerBeat);
 
         const bpmGap = this.width / ((this.endTime - this.startTime) / timePerBeat);
 
