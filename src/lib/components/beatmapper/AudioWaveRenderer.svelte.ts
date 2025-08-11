@@ -161,6 +161,7 @@ export class WaveRenderer {
     setupEvents() {
         // zoom
         this.canvas.addEventListener("wheel", (e) => {
+            e.preventDefault();
             this.zoom(Math.sign(e.deltaY) * this.delta, (e.offsetX / this.width) * (this.endTime - this.startTime) + this.startTime)
         });
 
@@ -179,6 +180,7 @@ export class WaveRenderer {
         });
 
         this.canvas.addEventListener("click", (e) => {
+            e.preventDefault();
             this.currentTime = this.pointToTime(e.offsetX);
         });
 
