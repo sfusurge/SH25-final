@@ -30,27 +30,29 @@
 
     onMount(() => {
         document.addEventListener("keyup", (e) => {
+            console.log((e.target as Node).nodeName);
+
             if ((e.target as Node).nodeName === "INPUT") {
                 return;
             }
 
             if (e.key === "1") {
                 beats.push({
-                    time: $state.snapshot(Shared.hoverTime), // ????????
+                    time: Shared.hoverTime,
                     value: 0,
                 });
             }
 
             if (e.key === "2") {
                 beats.push({
-                    time: $state.snapshot(Shared.hoverTime),
+                    time: Shared.hoverTime,
                     value: 1,
                 });
             }
 
             if (e.key === "3") {
                 beats.push({
-                    time: $state.snapshot(Shared.hoverTime),
+                    time: Shared.hoverTime,
                     value: 2,
                 });
             }
@@ -70,7 +72,7 @@
                 1000}px;"
         ></div>
     {/key}
-    {#each beatsInRange as beat, index ([beat.time, beat.value])}
+    {#each beatsInRange as beat, index}
         <button
             class="beat"
             class:red={beat.value === 0}
