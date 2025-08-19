@@ -92,8 +92,8 @@ export class WaveRenderer {
     }
 
     /**
-     * 
-     * @param t 
+     *
+     * @param t
      * @returns chunk index, integer, index-able
      */
     timeToChunk(t: number) {
@@ -101,8 +101,8 @@ export class WaveRenderer {
     }
 
     /**
-     * 
-     * @param c 
+     *
+     * @param c
      * @returns time in seconds, as a float
      */
     chunkToTime(c: number) {
@@ -111,7 +111,7 @@ export class WaveRenderer {
 
     /**
      * converts offsetX to time
-     * @param x 
+     * @param x
      */
     pointToTime(x: number) {
         return ((x / this.width) * (this.endTime - this.startTime)) + this.startTime;
@@ -124,7 +124,7 @@ export class WaveRenderer {
 
     /**
      * zooms in/out around center
-     * @param factor 
+     * @param factor
      * @param center as a percentage
      */
     zoom(factor: number, center: number) {
@@ -163,9 +163,10 @@ export class WaveRenderer {
         this.canvas.addEventListener("wheel", (e) => {
             e.preventDefault();
             this.zoom(Math.sign(e.deltaY) * this.delta, (e.offsetX / this.width) * (this.endTime - this.startTime) + this.startTime)
+            this.shift(e.deltaX * this.delta)
         });
 
-        // hover 
+        // hover
         this.canvas.addEventListener("mousemove", (e) => {
             this.pointer = {
                 x: e.offsetX,

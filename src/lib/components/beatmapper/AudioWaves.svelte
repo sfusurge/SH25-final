@@ -84,7 +84,8 @@
 
     onMount(() => {
         document.addEventListener("keypress", (e) => {
-            if ((e.target as Node).nodeName === "INPUT") {
+            const targetName = (e.target as Node).nodeName;
+            if (targetName === "INPUT" || targetName === "BUTTON") {
                 return;
             }
             if (e.key === " ") {
