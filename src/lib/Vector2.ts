@@ -181,6 +181,24 @@ export class Vector2 {
         return new Vector2(this.x / m, this.y / m);
     }
 
+    /**
+     * normalize in place
+     */
+    normalize() {
+        const m = this.mag();
+        this.x = this.x / m;
+        this.y = this.y / m;
+        return this;
+    }
+
+    clampMagnitude(maxMag: number) {
+        const m = this.mag();
+        if (m < maxMag) {
+            return this;
+        }
+        return this.normalize().muli(maxMag);
+    }
+
     toString() {
         return `Vector2(${this.x}, ${this.y})`
     }
@@ -249,9 +267,9 @@ export class AABB {
         return !(
             aabb.right < this.left || // other is to the left
             aabb.left > this.right || // other is to the right
-            aabb.top < this.bot || // other is below
-            aabb.bot > this.top // other is above
-        )
+            aabb.top > this.bot || // other is below
+            aabb.bot < this.top // other is above
+        );
     }
 
     nudgeTopLeft(diff: Vector2) {

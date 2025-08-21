@@ -1,6 +1,6 @@
 
 // boolean flag indicating which side of the tile contains walls, || the flags together to store.
-const WALL_TYPE = Object.freeze({
+export const WALL_TYPE = Object.freeze({
     LEFT: 0b1,
     UP: 0b10,
     RIGHT: 0b100,
