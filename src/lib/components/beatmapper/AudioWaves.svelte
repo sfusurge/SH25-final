@@ -88,6 +88,7 @@
             if (targetName === "INPUT" || targetName === "BUTTON") {
                 return;
             }
+            e.preventDefault();
             if (e.key === " ") {
                 paused = !paused;
             }

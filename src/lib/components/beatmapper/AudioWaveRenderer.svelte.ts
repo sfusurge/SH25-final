@@ -266,7 +266,7 @@ export class WaveRenderer {
 
         for (let c = 0; c < points; c++) {
             const chunk = this.chunks[Math.floor((c / points) * chunkDiff) + startChunk];
-            const flip = c % 2 == 0;
+            const flip = (Math.floor((c / points) * chunkDiff) + startChunk) % 2 == 0;
             this.ctx.lineTo(c * gap, halfHeight + (chunk * halfHeight * (flip ? 1 : -1)));
         }
 
