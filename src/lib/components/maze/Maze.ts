@@ -11,18 +11,20 @@ export const WALL_TYPE = Object.freeze({
 
 export class Maze {
     map: Int32Array;
-
     width: number;
     height: number;
-    constructor(map: number[][]) {
-        this.height = map.length;
-        this.width = map[0].length;
+
+    constructor(width: number, height: number, map?: number[][]) {
+        this.width = width;
+        this.height = height;
         this.map = new Int32Array(this.width * this.height);
 
-        // flatten 2d array
-        for (let row = 0; row < this.height; row++) {
-            for (let col = 0; col < this.width; col++) {
-                this.map[row * this.width + col] = map[row][col];
+        if (map) {
+            // flatten 2d array
+            for (let row = 0; row < this.height; row++) {
+                for (let col = 0; col < this.width; col++) {
+                    this.map[row * this.width + col] = map[row][col];
+                }
             }
         }
     }

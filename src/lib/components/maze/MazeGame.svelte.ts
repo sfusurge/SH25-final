@@ -1,6 +1,7 @@
 import { Entity } from "$lib/components/maze/Entity";
-import { Maze, WALL_TYPE } from "$lib/components/maze/Maze";
+import { WALL_TYPE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
+import { MazeGenerator } from "./MazeGenerator";
 
 export const debug = $state<{ [key: string]: any }>({
 })
@@ -9,29 +10,12 @@ const CELL_SIZE = 100; // px
 const WALL_SIZE = 10;
 
 export class MazeGame {
-    maze = new Maze(
-        // [[11, 10, 10, 10, 6],
-        // [3, 6, 3, 6, 5],
-        // [5, 5, 5, 5, 5],
-        // [5, 5, 5, 5, 5],
-        // [13, 9, 12, 9, 12]]
 
-        // [
-        //   [3, 10, 14, 11, 6],
-        //   [9, 6, 7, 0, 12],
-        //   [5, 0, 3, 0, 5],
-        //   [13, 0, 0, 0, 6],
-        //   [9, 8, 11, 12, 12]
-        // ]
-        [[7, 3, 10, 2, 6],
-        [5, 13, 3, 12, 13],
-        [9, 6, 9, 10, 6],
-        [7, 5, 3, 6, 5],
-        [9, 8, 12, 9, 12]]
-        // [[0, 0, 0, 0, 0],
-        // [0, 1, 2, 4, 8],
-        // [0, 0, 0, 0, 0]]
-    )
+    maze = new MazeGenerator(
+        5,
+        5,
+        1000
+    ).generate();
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
