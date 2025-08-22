@@ -31,7 +31,10 @@ export class RoomGenerator {
         this.maxRoomSize = maxRoomSize;
     }
 
-    // Main function: generates rooms on the map (returns generated rooms also)
+    /** Main function: generates rooms on the map (returns generated rooms also) 
+     * @param map
+     * @param attempts
+     */
     generateRooms(map: Cell[][], attempts: number): Rect[] {
         this.rooms = [];
 
@@ -80,26 +83,30 @@ export class RoomGenerator {
     }
 
     private placeRoomInMap(room: Rect, map: Cell[][]): void {
+
+
+        // Clear out room; mark room as visited
+
+        for (let x = room.x1; x < room.x2; x++) {
+            for (let y = room.y1; y < room.y2; y++) {
+                map[x][y].visited = true;
+                map[x][y].walls = 0; // Remove all walls for inner room cells
+            }
+        }
+
         // Add walls
 
-        // Horizontal
         for (let x = room.x1; x < room.x2; x++) {
             map[x][room.y1].walls |= WALL_TYPE.UP;
             map[x][room.y2 - 1].walls |= WALL_TYPE.DOWN;
         }
 
-        // Vertical
         for (let y = room.y1; y < room.y2; y++) {
             map[room.x1][y].walls |= WALL_TYPE.LEFT;
             map[room.x2 - 1][y].walls |= WALL_TYPE.RIGHT;
         }
 
-        // mark room as visited
-        for (let x = room.x1; x < room.x2; x++) {
-            for (let y = room.y1; y < room.y2; y++) {
-                map[x][y].visited = true;
-            }
-        }
+
     }
 
     private rectsIntersect(r1: Rect, r2: Rect): boolean {

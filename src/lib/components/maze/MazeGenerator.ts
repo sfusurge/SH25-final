@@ -14,6 +14,7 @@ export class MazeGenerator {
     attempts: number;
     map: Cell[][];
     private roomGenerator: RoomGenerator;
+    private pathGenerator: PathGenerator;
     private rooms: Rect[] = [];
 
     constructor(
@@ -27,9 +28,10 @@ export class MazeGenerator {
         this.height = height;
         this.attempts = attempts;
         this.roomGenerator = new RoomGenerator(width, height, minRoomSize, maxRoomSize);
+        this.pathGenerator = new PathGenerator(width, height);
         this.map = Array.from({ length: width }, () =>
             Array.from({ length: height }, () => ({
-                walls: 0,
+                walls: 15, // Start with all walls
                 visited: false
             }))
         );
@@ -37,11 +39,11 @@ export class MazeGenerator {
 
     generate(): Maze {
         this.rooms = this.roomGenerator.generateRooms(this.map, this.attempts);
+        this.pathGenerator.generateMazePaths(this.map);
         return this.mapToMaze();
     }
 
-
-    // TODO: optimize
+    // TODO: optimize, or just alter the Maze class altogether so don't need transformation??
     // converts generation map to maze class format
     private mapToMaze(): Maze {
         const maze = new Maze(this.width, this.height);
