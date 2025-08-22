@@ -15,6 +15,8 @@ export class MazeGame {
         40, // maze width
         40, // maze height
         200, // attempts to generate rooms
+        3, // min room size 
+        7, // max room size (before rectangularity)
         60, // winding percent for paths: 0 is straight corridors, 100 is max branching
         3 // rectangularity: higher vals make more rectangular rooms
     ).generate();
