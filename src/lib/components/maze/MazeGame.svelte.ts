@@ -12,9 +12,9 @@ const WALL_SIZE = 10;
 export class MazeGame {
 
     maze = new MazeGenerator(
-        5,
-        5,
-        1000
+        40, // width
+        40, // height
+        200 // attempts
     ).generate();
 
     canvas: HTMLCanvasElement;

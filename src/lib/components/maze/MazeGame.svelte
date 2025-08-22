@@ -19,7 +19,7 @@
 </script>
 
 <div class="canvasContainer">
-    <canvas width="500" height="500" bind:this={canvas} tabindex="0"></canvas>
+    <canvas width="4000" height="4000" bind:this={canvas} tabindex="0"></canvas>
 </div>
 
 <div>
