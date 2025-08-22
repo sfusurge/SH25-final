@@ -3,9 +3,9 @@ import { RoomGenerator, type Rect } from "./generationUtils/RoomGenerator";
 import { PathGenerator } from "./generationUtils/PathGenerator";
 
 // TODO: Optimize space?
-type Cell = {
+export type Cell = {
     walls: number;
-    visited: boolean;
+    regionID: number;
 };
 
 export class MazeGenerator {
@@ -18,6 +18,7 @@ export class MazeGenerator {
     private roomGenerator: RoomGenerator;
     private pathGenerator: PathGenerator;
     private rooms: Rect[] = [];
+    private regionIDCounter: number = 1;
 
     constructor(
         width: number,
@@ -38,14 +39,14 @@ export class MazeGenerator {
         this.map = Array.from({ length: width }, () =>
             Array.from({ length: height }, () => ({
                 walls: 0b1111, // Start with all walls
-                visited: false
+                regionID: 0 // unvisited
             }))
         );
     }
 
     generate(): Maze {
-        this.rooms = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
-        this.pathGenerator.generateMazePaths(this.map, this.windingPercent);
+        [this.rooms, this.regionIDCounter] = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
+        this.pathGenerator.generateMazePaths(this.map, this.windingPercent, this.regionIDCounter);
         return this.mapToMaze();
     }
 

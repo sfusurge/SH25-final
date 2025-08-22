@@ -1,13 +1,10 @@
 import { WALL_TYPE } from "$lib/components/maze/Maze";
-
-type Cell = {
-    walls: number;
-    visited: boolean;
-};
+import type { Cell } from "$lib/components/maze/MazeGenerator";
 
 export class PathGenerator {
     private width: number;
     private height: number;
+    private regionIDCounter: number = 1;
 
     constructor(width: number, height: number) {
         this.width = width;
@@ -19,10 +16,11 @@ export class PathGenerator {
      * @param map
      * @param windingPercent 0 is straight corridors, 100 is max branching
      */
-    generateMazePaths(map: Cell[][], windingPercent: number): void {
-
+    generateMazePaths(map: Cell[][], windingPercent: number, regionIDCounter: number): void {
+        this.regionIDCounter = regionIDCounter;
         // Loop until all cells are visited
         let startCell = this.findFirstUnvisitedCell(map, { x: 0, y: 0 });
+        const firstStartCell = startCell;
         while (startCell) {
             this.generateMazeFromCell(startCell.x, startCell.y, map, windingPercent);
             startCell = this.findFirstUnvisitedCell(map, startCell);
@@ -33,7 +31,7 @@ export class PathGenerator {
         const activeCells = [{ x: startX, y: startY }];
         let lastDirection = null;
 
-        map[startX][startY].visited = true;
+        map[startX][startY].regionID = this.regionIDCounter;
 
         while (activeCells.length > 0) {
             const current = activeCells[activeCells.length - 1]; // Get most recent cell
@@ -71,7 +69,7 @@ export class PathGenerator {
                 this.removeWallBetween(current.x, current.y, chosenNeighbour.x, chosenNeighbour.y, map);
 
                 // Mark neighbour as visited; add to active cells
-                map[chosenNeighbour.x][chosenNeighbour.y].visited = true;
+                map[chosenNeighbour.x][chosenNeighbour.y].regionID = this.regionIDCounter;
                 activeCells.push(chosenNeighbour);
             } else {
                 // No unvisited neighbours, backtrack
@@ -86,20 +84,22 @@ export class PathGenerator {
     private getUnvisitedNeighbours(x: number, y: number, map: Cell[][]): Array<{ x: number; y: number }> {
         const neighbours = [];
 
+        // regionID of 0 means unvisited
+        
         // Up
-        if (this.isValidCell(x, y - 1) && !map[x][y - 1].visited) {
+        if (this.isValidCell(x, y - 1) && !map[x][y - 1].regionID) {
             neighbours.push({ x: x, y: y - 1 });
         }
         // Right
-        if (this.isValidCell(x + 1, y) && !map[x + 1][y].visited) {
+        if (this.isValidCell(x + 1, y) && !map[x + 1][y].regionID) {
             neighbours.push({ x: x + 1, y: y });
         }
         // Down
-        if (this.isValidCell(x, y + 1) && !map[x][y + 1].visited) {
+        if (this.isValidCell(x, y + 1) && !map[x][y + 1].regionID) {
             neighbours.push({ x: x, y: y + 1 });
         }
         // Left
-        if (this.isValidCell(x - 1, y) && !map[x - 1][y].visited) {
+        if (this.isValidCell(x - 1, y) && !map[x - 1][y].regionID) {
             neighbours.push({ x: x - 1, y: y });
         }
 
@@ -117,7 +117,7 @@ export class PathGenerator {
             // For first row, start from startCell.x; for subsequent rows, start from 0
             let xStart = (y === startCell.y) ? startCell.x : 0;
             for (let x = xStart; x < this.width; x++) {
-                if (!map[x][y].visited) {
+                if (!map[x][y].regionID) {
                     return { x, y };
                 }
             }

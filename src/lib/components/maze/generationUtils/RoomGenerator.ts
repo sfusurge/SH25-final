@@ -1,4 +1,5 @@
 import { WALL_TYPE } from "$lib/components/maze/Maze";
+import type { Cell } from "$lib/components/maze/MazeGenerator";
 
 export type Rect = {
     x1: number;
@@ -7,10 +8,6 @@ export type Rect = {
     y2: number;
 };
 
-type Cell = {
-    walls: number;
-    visited: boolean;
-};
 
 export class RoomGenerator {
     private rooms: Rect[] = [];
@@ -18,6 +15,7 @@ export class RoomGenerator {
     private maxRoomSize: number;
     private width: number;
     private height: number;
+    private regionIDCounter: number = 1;
 
     constructor(
         width: number,
@@ -35,7 +33,7 @@ export class RoomGenerator {
      * @param map
      * @param attempts
      */
-    generateRooms(map: Cell[][], attempts: number, rectangularity: number): Rect[] {
+    generateRooms(map: Cell[][], attempts: number, rectangularity: number): [Rect[], number] {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
@@ -61,7 +59,7 @@ export class RoomGenerator {
             this.placeRoomInMap(room, map);
         }
 
-        return [...this.rooms]; // Return copy of rooms array
+        return [[...this.rooms], this.regionIDCounter]; // Return copy of rooms array
     }
 
     private tryAddRoom(width: number, height: number): boolean {
@@ -89,7 +87,7 @@ export class RoomGenerator {
 
         for (let x = room.x1; x < room.x2; x++) {
             for (let y = room.y1; y < room.y2; y++) {
-                map[x][y].visited = true;
+                map[x][y].regionID = this.regionIDCounter++;
                 map[x][y].walls = 0; // Remove all walls for inner room cells
             }
         }
