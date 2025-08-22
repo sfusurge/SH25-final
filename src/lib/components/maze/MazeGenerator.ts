@@ -12,6 +12,8 @@ export class MazeGenerator {
     width: number;
     height: number;
     attempts: number;
+    windingPercent: number;
+    rectangularity: number;
     map: Cell[][];
     private roomGenerator: RoomGenerator;
     private pathGenerator: PathGenerator;
@@ -22,24 +24,28 @@ export class MazeGenerator {
         height: number,
         attempts: number,
         minRoomSize: number = 3,
-        maxRoomSize: number = 7
+        maxRoomSize: number = 7,
+        windingPercent: number = 60,
+        rectangularity: number = 3
     ) {
         this.width = width;
         this.height = height;
         this.attempts = attempts;
+        this.windingPercent = windingPercent;
+        this.rectangularity = rectangularity;
         this.roomGenerator = new RoomGenerator(width, height, minRoomSize, maxRoomSize);
         this.pathGenerator = new PathGenerator(width, height);
         this.map = Array.from({ length: width }, () =>
             Array.from({ length: height }, () => ({
-                walls: 15, // Start with all walls
+                walls: 0b1111, // Start with all walls
                 visited: false
             }))
         );
     }
 
     generate(): Maze {
-        this.rooms = this.roomGenerator.generateRooms(this.map, this.attempts);
-        this.pathGenerator.generateMazePaths(this.map);
+        this.rooms = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
+        this.pathGenerator.generateMazePaths(this.map, this.windingPercent);
         return this.mapToMaze();
     }
 

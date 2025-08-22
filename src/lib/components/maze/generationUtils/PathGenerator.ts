@@ -8,29 +8,28 @@ type Cell = {
 export class PathGenerator {
     private width: number;
     private height: number;
-    private windingPercent: number;
 
-    constructor(width: number, height: number, windingPercent: number = 60) {
+    constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
-        this.windingPercent = windingPercent; // 0 = straight corridors, 100 = maximum branching
     }
 
     /** Generates maze paths, marking every tile as visited
      * borrowing from the growing tree alg in the website
-     * @param map 
+     * @param map
+     * @param windingPercent 0 is straight corridors, 100 is max branching
      */
-    generateMazePaths(map: Cell[][]): void {
+    generateMazePaths(map: Cell[][], windingPercent: number): void {
 
         // Loop until all cells are visited
         let startCell = this.findFirstUnvisitedCell(map, { x: 0, y: 0 });
         while (startCell) {
-            this.generateMazeFromCell(startCell.x, startCell.y, map);
+            this.generateMazeFromCell(startCell.x, startCell.y, map, windingPercent);
             startCell = this.findFirstUnvisitedCell(map, startCell);
         }
     }
 
-    private generateMazeFromCell(startX: number, startY: number, map: Cell[][]): void {
+    private generateMazeFromCell(startX: number, startY: number, map: Cell[][], windingPercent: number): void {
         const activeCells = [{ x: startX, y: startY }];
         let lastDirection = null;
 
@@ -54,7 +53,7 @@ export class PathGenerator {
 
                 // use winding bias to calculate preferred direction
                 let chosenDir = null;
-                if (lastDirection && Math.random() * 100 > this.windingPercent) {
+                if (lastDirection && Math.random() * 100 > windingPercent) {
                     // go straight line 
                     chosenDir = neighbourDirections.find(nd =>
                         nd.direction.dx === lastDirection!.dx &&

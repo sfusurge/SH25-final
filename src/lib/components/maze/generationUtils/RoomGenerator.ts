@@ -35,7 +35,7 @@ export class RoomGenerator {
      * @param map
      * @param attempts
      */
-    generateRooms(map: Cell[][], attempts: number): Rect[] {
+    generateRooms(map: Cell[][], attempts: number, rectangularity: number): Rect[] {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
@@ -43,14 +43,14 @@ export class RoomGenerator {
 
             // borrowing size specification code from dart example
             const size = Math.floor(Math.random() * sizeRange) + this.minRoomSize;
-            const rectangularity = Math.floor(Math.random() * 3);
+            const rectangleModifier = Math.floor(Math.random() * rectangularity);
 
             let width = size;
             let height = size;
             if (Math.random() < 0.5) {
-                width += rectangularity;
+                width += rectangleModifier;
             } else {
-                height += rectangularity;
+                height += rectangleModifier;
             }
 
             this.tryAddRoom(width, height)

@@ -12,9 +12,11 @@ const WALL_SIZE = 10;
 export class MazeGame {
 
     maze = new MazeGenerator(
-        40, // width
-        40, // height
-        200 // attempts
+        40, // maze width
+        40, // maze height
+        200, // attempts to generate rooms
+        60, // winding percent for paths: 0 is straight corridors, 100 is max branching
+        3 // rectangularity: higher vals make more rectangular rooms
     ).generate();
 
     canvas: HTMLCanvasElement;
