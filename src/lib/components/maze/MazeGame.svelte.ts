@@ -264,6 +264,24 @@ export class MazeGame {
                     ctx.fillStyle = "#d3869b";
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
                 }
+                if (cell & WALL_TYPE.LEFT_DOOR) {
+                    ctx.fillStyle = "#777777";
+                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
+
+                }
+                if (cell & WALL_TYPE.UP_DOOR) {
+                    ctx.fillStyle = "#777777";
+                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
+                }
+                if (cell & WALL_TYPE.RIGHT_DOOR) {
+                    ctx.fillStyle = "#777777";
+                    ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
+                }
+                if (cell & WALL_TYPE.DOWN_DOOR) {
+                    ctx.fillStyle = "#777777";
+                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
+                }
+
             }
         }
 

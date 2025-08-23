@@ -1,5 +1,5 @@
 import { Maze, WALL_TYPE } from "$lib/components/maze/Maze";
-import { RoomGenerator, type Rect } from "./generationUtils/RoomGenerator";
+import { RoomGenerator, type Room } from "./generationUtils/RoomGenerator";
 import { PathGenerator } from "./generationUtils/PathGenerator";
 
 // TODO: Optimize space?
@@ -17,7 +17,7 @@ export class MazeGenerator {
     map: Cell[][];
     private roomGenerator: RoomGenerator;
     private pathGenerator: PathGenerator;
-    private rooms: Rect[] = [];
+    private rooms: Room[] = [];
     private regionIDCounter: number = 1;
 
     constructor(
@@ -47,6 +47,7 @@ export class MazeGenerator {
     generate(): Maze {
         [this.rooms, this.regionIDCounter] = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
         this.pathGenerator.generateMazePaths(this.map, this.windingPercent, this.regionIDCounter);
+        this.pathGenerator.connectRegions(this.map, this.rooms);
         return this.mapToMaze();
     }
 

@@ -1,7 +1,7 @@
 import { WALL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
 
-export type Rect = {
+export type Room = {
     x1: number;
     y1: number;
     x2: number;
@@ -10,7 +10,7 @@ export type Rect = {
 
 
 export class RoomGenerator {
-    private rooms: Rect[] = [];
+    private rooms: Room[] = [];
     private minRoomSize: number;
     private maxRoomSize: number;
     private width: number;
@@ -33,7 +33,7 @@ export class RoomGenerator {
      * @param map
      * @param attempts
      */
-    generateRooms(map: Cell[][], attempts: number, rectangularity: number): [Rect[], number] {
+    generateRooms(map: Cell[][], attempts: number, rectangularity: number): [Room[], number] {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
@@ -68,7 +68,7 @@ export class RoomGenerator {
         const x2 = x1 + width;
         const y2 = y1 + height;
 
-        const newRoom: Rect = { x1, y1, x2, y2 };
+        const newRoom: Room = { x1, y1, x2, y2 };
 
         // Collision check w/ existing rooms
         for (const room of this.rooms) {
@@ -80,14 +80,14 @@ export class RoomGenerator {
         return true;
     }
 
-    private placeRoomInMap(room: Rect, map: Cell[][]): void {
+    private placeRoomInMap(room: Room, map: Cell[][]): void {
 
 
         // Clear out room; mark room as visited
-
+        this.regionIDCounter++;
         for (let x = room.x1; x < room.x2; x++) {
             for (let y = room.y1; y < room.y2; y++) {
-                map[x][y].regionID = this.regionIDCounter++;
+                map[x][y].regionID = this.regionIDCounter;
                 map[x][y].walls = 0; // Remove all walls for inner room cells
             }
         }
@@ -107,7 +107,7 @@ export class RoomGenerator {
 
     }
 
-    private rectsIntersect(r1: Rect, r2: Rect): boolean {
+    private rectsIntersect(r1: Room, r2: Room): boolean {
         return r1.x1 < r2.x2 && r1.x2 > r2.x1 && r1.y1 < r2.y2 && r1.y2 > r2.y1;
     }
 
