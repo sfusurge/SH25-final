@@ -34,7 +34,7 @@ export class PathGenerator {
     private width: number;
     private height: number;
     private regionIDCounter: number = 1;
-    private unionFind: UnionFind = new UnionFind(); 
+    private unionFind: UnionFind = new UnionFind();
 
     constructor(width: number, height: number) {
         this.width = width;
@@ -202,19 +202,19 @@ export class PathGenerator {
         for (const room of rooms) {
             // Top edge
             for (let x = room.x1; x < room.x2; x++) {
-            allRoomEdges.push({ x, y: room.y1, dir: "up" });
+                allRoomEdges.push({ x, y: room.y1, dir: "up" });
             }
             // Bottom edge
             for (let x = room.x1; x < room.x2; x++) {
-            allRoomEdges.push({ x, y: room.y2 - 1, dir: "down" });
+                allRoomEdges.push({ x, y: room.y2 - 1, dir: "down" });
             }
             // Left edge
             for (let y = room.y1; y < room.y2; y++) {
-            allRoomEdges.push({ x: room.x1, y, dir: "left" });
+                allRoomEdges.push({ x: room.x1, y, dir: "left" });
             }
             // Right edge
             for (let y = room.y1; y < room.y2; y++) {
-            allRoomEdges.push({ x: room.x2 - 1, y, dir: "right" });
+                allRoomEdges.push({ x: room.x2 - 1, y, dir: "right" });
             }
         }
 
@@ -251,4 +251,77 @@ export class PathGenerator {
         }
     };
 
+
+    /**
+     * Removes all dead ends from the maze by marking them as unused
+     * @param map 
+     */
+    removeDeadEnds(map: Cell[][]): void {
+        let hasDeadEnds = true;
+
+        while (hasDeadEnds) {
+            hasDeadEnds = false;
+
+            for (let x = 0; x < this.width; x++) {
+                for (let y = 0; y < this.height; y++) {
+                    const cell = map[x][y];
+
+
+                    if (cell.walls === WALL_TYPE.UNUSED) {
+                        continue;
+                    }
+
+                    // Dead end if three walls
+                    const openPassages = this.countOpenPassages(x, y, map);
+                    if (openPassages <= 1) {
+                        this.markCellAsUnused(x, y, map);
+                        hasDeadEnds = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private countOpenPassages(x: number, y: number, map: Cell[][]): number {
+        const cell = map[x][y];
+        let openCount = 0;
+
+        // = 4 - number of walls
+        for (let i = 0; i < 4; i++) {
+            if (((cell.walls >> i) & 1) === 0) {
+                openCount++;
+            }
+        }
+        return openCount;
+    }
+
+
+    private markCellAsUnused(x: number, y: number, map: Cell[][]): void {
+        const cell = map[x][y];
+
+        // Before marking as unused, close passages to neighbouring cells
+
+        // Up
+        if (!(cell.walls & WALL_TYPE.UP) && this.isValidCell(x, y - 1)) {
+            const neighbour = map[x][y - 1];
+            neighbour.walls |= WALL_TYPE.DOWN;
+        }
+        // Right
+        if (!(cell.walls & WALL_TYPE.RIGHT) && this.isValidCell(x + 1, y)) {
+            const neighbour = map[x + 1][y];
+            neighbour.walls |= WALL_TYPE.LEFT;
+        }
+        // Down
+        if (!(cell.walls & WALL_TYPE.DOWN) && this.isValidCell(x, y + 1)) {
+            const neighbour = map[x][y + 1];
+            neighbour.walls |= WALL_TYPE.UP;
+        }
+        // Left
+        if (!(cell.walls & WALL_TYPE.LEFT) && this.isValidCell(x - 1, y)) {
+            const neighbour = map[x - 1][y];
+            neighbour.walls |= WALL_TYPE.RIGHT;
+        }
+
+        map[x][y].walls = WALL_TYPE.UNUSED;
+    }
 }

@@ -17,7 +17,7 @@ export class MazeGenerator {
     map: Cell[][];
     private roomGenerator: RoomGenerator;
     private pathGenerator: PathGenerator;
-    private rooms: Room[] = [];
+    public rooms: Room[] = [];
     private regionIDCounter: number = 1;
 
     constructor(
@@ -48,6 +48,7 @@ export class MazeGenerator {
         [this.rooms, this.regionIDCounter] = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
         this.pathGenerator.generateMazePaths(this.map, this.windingPercent, this.regionIDCounter);
         this.pathGenerator.connectRegions(this.map, this.rooms);
+        this.pathGenerator.removeDeadEnds(this.map);
         return this.mapToMaze();
     }
 

@@ -11,15 +11,17 @@ const WALL_SIZE = 10;
 
 export class MazeGame {
 
-    maze = new MazeGenerator(
+    mazeGenerator = new MazeGenerator(
         40, // maze width
         40, // maze height
-        200, // attempts to generate rooms
+        50, // attempts to generate rooms
         3, // min room size 
         7, // max room size (before rectangularity)
-        60, // winding percent for paths: 0 is straight corridors, 100 is max branching
+        50, // winding percent for paths: 0 is straight corridors, 100 is max branching
         3 // rectangularity: higher vals make more rectangular rooms
-    ).generate();
+    );
+
+    maze = this.mazeGenerator.generate();
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -39,8 +41,16 @@ export class MazeGame {
         }
         this.ctx = ctx;
 
+        // put player in a room idk
+        const firstRoom = this.mazeGenerator.rooms[0];
+        const roomCenterX = (firstRoom.x1 + firstRoom.x2) / 2;
+        const roomCenterY = (firstRoom.y1 + firstRoom.y2) / 2;
+        const playerStartPos = new Vector2(
+            roomCenterX * CELL_SIZE,
+            roomCenterY * CELL_SIZE
+        );
 
-        this.player = new Player(new Vector2(200, 200));
+        this.player = new Player(playerStartPos);
         this.init();
     }
 
@@ -131,6 +141,8 @@ export class MazeGame {
             }
 
             const cell = this.maze.map[row * this.maze.width + col];
+
+
 
             if (cell & WALL_TYPE.LEFT) {
                 aabb.topleft.x = col * CELL_SIZE;
@@ -245,6 +257,13 @@ export class MazeGame {
             for (let col = 0; col < this.maze.width; col++) {
                 const cell = this.maze.map[row * this.maze.width + col];
 
+
+                if (cell == WALL_TYPE.UNUSED) {
+                    ctx.fillStyle = "#222222";
+                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    continue; // Skip rendering walls
+                }
+
                 if (cell & WALL_TYPE.LEFT) {
                     ctx.fillStyle = "#e78a4e";
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
@@ -264,21 +283,23 @@ export class MazeGame {
                     ctx.fillStyle = "#d3869b";
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
                 }
+
+                const doorColor = "#ccccbb";
                 if (cell & WALL_TYPE.LEFT_DOOR) {
-                    ctx.fillStyle = "#777777";
+                    ctx.fillStyle = doorColor;
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
 
                 }
                 if (cell & WALL_TYPE.UP_DOOR) {
-                    ctx.fillStyle = "#777777";
+                    ctx.fillStyle = doorColor;
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
                 }
                 if (cell & WALL_TYPE.RIGHT_DOOR) {
-                    ctx.fillStyle = "#777777";
+                    ctx.fillStyle = doorColor;
                     ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
                 }
                 if (cell & WALL_TYPE.DOWN_DOOR) {
-                    ctx.fillStyle = "#777777";
+                    ctx.fillStyle = doorColor;
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
                 }
 
