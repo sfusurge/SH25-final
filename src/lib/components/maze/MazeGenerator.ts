@@ -1,5 +1,5 @@
 import { Maze, WALL_TYPE } from "$lib/components/maze/Maze";
-import { RoomGenerator, type Rect } from "./generationUtils/RoomGenerator";
+import { RoomGenerator, type Room } from "./generationUtils/RoomGenerator";
 import { PathGenerator } from "./generationUtils/PathGenerator";
 
 // TODO: Optimize space?
@@ -14,11 +14,13 @@ export class MazeGenerator {
     attempts: number;
     windingPercent: number;
     rectangularity: number;
+    randomOpenPercent: number;
     map: Cell[][];
+    rooms: Room[] = [];
+    regionIDCounter: number = 1;
     private roomGenerator: RoomGenerator;
     private pathGenerator: PathGenerator;
-    private rooms: Rect[] = [];
-    private regionIDCounter: number = 1;
+
 
     constructor(
         width: number,
@@ -27,13 +29,15 @@ export class MazeGenerator {
         minRoomSize: number = 3,
         maxRoomSize: number = 7,
         windingPercent: number = 60,
-        rectangularity: number = 3
+        rectangularity: number = 3,
+        randomOpenPercent: number = 0.02
     ) {
         this.width = width;
         this.height = height;
         this.attempts = attempts;
         this.windingPercent = windingPercent;
         this.rectangularity = rectangularity;
+        this.randomOpenPercent = randomOpenPercent;
         this.roomGenerator = new RoomGenerator(width, height, minRoomSize, maxRoomSize);
         this.pathGenerator = new PathGenerator(width, height);
         this.map = Array.from({ length: width }, () =>
@@ -47,6 +51,8 @@ export class MazeGenerator {
     generate(): Maze {
         [this.rooms, this.regionIDCounter] = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
         this.pathGenerator.generateMazePaths(this.map, this.windingPercent, this.regionIDCounter);
+        this.pathGenerator.connectRegions(this.map, this.rooms, this.randomOpenPercent);
+        this.pathGenerator.removeDeadEnds(this.map,);
         return this.mapToMaze();
     }
 

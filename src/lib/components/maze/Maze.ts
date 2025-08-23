@@ -4,9 +4,15 @@ export const WALL_TYPE = Object.freeze({
     LEFT: 0b1,
     UP: 0b10,
     RIGHT: 0b100,
-    DOWN: 0b1000
-});
+    DOWN: 0b1000,
 
+    LEFT_DOOR: 0b10000,
+    UP_DOOR: 0b100000,
+    RIGHT_DOOR: 0b1000000,
+    DOWN_DOOR: 0b10000000,
+
+    UNUSED: ~0b0
+});
 
 
 export class Maze {
