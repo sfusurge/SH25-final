@@ -187,7 +187,7 @@ export class PathGenerator {
      * @param rooms 
      */
 
-    connectRegions(map: Cell[][], rooms: Room[]): void {
+    connectRegions(map: Cell[][], rooms: Room[], randomOpenPercent: number): void {
 
         const directions = {
             up: { dx: 0, dy: -1, wall: WALL_TYPE.UP, oppositeWall: WALL_TYPE.DOWN },
@@ -225,13 +225,22 @@ export class PathGenerator {
         }
 
         for (const check of allRoomEdges) {
-            this.checkConnection(check.x, check.y, directions[check.dir], map);
+            this.checkConnection(check.x, check.y, directions[check.dir], map, randomOpenPercent);
         }
     }
 
-    private checkConnection = (x: number, y: number, direction: { dx: number, dy: number, wall: number, oppositeWall: number }, map: Cell[][]) => {
+    private checkConnection = (x: number, y: number, direction: { dx: number, dy: number, wall: number, oppositeWall: number }, map: Cell[][], randomOpenPercent: number) => {
         const nx = x + direction.dx;
         const ny = y + direction.dy;
+
+        const connect = (cell: Cell, neighbour: Cell) => {
+            map[x][y].walls &= ~direction.wall;
+            map[x][y].walls |= direction.wall << 4;
+
+            map[nx][ny].walls &= ~direction.oppositeWall;
+            map[nx][ny].walls |= direction.oppositeWall << 4;
+            this.unionFind.union(cell.regionID, neighbour.regionID);
+        };
 
         if (this.isValidCell(nx, ny)) {
             const cell = map[x][y];
@@ -239,17 +248,14 @@ export class PathGenerator {
             if (neighbour.regionID && neighbour.regionID !== cell.regionID) {
 
                 // If regions are not connected, change wall to door and union them
-                if (!this.unionFind.connected(cell.regionID, neighbour.regionID)) {
-                    map[x][y].walls &= ~direction.wall;
-                    map[x][y].walls |= direction.wall << 4;
-
-                    map[nx][ny].walls &= ~direction.oppositeWall;
-                    map[nx][ny].walls |= direction.oppositeWall << 4;
-                    this.unionFind.union(cell.regionID, neighbour.regionID);
+                if (!this.unionFind.connected(cell.regionID, neighbour.regionID) || Math.random() < 0.02) {
+                    connect(cell, neighbour);
                 }
             }
         }
     };
+
+
 
 
     /**

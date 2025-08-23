@@ -18,7 +18,8 @@ export class MazeGame {
         3, // min room size 
         7, // max room size (before rectangularity)
         50, // winding percent for paths: 0 is straight corridors, 100 is max branching
-        3 // rectangularity: higher vals make more rectangular rooms
+        3, // rectangularity: higher vals make more rectangular rooms
+        0.02 // random open percent: chance to create openings in a wall where the two regions it connects already are connected
     );
 
     maze = this.mazeGenerator.generate();
