@@ -1,4 +1,4 @@
-import { Maze, WALL_TYPE } from "$lib/components/maze/Maze";
+import { Maze, CELL_TYPE } from "$lib/components/maze/Maze";
 import { RoomGenerator, type Room } from "./generationUtils/RoomGenerator";
 import { PathGenerator } from "./generationUtils/PathGenerator";
 
@@ -59,13 +59,17 @@ export class MazeGenerator {
     // TODO: optimize, or just alter the Maze class altogether so don't need transformation??
     // converts generation map to maze class format
     private mapToMaze(): Maze {
-        const maze = new Maze(this.width, this.height);
+        const map: number[][] = [];
+
         for (let y = 0; y < this.height; y++) {
+            map[y] = [];
             for (let x = 0; x < this.width; x++) {
                 const cell = this.map[x][y];
-                maze.map[y * this.width + x] = cell.walls;
+                map[y][x] = cell.walls;
             }
         }
+
+        const maze = new Maze(this.width, this.height, map);
         return maze;
     }
 

@@ -1,5 +1,5 @@
 import { Entity } from "$lib/components/maze/Entity";
-import { WALL_TYPE } from "$lib/components/maze/Maze";
+import { CELL_TYPE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 
@@ -29,6 +29,7 @@ export class MazeGame {
     player: Player;
     mobileMode = false; // for controlling what input type to show
     camera = Vector2.ZERO;
+    zoom = $state(1);
 
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
@@ -110,13 +111,20 @@ export class MazeGame {
         return new Vector2(x, y).clampMagnitude(1);
     }
 
+    updateCameraPos() {
+        // TODO
+        this.camera.x = this.player.x;
+        this.camera.y = this.player.y;
+    }
+
     lastTime = 0;
     deltaTime = 0;
     update(time: number) {
         this.deltaTime = (time - this.lastTime) / 1000;
         debug.delta = this.deltaTime.toFixed(4);
 
-        this.updateEnitities();
+        this.updateCameraPos();
+        this.updateEntities();
         this.resolveWallCollisions()
         // this.collsionResolution(this.player, this.entities[0].aabb);
         this.render();
@@ -129,9 +137,6 @@ export class MazeGame {
         const playerCol = Math.floor(this.player.x / CELL_SIZE);
         const playerRow = Math.floor(this.player.y / CELL_SIZE);
 
-        const aabb = new AABB(Vector2.ZERO, Vector2.ZERO);
-
-
         // TODO, filter only the wall that matters
         for (const [dr, dc] of [[-1, 0], [1, 0], [0, 1], [0, -1], [0, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
             const row = playerRow + dr;
@@ -142,45 +147,32 @@ export class MazeGame {
             }
 
             const cell = this.maze.map[row * this.maze.width + col];
+            const ox = col * CELL_SIZE, oy = row * CELL_SIZE;
 
-
-
-            if (cell & WALL_TYPE.LEFT) {
-                aabb.topleft.x = col * CELL_SIZE;
-                aabb.topleft.y = row * CELL_SIZE;
-                aabb.botright.x = col * CELL_SIZE + WALL_SIZE;
-                aabb.botright.y = row * CELL_SIZE + CELL_SIZE;
-                this.collsionResolution(this.player, aabb);
+            if (cell & CELL_TYPE.LEFT) {
+                const [_, x, y, w, h] = this.walls[0];
+                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
-            if (cell & WALL_TYPE.UP) {
-                aabb.topleft.x = col * CELL_SIZE;
-                aabb.topleft.y = row * CELL_SIZE;
-                aabb.botright.x = col * CELL_SIZE + CELL_SIZE;
-                aabb.botright.y = row * CELL_SIZE + WALL_SIZE;
-                this.collsionResolution(this.player, aabb);
+            if (cell & CELL_TYPE.UP) {
+                const [_, x, y, w, h] = this.walls[1];
+                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
-            if (cell & WALL_TYPE.RIGHT) {
-                aabb.topleft.x = col * CELL_SIZE + CELL_SIZE - WALL_SIZE;
-                aabb.topleft.y = row * CELL_SIZE;
-                aabb.botright.x = col * CELL_SIZE + CELL_SIZE;
-                aabb.botright.y = row * CELL_SIZE + CELL_SIZE;
-                this.collsionResolution(this.player, aabb);
+            if (cell & CELL_TYPE.RIGHT) {
+                const [_, x, y, w, h] = this.walls[2];
+                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
-            if (cell & WALL_TYPE.DOWN) {
-                aabb.topleft.x = col * CELL_SIZE;
-                aabb.topleft.y = row * CELL_SIZE + CELL_SIZE - WALL_SIZE;
-                aabb.botright.x = col * CELL_SIZE + CELL_SIZE;
-                aabb.botright.y = row * CELL_SIZE + CELL_SIZE;
-                this.collsionResolution(this.player, aabb);
+            if (cell & CELL_TYPE.DOWN) {
+                const [_, x, y, w, h] = this.walls[3];
+                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
         }
     }
 
-    collsionResolution(entity: Entity, b: AABB) {
+    collisionResolution(entity: Entity, b: AABB) {
         const a = entity.aabb;
         debug.hasCollision = a.collidingWith(b);
 
@@ -236,73 +228,85 @@ export class MazeGame {
     /**
      * updates velocity of all entities and then move according to vel.
      */
-    updateEnitities() {
+    updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
 
         // update all other entities
     }
 
-
+    walls: [string, number, number, number, number][] = [
+        ["#d3869b", -WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // left
+        ["#e78a4e", -WALL_SIZE / 2, -WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE], // top,
+        ["#a9b665", CELL_SIZE - WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // right
+        ["#7daea3", -WALL_SIZE / 2, CELL_SIZE - WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE]// bot
+    ];
     render() {
         const ctx = this.ctx;
         ctx.resetTransform();
-        this.ctx.fillStyle = "#F1ECEB";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-        // this.ctx.scale(this.smoothZoom, this.smoothZoom);
-        this.ctx.translate(-this.camera.x, -this.camera.y);
+        ctx.fillStyle = "#F1ECEB";
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+        ctx.scale(Math.floor(this.zoom * 10) / 10, Math.floor(this.zoom * 10) / 10);
+        ctx.translate(Math.floor(-this.camera.x + this.canvas.width / (2 * this.zoom)), Math.floor(-this.camera.y + this.canvas.height / (2 * this.zoom)));
+
 
         // render all backgrounds,
         // TODO optimazation, background is non-interactive and can be prerendered
         for (let row = 0; row < this.maze.height; row++) {
             for (let col = 0; col < this.maze.width; col++) {
+                ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
+
                 const cell = this.maze.map[row * this.maze.width + col];
-
-
-                if (cell == WALL_TYPE.UNUSED) {
+                if (cell === CELL_TYPE.UNUSED) {
                     ctx.fillStyle = "#222222";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                    continue; // Skip rendering walls
+                    ctx.fillRect(0, 0, CELL_SIZE, CELL_SIZE);
+                }
+                else {
+                    if (cell & CELL_TYPE.LEFT) {
+                        const [color, x, y, w, h] = this.walls[0];
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x, y, w, h);
+                    }
+
+                    if (cell & CELL_TYPE.UP) {
+                        const [color, x, y, w, h] = this.walls[1];
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x, y, w, h);
+                    }
+
+                    if (cell & CELL_TYPE.RIGHT) {
+                        const [color, x, y, w, h] = this.walls[2];
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x, y, w, h);
+                    }
+
+                    if (cell & CELL_TYPE.DOWN) {
+                        const [color, x, y, w, h] = this.walls[3];
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x, y, w, h);
+                    }
                 }
 
-                if (cell & WALL_TYPE.LEFT) {
-                    ctx.fillStyle = "#e78a4e";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-                }
+                ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
 
-                if (cell & WALL_TYPE.UP) {
-                    ctx.fillStyle = "#a9b665";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
-                }
+                // const doorColor = "#ccccbb";
+                // if (cell & CELL_TYPE.LEFT_DOOR) {
+                //     ctx.fillStyle = doorColor;
+                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
 
-                if (cell & WALL_TYPE.RIGHT) {
-                    ctx.fillStyle = "#7daea3";
-                    ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-                }
-
-                if (cell & WALL_TYPE.DOWN) {
-                    ctx.fillStyle = "#d3869b";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
-                }
-
-                const doorColor = "#ccccbb";
-                if (cell & WALL_TYPE.LEFT_DOOR) {
-                    ctx.fillStyle = doorColor;
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-
-                }
-                if (cell & WALL_TYPE.UP_DOOR) {
-                    ctx.fillStyle = doorColor;
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
-                }
-                if (cell & WALL_TYPE.RIGHT_DOOR) {
-                    ctx.fillStyle = doorColor;
-                    ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-                }
-                if (cell & WALL_TYPE.DOWN_DOOR) {
-                    ctx.fillStyle = doorColor;
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
-                }
+                // }
+                // if (cell & CELL_TYPE.UP_DOOR) {
+                //     ctx.fillStyle = doorColor;
+                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
+                // }
+                // if (cell & CELL_TYPE.RIGHT_DOOR) {
+                //     ctx.fillStyle = doorColor;
+                //     ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
+                // }
+                // if (cell & CELL_TYPE.DOWN_DOOR) {
+                //     ctx.fillStyle = doorColor;
+                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
+                // }
 
             }
         }
@@ -318,13 +322,14 @@ export class MazeGame {
         ctx.translate(this.player.x, this.player.y);
         this.player.render(ctx);
     }
-
 }
 
 
 class Player extends Entity {
 
     // TODO player stats
+    accel = 40000;
+    maxVel: number = 1500;
 
     constructor(pos: Vector2) {
         super(pos, 50, 50);

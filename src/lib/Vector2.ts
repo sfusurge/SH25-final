@@ -214,6 +214,13 @@ export class AABB {
         this.botright = botright;
     }
 
+    static fromPosSize(x: number, y: number, w: number, h: number) {
+        return new AABB(
+            new Vector2(x, y,),
+            new Vector2(x + w, y + h)
+        )
+    }
+
     get topright() {
         return new Vector2(this.botright.x, this.topleft.y);
     }
@@ -255,7 +262,7 @@ export class AABB {
         )
     }
 
-    cornerContain(aabb: AABB | undefined) {
+    cornerCoain(aabb: AABB | undefined) {
         if (!aabb) {
             return false;
         }
@@ -285,6 +292,13 @@ export class AABB {
     nudgeBotRightp(x: number, y: number) {
         this.botright.addip(x, y);
     }
+
+    shift(x: number, y: number) {
+        this.topleft.addip(x, y);
+        this.botright.addip(x, y);
+        return this;
+    }
+
 
     /**
      * expand this AABB inplace to contain the given point

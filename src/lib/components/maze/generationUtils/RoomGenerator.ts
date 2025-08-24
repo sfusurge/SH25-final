@@ -1,4 +1,4 @@
-import { WALL_TYPE } from "$lib/components/maze/Maze";
+import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
 
 export type Room = {
@@ -95,13 +95,13 @@ export class RoomGenerator {
         // Add walls
 
         for (let x = room.x1; x < room.x2; x++) {
-            map[x][room.y1].walls |= WALL_TYPE.UP;
-            map[x][room.y2 - 1].walls |= WALL_TYPE.DOWN;
+            map[x][room.y1].walls |= CELL_TYPE.UP;
+            map[x][room.y2 - 1].walls |= CELL_TYPE.DOWN;
         }
 
         for (let y = room.y1; y < room.y2; y++) {
-            map[room.x1][y].walls |= WALL_TYPE.LEFT;
-            map[room.x2 - 1][y].walls |= WALL_TYPE.RIGHT;
+            map[room.x1][y].walls |= CELL_TYPE.LEFT;
+            map[room.x2 - 1][y].walls |= CELL_TYPE.RIGHT;
         }
 
 
