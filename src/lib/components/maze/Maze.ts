@@ -1,6 +1,6 @@
 
 // boolean flag indicating which side of the tile contains walls, || the flags together to store.
-export const WALL_TYPE = Object.freeze({
+export const CELL_TYPE = Object.freeze({
     LEFT: 0b1,
     UP: 0b10,
     RIGHT: 0b100,
@@ -11,7 +11,12 @@ export const WALL_TYPE = Object.freeze({
     RIGHT_DOOR: 0b1000000,
     DOWN_DOOR: 0b10000000,
 
-    UNUSED: ~0b0
+    ROOM_MASK: 0b11111100000000,  // mask for the id range, 6 bits > 64 rooms, 8 bit offset
+
+    // 14 bits used so far
+
+    EMPTY: 0,
+    UNUSED: 0b1111 // all four walls being used 
 });
 
 
@@ -26,6 +31,40 @@ export class Maze {
         this.map = new Int32Array(this.width * this.height);
 
         if (map) {
+
+            // simplify map, remove one of the walls if a two neighboring cells shares a wall.
+            for (let row = 0; row < this.height; row++) {
+                for (let col = 0; col < this.width; col++) {
+                    let cell = map[row][col];
+
+
+                    if (cell === CELL_TYPE.UNUSED) {
+                        continue;
+                    }
+
+                    if (row < this.height - 1 && !(map[row + 1][col] === CELL_TYPE.UNUSED)) {
+                        if (cell & CELL_TYPE.DOWN && map[row + 1][col] & CELL_TYPE.UP) {
+                            cell = cell & (~CELL_TYPE.DOWN);
+                        }
+
+                        if (cell & CELL_TYPE.DOWN_DOOR && map[row + 1][col] & CELL_TYPE.UP_DOOR) {
+                            cell = cell & (~CELL_TYPE.DOWN_DOOR);
+                        }
+                    }
+
+                    if (col < this.width - 1 && !(map[row][col + 1] === CELL_TYPE.UNUSED)) {
+                        if (cell & CELL_TYPE.RIGHT && map[row][col + 1] & CELL_TYPE.LEFT) {
+                            cell = cell & (~CELL_TYPE.RIGHT);
+                        }
+
+                        if (cell & CELL_TYPE.RIGHT_DOOR && map[row][col + 1] & CELL_TYPE.LEFT_DOOR) {
+                            cell = cell & (~CELL_TYPE.RIGHT_DOOR);
+                        }
+                    }
+
+                    map[row][col] = cell;
+                }
+            }
             // flatten 2d array
             for (let row = 0; row < this.height; row++) {
                 for (let col = 0; col < this.width; col++) {

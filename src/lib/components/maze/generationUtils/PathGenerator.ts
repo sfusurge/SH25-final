@@ -1,4 +1,4 @@
-import { WALL_TYPE } from "$lib/components/maze/Maze";
+import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
 import type { Room } from "./RoomGenerator";
 
@@ -163,20 +163,20 @@ export class PathGenerator {
 
         if (x2 > x1) {
             // Moving right
-            map[x1][y1].walls &= ~WALL_TYPE.RIGHT;
-            map[x2][y2].walls &= ~WALL_TYPE.LEFT;
+            map[x1][y1].walls &= ~CELL_TYPE.RIGHT;
+            map[x2][y2].walls &= ~CELL_TYPE.LEFT;
         } else if (x2 < x1) {
             // Moving left
-            map[x1][y1].walls &= ~WALL_TYPE.LEFT;
-            map[x2][y2].walls &= ~WALL_TYPE.RIGHT;
+            map[x1][y1].walls &= ~CELL_TYPE.LEFT;
+            map[x2][y2].walls &= ~CELL_TYPE.RIGHT;
         } else if (y2 > y1) {
             // Moving down
-            map[x1][y1].walls &= ~WALL_TYPE.DOWN;
-            map[x2][y2].walls &= ~WALL_TYPE.UP;
+            map[x1][y1].walls &= ~CELL_TYPE.DOWN;
+            map[x2][y2].walls &= ~CELL_TYPE.UP;
         } else if (y2 < y1) {
             // Moving up
-            map[x1][y1].walls &= ~WALL_TYPE.UP;
-            map[x2][y2].walls &= ~WALL_TYPE.DOWN;
+            map[x1][y1].walls &= ~CELL_TYPE.UP;
+            map[x2][y2].walls &= ~CELL_TYPE.DOWN;
         }
     }
 
@@ -190,10 +190,10 @@ export class PathGenerator {
     connectRegions(map: Cell[][], rooms: Room[], randomOpenPercent: number): void {
 
         const directions = {
-            up: { dx: 0, dy: -1, wall: WALL_TYPE.UP, oppositeWall: WALL_TYPE.DOWN },
-            right: { dx: 1, dy: 0, wall: WALL_TYPE.RIGHT, oppositeWall: WALL_TYPE.LEFT },
-            down: { dx: 0, dy: 1, wall: WALL_TYPE.DOWN, oppositeWall: WALL_TYPE.UP },
-            left: { dx: -1, dy: 0, wall: WALL_TYPE.LEFT, oppositeWall: WALL_TYPE.RIGHT }
+            up: { dx: 0, dy: -1, wall: CELL_TYPE.UP, oppositeWall: CELL_TYPE.DOWN },
+            right: { dx: 1, dy: 0, wall: CELL_TYPE.RIGHT, oppositeWall: CELL_TYPE.LEFT },
+            down: { dx: 0, dy: 1, wall: CELL_TYPE.DOWN, oppositeWall: CELL_TYPE.UP },
+            left: { dx: -1, dy: 0, wall: CELL_TYPE.LEFT, oppositeWall: CELL_TYPE.RIGHT }
         };
 
         // Collect all edge positions and directions for all rooms
@@ -273,7 +273,7 @@ export class PathGenerator {
                     const cell = map[x][y];
 
 
-                    if (cell.walls === WALL_TYPE.UNUSED) {
+                    if (cell.walls === CELL_TYPE.UNUSED) {
                         continue;
                     }
 
@@ -308,26 +308,26 @@ export class PathGenerator {
         // Before marking as unused, close passages to neighbouring cells
 
         // Up
-        if (!(cell.walls & WALL_TYPE.UP) && this.isValidCell(x, y - 1)) {
+        if (!(cell.walls & CELL_TYPE.UP) && this.isValidCell(x, y - 1)) {
             const neighbour = map[x][y - 1];
-            neighbour.walls |= WALL_TYPE.DOWN;
+            neighbour.walls |= CELL_TYPE.DOWN;
         }
         // Right
-        if (!(cell.walls & WALL_TYPE.RIGHT) && this.isValidCell(x + 1, y)) {
+        if (!(cell.walls & CELL_TYPE.RIGHT) && this.isValidCell(x + 1, y)) {
             const neighbour = map[x + 1][y];
-            neighbour.walls |= WALL_TYPE.LEFT;
+            neighbour.walls |= CELL_TYPE.LEFT;
         }
         // Down
-        if (!(cell.walls & WALL_TYPE.DOWN) && this.isValidCell(x, y + 1)) {
+        if (!(cell.walls & CELL_TYPE.DOWN) && this.isValidCell(x, y + 1)) {
             const neighbour = map[x][y + 1];
-            neighbour.walls |= WALL_TYPE.UP;
+            neighbour.walls |= CELL_TYPE.UP;
         }
         // Left
-        if (!(cell.walls & WALL_TYPE.LEFT) && this.isValidCell(x - 1, y)) {
+        if (!(cell.walls & CELL_TYPE.LEFT) && this.isValidCell(x - 1, y)) {
             const neighbour = map[x - 1][y];
-            neighbour.walls |= WALL_TYPE.RIGHT;
+            neighbour.walls |= CELL_TYPE.RIGHT;
         }
 
-        map[x][y].walls = WALL_TYPE.UNUSED;
+        map[x][y].walls = CELL_TYPE.UNUSED;
     }
 }

@@ -19,8 +19,12 @@
 </script>
 
 <div class="canvasContainer">
-    <canvas width="4000" height="4000" bind:this={canvas} tabindex="0"></canvas>
+    <canvas width="600" height="600" bind:this={canvas} tabindex="0"></canvas>
 </div>
+
+{#if gameController}
+    <input type="range" step="any" min="0.2" max="2" bind:value={gameController!.zoom} />
+{/if}
 
 <div>
     Debug:
@@ -34,6 +38,7 @@
 <style>
     canvas {
         border: 5px solid green;
+        image-rendering: "smooth";
     }
 
     canvas:focus {
