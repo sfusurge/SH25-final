@@ -11,8 +11,12 @@ export const CELL_TYPE = Object.freeze({
     RIGHT_DOOR: 0b1000000,
     DOWN_DOOR: 0b10000000,
 
+    ROOM_MASK: 0b11111100000000,  // mask for the id range, 6 bits > 64 rooms, 8 bit offset
+
+    // 14 bits used so far
+
     EMPTY: 0,
-    UNUSED: 0b1111
+    UNUSED: 0b1111 // all four walls being used 
 });
 
 
@@ -32,6 +36,7 @@ export class Maze {
             for (let row = 0; row < this.height; row++) {
                 for (let col = 0; col < this.width; col++) {
                     let cell = map[row][col];
+
 
                     if (cell === CELL_TYPE.UNUSED) {
                         continue;

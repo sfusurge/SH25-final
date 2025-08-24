@@ -2,6 +2,7 @@ import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
 
 export type Room = {
+    id: number;
     x1: number;
     y1: number;
     x2: number;
@@ -16,6 +17,7 @@ export class RoomGenerator {
     private width: number;
     private height: number;
     private regionIDCounter: number = 1;
+    private roomIDCounter = 1;
 
     constructor(
         width: number,
@@ -50,7 +52,7 @@ export class RoomGenerator {
             } else {
                 height += rectangleModifier;
             }
-
+            // TODO place rooms from a predetermined list 
             this.tryAddRoom(width, height)
         }
 
@@ -68,7 +70,7 @@ export class RoomGenerator {
         const x2 = x1 + width;
         const y2 = y1 + height;
 
-        const newRoom: Room = { x1, y1, x2, y2 };
+        const newRoom: Room = { id: 0, x1, y1, x2, y2 };
 
         // Collision check w/ existing rooms
         for (const room of this.rooms) {
@@ -76,19 +78,20 @@ export class RoomGenerator {
                 return false;
             }
         }
+        newRoom.id = this.roomIDCounter;
+        this.roomIDCounter += 1;
         this.rooms.push(newRoom);
         return true;
     }
 
     private placeRoomInMap(room: Room, map: Cell[][]): void {
-
-
         // Clear out room; mark room as visited
         this.regionIDCounter++;
         for (let x = room.x1; x < room.x2; x++) {
             for (let y = room.y1; y < room.y2; y++) {
                 map[x][y].regionID = this.regionIDCounter;
-                map[x][y].walls = 0; // Remove all walls for inner room cells
+                // set room id within cell value, shift 14 bits to match roomid mask.
+                map[x][y].walls = room.id << 8; // Remove all walls for inner room cells
             }
         }
 
