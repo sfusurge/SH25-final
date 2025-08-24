@@ -342,11 +342,16 @@ export class MazeGame {
                     let inline = cell & CELL_TYPE.UP || (row < this.maze.height - 1 && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.RIGHT));
 
                     const [color, x, y, w, h] = this.walls[2];
-                    if (inline) {
+
+                    if (cell & CELL_TYPE.DOWN && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.UNUSED)) {
+                        ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE / 2);
+                    }
+
+                    else if (inline) {
                         ctx.drawImage(this.verWallCapSprite, x, y - CELL_SIZE / 2);
                     }
                     if (!inline || !(row < this.maze.height - 1 && (this.maze.map[(row + 1) * this.maze.width + col] & (CELL_TYPE.RIGHT | CELL_TYPE.UP)))) {
-                        ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
+                        ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);               
                     }
                 }
 
