@@ -412,11 +412,22 @@ export class MazeGame {
 class Player extends Entity {
 
     // TODO player stats
-    accel = 8000;
+    accel = 5000;
     maxVel: number = 600;
+    playerSprite = new Image();
+    facingRight = false; // track which direction player is facing
 
     constructor(pos: Vector2) {
         super(pos, 50, 50);
+        this.playerSprite.src = "/maze/player_temp.png";
+    }
+
+    get aabb() {
+        const renderWidth = this.height * this.playerSprite.naturalWidth / this.playerSprite.naturalHeight;
+        return new AABB(
+            this.pos.subp(renderWidth / 2, this.height / 2),
+            this.pos.addp(renderWidth / 2, this.height / 2)
+        );
     }
     /**
      * movement vector x,y where each value is a float [-1, 1].
@@ -426,6 +437,13 @@ class Player extends Entity {
      * @param dt delta time since the last move input
      */
     onMoveInput(movement: Vector2, dt: number) {
+        // Update facing direction based on horizontal movement
+        if (movement.x > 0) {
+            this.facingRight = true;
+        } else if (movement.x < 0) {
+            this.facingRight = false;
+        }
+
         this.move(movement, dt);
         debug.player = {
             vel: this.vel,
@@ -435,7 +453,16 @@ class Player extends Entity {
     }
 
     render(ctx: CanvasRenderingContext2D): void {
-        ctx.fillStyle = "#ea6962";
-        ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        const renderWidth = this.height * this.playerSprite.naturalWidth / this.playerSprite.naturalHeight;
+
+        if (this.facingRight) {
+            // Flip the sprite horizontally when facing right
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(this.playerSprite, -(this.x + renderWidth / 2), this.y - this.height / 2, renderWidth, this.height);
+            ctx.restore();
+        } else {
+            ctx.drawImage(this.playerSprite, this.x - renderWidth / 2, this.y - this.height / 2, renderWidth, this.height);
+        }
     }
 }
