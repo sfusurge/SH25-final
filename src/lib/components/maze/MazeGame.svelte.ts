@@ -279,19 +279,19 @@ export class MazeGame {
     render() {
         const ctx = this.ctx;
         ctx.resetTransform();
-        ctx.fillStyle = "#F1ECEB";
+        ctx.fillStyle = "#7753A1";
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
         ctx.scale(this.zoom, this.zoom);
         ctx.translate(Math.floor(-this.camera.x + this.canvas.width / (2 * this.zoom)), Math.floor(-this.camera.y + this.canvas.height / (2 * this.zoom)));
 
+
+        const playerDepth = Math.floor((this.player.y / (this.maze.height * CELL_SIZE)) * this.maze.height);
         let count = 0;
 
         // render all backgrounds,
         const [lowX, highX, lowY, highY] = this.getCellRenderRange();
 
         for (let row = lowY; row < highY; row++) {
-
-
             // background pass
             for (let col = lowX; col < highX; col++) {
                 const cell = this.maze.map[row * this.maze.width + col];
@@ -306,7 +306,15 @@ export class MazeGame {
                     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }
             }
+        }
 
+        for (let row = lowY; row < highY; row++) {
+            // player
+            if (row === playerDepth) {
+                this.player.render(ctx);
+            }
+
+            // wall pass
             for (let col = lowX; col < highX; col++) {
                 ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
                 count += 1;
@@ -342,9 +350,14 @@ export class MazeGame {
                     let inline = cell & CELL_TYPE.UP || (row < this.maze.height - 1 && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.RIGHT));
 
                     const [color, x, y, w, h] = this.walls[2];
-                    if (inline) {
+
+                    if (cell & CELL_TYPE.DOWN && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.UNUSED)) {
+                        ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE / 2);
+                    }
+                    else if (inline) {
                         ctx.drawImage(this.verWallCapSprite, x, y - CELL_SIZE / 2);
                     }
+
                     if (!inline || !(row < this.maze.height - 1 && (this.maze.map[(row + 1) * this.maze.width + col] & (CELL_TYPE.RIGHT | CELL_TYPE.UP)))) {
                         ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
                     }
@@ -377,20 +390,21 @@ export class MazeGame {
                 // }
 
             }
+
+            // other entities
         }
 
         debug.cellRenderCount = count;
 
         // render entities
         // TODO remove
-        ctx.fillStyle = "#7daea3";
-        for (const e of this.entities) {
-            ctx.fillRect(e.x - e.width / 2, e.y - e.height / 2, e.width, e.height);
-        }
+        // ctx.fillStyle = "#7daea3";
+        // for (const e of this.entities) {
+        //     ctx.fillRect(e.x - e.width / 2, e.y - e.height / 2, e.width, e.height);
+        // }
 
         // render player
-        ctx.translate(this.player.x, this.player.y);
-        this.player.render(ctx);
+
     }
 }
 
@@ -398,8 +412,8 @@ export class MazeGame {
 class Player extends Entity {
 
     // TODO player stats
-    accel = 40000;
-    maxVel: number = 1500;
+    accel = 8000;
+    maxVel: number = 600;
 
     constructor(pos: Vector2) {
         super(pos, 50, 50);
@@ -422,6 +436,6 @@ class Player extends Entity {
 
     render(ctx: CanvasRenderingContext2D): void {
         ctx.fillStyle = "#ea6962";
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
     }
 }

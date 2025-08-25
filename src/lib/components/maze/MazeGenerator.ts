@@ -5,7 +5,7 @@ import { PathGenerator } from "./generationUtils/PathGenerator";
 // TODO: Optimize space?
 export type Cell = {
     walls: number;
-    regionID: number;
+    regionID: number; // for generating rooms and paths; not for identification
 };
 
 export class MazeGenerator {
