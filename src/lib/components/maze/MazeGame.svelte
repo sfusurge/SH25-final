@@ -38,7 +38,7 @@
 <style>
     canvas {
         border: 5px solid green;
-        image-rendering: "smooth";
+        image-rendering: crisp-edges;
     }
 
     canvas:focus {

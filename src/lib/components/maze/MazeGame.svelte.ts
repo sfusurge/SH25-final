@@ -279,6 +279,7 @@ export class MazeGame {
     render() {
         const ctx = this.ctx;
         ctx.resetTransform();
+        ctx.imageSmoothingQuality = "high";
         ctx.fillStyle = "#7753A1";
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
         ctx.scale(this.zoom, this.zoom);
@@ -298,12 +299,13 @@ export class MazeGame {
 
                 if (cell === CELL_TYPE.UNUSED) {
                     ctx.fillStyle = "#161414";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
+
                 }
             }
         }
