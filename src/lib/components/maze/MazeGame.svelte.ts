@@ -14,7 +14,7 @@ export class MazeGame {
         40, // maze width
         40, // maze height
         50, // attempts to generate rooms
-        5, // min room size 
+        5, // min room size
         10, // max room size (before rectangularity)
         50, // winding percent for paths: 0 is straight corridors, 100 is max branching
         3, // rectangularity: higher vals make more rectangular rooms
@@ -36,16 +36,17 @@ export class MazeGame {
     entities: Entity[] = [];
 
     horWallSprite = new Image();
+    horWallPiller = new Image();
     verWallSprite = new Image();
     verWallCapSprite = new Image();
+
 
     constructor(canvas: HTMLCanvasElement) {
         // load sprites
         this.horWallSprite.src = "/maze/wall_hor_short.png";
         this.verWallSprite.src = "/maze/wall_ver_short.png";
         this.verWallCapSprite.src = "/maze/wall_ver_cap.png";
-
-
+        this.horWallPiller.src = "/maze/wall_piller.png";
 
         this.canvas = canvas;
         const ctx = canvas.getContext("2d", {});
@@ -258,8 +259,6 @@ export class MazeGame {
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
     }
 
-
-
     getCellRenderRange() {
         const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width));
         const hightX = Math.min(this.maze.width, Math.floor(((this.camera.x + (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) + 2);
@@ -272,16 +271,15 @@ export class MazeGame {
 
     walls: [string, number, number, number, number][] = [
         ["#d3869b", -WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // left
-        ["#e78a4e", -WALL_SIZE / 2, -WALL_SIZE / 2, CELL_SIZE, WALL_SIZE], // top,
+        ["#e78a4e", -WALL_SIZE / 2, -WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE], // top,
         ["#a9b665", CELL_SIZE - WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // right
-        ["#7daea3", -WALL_SIZE / 2, CELL_SIZE - WALL_SIZE / 2, CELL_SIZE, WALL_SIZE]// bot
-    ];
+        ["#7daea3", -WALL_SIZE / 2, CELL_SIZE - WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE]// bot
+    ]; // make horizontal walls longer to compensate shift towards neighbor walls
     render() {
         const ctx = this.ctx;
         ctx.resetTransform();
-        ctx.imageSmoothingQuality = "high";
-        ctx.fillStyle = "#7753A1";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+        ctx.fillStyle = "#161414";
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         ctx.scale(this.zoom, this.zoom);
         ctx.translate(Math.floor(-this.camera.x + this.canvas.width / (2 * this.zoom)), Math.floor(-this.camera.y + this.canvas.height / (2 * this.zoom)));
 
@@ -304,8 +302,7 @@ export class MazeGame {
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";
-                    ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
-
+                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
                 }
             }
         }
@@ -333,6 +330,11 @@ export class MazeGame {
                 if (cell & CELL_TYPE.UP) {
                     const [color, x, y, w, h] = this.walls[1];
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
+
+                    const hasRightCell = (col < this.maze.width - 1) && (this.maze.map[row * this.maze.width + col + 1] & CELL_TYPE.UP);
+                    if (!hasRightCell) {
+                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                    }
                 }
 
 
@@ -367,7 +369,12 @@ export class MazeGame {
 
                 if (cell & CELL_TYPE.DOWN) {
                     const [color, x, y, w, h] = this.walls[3];
+                    const hasRightCell = (col < this.maze.width - 1) && (this.maze.map[row * this.maze.width + col + 1] & CELL_TYPE.DOWN);
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
+
+                    if (!hasRightCell) {
+                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                    }
                 }
 
                 ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
@@ -404,9 +411,6 @@ export class MazeGame {
         // for (const e of this.entities) {
         //     ctx.fillRect(e.x - e.width / 2, e.y - e.height / 2, e.width, e.height);
         // }
-
-        // render player
-
     }
 }
 
