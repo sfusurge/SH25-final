@@ -199,6 +199,14 @@ export class Vector2 {
         return this.normalize().muli(maxMag);
     }
 
+    /**
+     * upper left and right quadrant are -negative, lower left and right are +positive.
+     * @returns angle relative to positive X axis
+     */
+    angle() {
+        return Math.atan2(this.y, this.x) * (180 / Math.PI);
+    }
+
     toString() {
         return `Vector2(${this.x}, ${this.y})`
     }

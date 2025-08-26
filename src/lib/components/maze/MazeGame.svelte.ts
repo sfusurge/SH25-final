@@ -1,4 +1,4 @@
-import { Entity } from "$lib/components/maze/Entity";
+import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
@@ -14,7 +14,7 @@ export class MazeGame {
         40, // maze width
         40, // maze height
         50, // attempts to generate rooms
-        5, // min room size 
+        5, // min room size
         10, // max room size (before rectangularity)
         50, // winding percent for paths: 0 is straight corridors, 100 is max branching
         3, // rectangularity: higher vals make more rectangular rooms
@@ -37,16 +37,17 @@ export class MazeGame {
     entities: Entity[] = [];
 
     horWallSprite = new Image();
+    horWallPiller = new Image();
     verWallSprite = new Image();
     verWallCapSprite = new Image();
+
 
     constructor(canvas: HTMLCanvasElement) {
         // load sprites
         this.horWallSprite.src = "/maze/wall_hor_short.png";
         this.verWallSprite.src = "/maze/wall_ver_short.png";
         this.verWallCapSprite.src = "/maze/wall_ver_cap.png";
-
-
+        this.horWallPiller.src = "/maze/wall_piller.png";
 
         this.canvas = canvas;
         const ctx = canvas.getContext("2d", {});
@@ -277,8 +278,6 @@ export class MazeGame {
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
     }
 
-
-
     getCellRenderRange() {
         const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width));
         const hightX = Math.min(this.maze.width, Math.floor(((this.camera.x + (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) + 2);
@@ -291,15 +290,15 @@ export class MazeGame {
 
     walls: [string, number, number, number, number][] = [
         ["#d3869b", -WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // left
-        ["#e78a4e", -WALL_SIZE / 2, -WALL_SIZE / 2, CELL_SIZE, WALL_SIZE], // top,
+        ["#e78a4e", -WALL_SIZE / 2, -WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE], // top,
         ["#a9b665", CELL_SIZE - WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // right
-        ["#7daea3", -WALL_SIZE / 2, CELL_SIZE - WALL_SIZE / 2, CELL_SIZE, WALL_SIZE]// bot
-    ];
+        ["#7daea3", -WALL_SIZE / 2, CELL_SIZE - WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE]// bot
+    ]; // make horizontal walls longer to compensate shift towards neighbor walls
     render() {
         const ctx = this.ctx;
         ctx.resetTransform();
-        ctx.fillStyle = "#7753A1";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+        ctx.fillStyle = "#161414";
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         ctx.scale(this.zoom, this.zoom);
         ctx.translate(Math.floor(-this.camera.x + this.canvas.width / (2 * this.zoom)), Math.floor(-this.camera.y + this.canvas.height / (2 * this.zoom)));
 
@@ -317,7 +316,7 @@ export class MazeGame {
 
                 if (cell === CELL_TYPE.UNUSED) {
                     ctx.fillStyle = "#161414";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
                 else {
                     // paint default background color
@@ -328,18 +327,37 @@ export class MazeGame {
         }
 
         for (let row = lowY; row < highY; row++) {
+            // wall pass just for top walls
+            for (let col = lowX; col < highX; col++) {
+                const cell = this.maze.map[row * this.maze.width + col];
+
+                if (cell !== CELL_TYPE.UNUSED && cell & CELL_TYPE.UP) {
+                    ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
+                    count += 1;
+                    const [color, x, y, w, h] = this.walls[1];
+                    ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
+
+                    const hasRightCell = (col < this.maze.width - 1) && (this.maze.map[row * this.maze.width + col + 1] & CELL_TYPE.UP);
+                    if (!hasRightCell) {
+                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                    }
+                    ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
+                }
+            }
+
+            // TODO, draw entities now
+
             // player
             if (row === playerDepth) {
-                this.player.render(ctx);
+                this.player.render(ctx, this.lastTime);
             }
+
 
             // wall pass
             for (let col = lowX; col < highX; col++) {
                 ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
                 count += 1;
                 const cell = this.maze.map[row * this.maze.width + col];
-
-
                 if (cell === CELL_TYPE.UNUSED) {
                     ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                     continue;
@@ -347,10 +365,6 @@ export class MazeGame {
 
 
                 ctx.lineWidth = 2;
-                if (cell & CELL_TYPE.UP) {
-                    const [color, x, y, w, h] = this.walls[1];
-                    ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
-                }
 
 
                 if (cell & CELL_TYPE.LEFT) {
@@ -384,7 +398,12 @@ export class MazeGame {
 
                 if (cell & CELL_TYPE.DOWN) {
                     const [color, x, y, w, h] = this.walls[3];
+                    const hasRightCell = (col < this.maze.width - 1) && (this.maze.map[row * this.maze.width + col + 1] & CELL_TYPE.DOWN);
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
+
+                    if (!hasRightCell) {
+                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                    }
                 }
 
                 ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
@@ -421,33 +440,52 @@ export class MazeGame {
         // for (const e of this.entities) {
         //     ctx.fillRect(e.x - e.width / 2, e.y - e.height / 2, e.width, e.height);
         // }
-
-        // render player
-
     }
 }
 
+const LEFT = 0;
+const UP = 1;
+const RIGHT = 2;
+const DOWN = 3;
 
 class Player extends Entity {
 
+    renderWidth = 50;
+
     // TODO player stats
-    accel = 5000;
-    maxVel: number = 600;
-    playerSprite = new Image();
-    facingRight = false; // track which direction player is facing
+    accel = 4000;
+    maxVel: number = 450;
 
+    direction = DOWN;
+    playerSpites: { [key: number]: HTMLCanvasElement[] };
     constructor(pos: Vector2) {
-        super(pos, 50, 50);
-        this.playerSprite.src = "/maze/player_temp.png";
+        super(pos, 30, 25);
+
+
+        this.playerSpites = {
+            [LEFT]: [
+                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth),
+            ],
+            [RIGHT]: [
+                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth, true),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth, true),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth, true),
+            ],
+            [UP]: [
+                loadImageToCanvas("/maze/player_sprites/player_up_neutral.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_up_walk_1.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_up_walk_2.webp", this.renderWidth),
+            ],
+            [DOWN]: [
+                loadImageToCanvas("/maze/player_sprites/player_down_neutral.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_down_walk_1.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_down_walk_2.webp", this.renderWidth),
+            ]
+        };
     }
 
-    get aabb() {
-        const renderWidth = this.height * this.playerSprite.naturalWidth / this.playerSprite.naturalHeight;
-        return new AABB(
-            this.pos.subp(renderWidth / 2, this.height / 2),
-            this.pos.addp(renderWidth / 2, this.height / 2)
-        );
-    }
     /**
      * movement vector x,y where each value is a float [-1, 1].
      * movement should have magnitude clamped to 1 at most.
@@ -456,32 +494,52 @@ class Player extends Entity {
      * @param dt delta time since the last move input
      */
     onMoveInput(movement: Vector2, dt: number) {
-        // Update facing direction based on horizontal movement
-        if (movement.x > 0) {
-            this.facingRight = true;
-        } else if (movement.x < 0) {
-            this.facingRight = false;
+        const mag = movement.mag();
+
+        if (mag < 0.1) {
+            movement = Vector2.ZERO;
+        } else {
+            const angle = movement.angle();
+            if (angle >= -135 && angle <= -45) {
+                this.direction = UP;
+            } else if (angle >= -45 && angle < 45) {
+                this.direction = RIGHT;
+            } else if (angle >= 45 && angle < 135) {
+                this.direction = DOWN;
+            } else if (angle >= 135 || angle < -135) {
+                this.direction = LEFT;
+            }
         }
 
         this.move(movement, dt);
+
         debug.player = {
             vel: this.vel,
-            move: movement
+            move: movement,
+            angle: this.direction
         }
-
     }
 
-    render(ctx: CanvasRenderingContext2D): void {
-        const renderWidth = this.height * this.playerSprite.naturalWidth / this.playerSprite.naturalHeight;
+    render(ctx: CanvasRenderingContext2D, time: number): void {
+        const trans = ctx.getTransform();
 
-        if (this.facingRight) {
-            // Flip the sprite horizontally when facing right
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(this.playerSprite, -(this.x + renderWidth / 2), this.y - this.height / 2, renderWidth, this.height);
-            ctx.restore();
-        } else {
-            ctx.drawImage(this.playerSprite, this.x - renderWidth / 2, this.y - this.height / 2, renderWidth, this.height);
+        const mag = this.vel.mag();
+        const sprites = this.playerSpites[this.direction];
+
+        let sprite = sprites[0];
+        if (mag > 0.1) {
+            debug.time = time;
+            if (Math.round((time % 1000) / 250) % 2 === 0) { // alternate animation every 250 ms
+                sprite = sprites[1];
+            } else {
+                sprite = sprites[2];
+            }
         }
+
+        ctx.translate(this.width / 2, this.height / 2); // translate origin to bottom of player, then offset by image size
+        ctx.translate(-sprite.width / 2, -sprite.height);
+        ctx.drawImage(sprite, this.x, this.y);
+
+        ctx.setTransform(trans);
     }
 }
