@@ -1,6 +1,27 @@
 import { AABB, Vector2 } from "$lib/Vector2";
 
+export function loadImageToCanvas(src: string, width: number, flip = false) {
+    const img = new Image();
+    img.src = src;
 
+    const canvas = document.createElement("canvas");
+
+    img.addEventListener("load", () => {
+        canvas.width = width;
+        const height = width * (img.height / img.width); // calc height based on aspect ratio
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+
+        if (flip) {
+            ctx?.translate(width, 0);
+            ctx?.scale(-1, 1);
+        }
+
+        ctx?.drawImage(img, 0, 0, width, height);
+    });
+
+    return canvas;
+}
 export class Entity {
     pos: Vector2;
     vel: Vector2 = Vector2.ZERO;
@@ -13,7 +34,7 @@ export class Entity {
 
     accel: number = 1900;
     maxVel: number = 300;
-    maxVelMod  = 1;
+    maxVelMod = 1;
 
     get x() {
         return this.pos.x;
@@ -62,8 +83,10 @@ export class Entity {
      * accounting for camera position, zoom, and entity locatiom
      * This renders visuals in local coordinates.
      * @param ctx
+     * @param time current time in game, modulus may be applied. Used for animations
+     *
      */
-    render(ctx: CanvasRenderingContext2D) {
+    render(ctx: CanvasRenderingContext2D, time: number) {
         throw new Error('not implemented');
     }
 }
