@@ -1,4 +1,4 @@
-import { Entity } from "$lib/components/maze/Entity";
+import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
@@ -308,26 +308,13 @@ export class MazeGame {
         }
 
         for (let row = lowY; row < highY; row++) {
-            // player
-            if (row === playerDepth) {
-                this.player.render(ctx);
-            }
-
-            // wall pass
+            // wall pass just for top walls
             for (let col = lowX; col < highX; col++) {
-                ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
-                count += 1;
                 const cell = this.maze.map[row * this.maze.width + col];
 
-
-                if (cell === CELL_TYPE.UNUSED) {
-                    ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
-                    continue;
-                }
-
-
-                ctx.lineWidth = 2;
-                if (cell & CELL_TYPE.UP) {
+                if (cell !== CELL_TYPE.UNUSED && cell & CELL_TYPE.UP) {
+                    ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
+                    count += 1;
                     const [color, x, y, w, h] = this.walls[1];
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
 
@@ -335,7 +322,30 @@ export class MazeGame {
                     if (!hasRightCell) {
                         ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
                     }
+                    ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                 }
+            }
+
+            // TODO, draw entities now
+
+            // player
+            if (row === playerDepth) {
+                this.player.render(ctx, this.lastTime);
+            }
+
+
+            // wall pass
+            for (let col = lowX; col < highX; col++) {
+                ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
+                count += 1;
+                const cell = this.maze.map[row * this.maze.width + col];
+                if (cell === CELL_TYPE.UNUSED) {
+                    ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
+                    continue;
+                }
+
+
+                ctx.lineWidth = 2;
 
 
                 if (cell & CELL_TYPE.LEFT) {
@@ -414,27 +424,49 @@ export class MazeGame {
     }
 }
 
+const LEFT = 0;
+const UP = 1;
+const RIGHT = 2;
+const DOWN = 3;
 
 class Player extends Entity {
 
+    renderWidth = 50;
+
     // TODO player stats
-    accel = 5000;
-    maxVel: number = 600;
-    playerSprite = new Image();
-    facingRight = false; // track which direction player is facing
+    accel = 4000;
+    maxVel: number = 450;
 
+    direction = DOWN;
+    playerSpites: { [key: number]: HTMLCanvasElement[] };
     constructor(pos: Vector2) {
-        super(pos, 50, 50);
-        this.playerSprite.src = "/maze/player_temp.png";
+        super(pos, 30, 25);
+
+
+        this.playerSpites = {
+            [LEFT]: [
+                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth),
+            ],
+            [RIGHT]: [
+                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth, true),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth, true),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth, true),
+            ],
+            [UP]: [
+                loadImageToCanvas("/maze/player_sprites/player_up_neutral.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_up_walk_1.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_up_walk_2.webp", this.renderWidth),
+            ],
+            [DOWN]: [
+                loadImageToCanvas("/maze/player_sprites/player_down_neutral.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_down_walk_1.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_down_walk_2.webp", this.renderWidth),
+            ]
+        };
     }
 
-    get aabb() {
-        const renderWidth = this.height * this.playerSprite.naturalWidth / this.playerSprite.naturalHeight;
-        return new AABB(
-            this.pos.subp(renderWidth / 2, this.height / 2),
-            this.pos.addp(renderWidth / 2, this.height / 2)
-        );
-    }
     /**
      * movement vector x,y where each value is a float [-1, 1].
      * movement should have magnitude clamped to 1 at most.
@@ -443,32 +475,52 @@ class Player extends Entity {
      * @param dt delta time since the last move input
      */
     onMoveInput(movement: Vector2, dt: number) {
-        // Update facing direction based on horizontal movement
-        if (movement.x > 0) {
-            this.facingRight = true;
-        } else if (movement.x < 0) {
-            this.facingRight = false;
+        const mag = movement.mag();
+
+        if (mag < 0.1) {
+            movement = Vector2.ZERO;
+        } else {
+            const angle = movement.angle();
+            if (angle >= -135 && angle <= -45) {
+                this.direction = UP;
+            } else if (angle >= -45 && angle < 45) {
+                this.direction = RIGHT;
+            } else if (angle >= 45 && angle < 135) {
+                this.direction = DOWN;
+            } else if (angle >= 135 || angle < -135) {
+                this.direction = LEFT;
+            }
         }
 
         this.move(movement, dt);
+
         debug.player = {
             vel: this.vel,
-            move: movement
+            move: movement,
+            angle: this.direction
         }
-
     }
 
-    render(ctx: CanvasRenderingContext2D): void {
-        const renderWidth = this.height * this.playerSprite.naturalWidth / this.playerSprite.naturalHeight;
+    render(ctx: CanvasRenderingContext2D, time: number): void {
+        const trans = ctx.getTransform();
 
-        if (this.facingRight) {
-            // Flip the sprite horizontally when facing right
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(this.playerSprite, -(this.x + renderWidth / 2), this.y - this.height / 2, renderWidth, this.height);
-            ctx.restore();
-        } else {
-            ctx.drawImage(this.playerSprite, this.x - renderWidth / 2, this.y - this.height / 2, renderWidth, this.height);
+        const mag = this.vel.mag();
+        const sprites = this.playerSpites[this.direction];
+
+        let sprite = sprites[0];
+        if (mag > 0.1) {
+            debug.time = time;
+            if (Math.round((time % 1000) / 250) % 2 === 0) { // alternate animation every 250 ms
+                sprite = sprites[1];
+            } else {
+                sprite = sprites[2];
+            }
         }
+
+        ctx.translate(this.width / 2, this.height / 2); // translate origin to bottom of player, then offset by image size
+        ctx.translate(-sprite.width / 2, -sprite.height);
+        ctx.drawImage(sprite, this.x, this.y);
+
+        ctx.setTransform(trans);
     }
 }
