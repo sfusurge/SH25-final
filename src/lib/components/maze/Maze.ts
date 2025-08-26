@@ -15,6 +15,9 @@ export const CELL_TYPE = Object.freeze({
 
     // 14 bits used so far
 
+    // If there's a more space efficient solution for representing room obstacle bits, lmk
+    OBSTACLE_TYPE_MASK: 0b11100000000000000, // 8 types should be enough??
+
     EMPTY: 0,
     UNUSED: 0b1111 // all four walls being used 
 });

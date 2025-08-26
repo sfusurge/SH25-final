@@ -14,10 +14,7 @@ export class MazeGame {
         40, // maze width
         40, // maze height
         50, // attempts to generate rooms
-        5, // min room size
-        10, // max room size (before rectangularity)
         50, // winding percent for paths: 0 is straight corridors, 100 is max branching
-        3, // rectangularity: higher vals make more rectangular rooms
         0.03 // random open percent: chance to create openings in a wall where the two regions it connects already are connected
     );
 
@@ -318,6 +315,12 @@ export class MazeGame {
                     ctx.fillStyle = "#161414";
                     ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
+                //obstacle;for debug
+                else if (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) {
+                    ctx.fillStyle = "#3c3836";
+                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+                
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";
