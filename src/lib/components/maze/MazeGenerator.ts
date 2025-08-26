@@ -1,5 +1,6 @@
 import { Maze, CELL_TYPE } from "$lib/components/maze/Maze";
-import { RoomGenerator, type Room } from "./generationUtils/RoomGenerator";
+import { RoomGenerator} from "./generationUtils/RoomGenerator";
+import type { Room } from "$lib/components/maze/Room";
 import { PathGenerator } from "./generationUtils/PathGenerator";
 
 // TODO: Optimize space?

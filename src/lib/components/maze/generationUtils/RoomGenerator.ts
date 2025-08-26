@@ -1,13 +1,6 @@
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
-
-export type Room = {
-    id: number;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-};
+import { type Room, ROOM_TEMPLATES, type RoomTemplate } from "$lib/components/maze/Room";
 
 
 export class RoomGenerator {
@@ -39,21 +32,11 @@ export class RoomGenerator {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
-            const sizeRange = this.maxRoomSize - this.minRoomSize + 1;
 
-            // borrowing size specification code from dart example
-            const size = Math.floor(Math.random() * sizeRange) + this.minRoomSize;
-            const rectangleModifier = Math.floor(Math.random() * rectangularity);
 
-            let width = size;
-            let height = size;
-            if (Math.random() < 0.5) {
-                width += rectangleModifier;
-            } else {
-                height += rectangleModifier;
-            }
-            // TODO place rooms from a predetermined list 
-            this.tryAddRoom(width, height)
+            const randomIndex = Math.floor(Math.random() * ROOM_TEMPLATES.length);
+            const template = ROOM_TEMPLATES[randomIndex];
+            this.tryAddRoom(template.width, template.height);
         }
 
         // Place all rooms in the map
@@ -70,7 +53,7 @@ export class RoomGenerator {
         const x2 = x1 + width;
         const y2 = y1 + height;
 
-        const newRoom: Room = { id: 0, x1, y1, x2, y2 };
+        const newRoom: Room = { regionID: 0, x1, y1, x2, y2 };
 
         // Collision check w/ existing rooms
         for (const room of this.rooms) {
@@ -78,7 +61,7 @@ export class RoomGenerator {
                 return false;
             }
         }
-        newRoom.id = this.roomIDCounter;
+        newRoom.regionID = this.roomIDCounter;
         this.roomIDCounter += 1;
         this.rooms.push(newRoom);
         return true;
@@ -91,7 +74,7 @@ export class RoomGenerator {
             for (let y = room.y1; y < room.y2; y++) {
                 map[x][y].regionID = this.regionIDCounter;
                 // set room id within cell value, shift 14 bits to match roomid mask.
-                map[x][y].walls = room.id << 8; // Remove all walls for inner room cells
+                map[x][y].walls = room.regionID << 8; // Remove all walls for inner room cells
             }
         }
 

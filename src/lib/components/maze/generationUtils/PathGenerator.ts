@@ -1,6 +1,6 @@
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
-import type { Room } from "./RoomGenerator";
+import type { Room } from "$lib/components/maze/Room";
 
 // Simple union find (no recursion needed probably)
 class UnionFind {
