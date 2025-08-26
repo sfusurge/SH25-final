@@ -30,6 +30,7 @@ export class MazeGame {
     mobileMode = false; // for controlling what input type to show
     camera = Vector2.ZERO;
     zoom = $state(1);
+    joystickInput = Vector2.ZERO;
 
 
     //new Entity(new Vector2(200, 200), 100, 200)
@@ -66,6 +67,7 @@ export class MazeGame {
         );
 
         this.player = new Player(playerStartPos);
+        this.detectMobileMode();
         this.init();
     }
 
@@ -96,6 +98,14 @@ export class MazeGame {
         requestAnimationFrame(this.update.bind(this));
     }
 
+    detectMobileMode() {
+        this.mobileMode = 'ontouchstart' in window || window.innerWidth <= 768;
+    }
+
+    setJoystickInput(input: Vector2) {
+        this.joystickInput = input;
+    }
+
     getPlayerInput() {
         let x = 0;
         let y = 0;
@@ -117,7 +127,16 @@ export class MazeGame {
             x += 1;
         }
 
-        //... add other handlings
+        // handle joystick input (takes priority over keyboard on mobile)
+        if (this.mobileMode && (this.joystickInput.x !== 0 || this.joystickInput.y !== 0)) {
+            x = this.joystickInput.x;
+            y = this.joystickInput.y;
+        }
+        else if (!this.mobileMode) {
+            // On desktop, combine keyboard and joystick inputs
+            x += this.joystickInput.x;
+            y += this.joystickInput.y;
+        }
 
         return new Vector2(x, y).clampMagnitude(1);
     }
