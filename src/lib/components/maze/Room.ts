@@ -26,14 +26,14 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         id: 0, description: "Small Square", width: 3, height: 3,
         obstacleMap: [
             [0, 0, 0],
-            [1, 0, 0],
+            [1, 2, 0],
             [1, 0, 0]
         ]
     },
     {
         id: 1, description: "Small Rectangle", width: 4, height: 3,
         obstacleMap: [
-            [0, 0, 0, 0],
+            [0, 3, 0, 0],
             [0, 1, 1, 0],
             [0, 0, 0, 0]
         ]
@@ -42,8 +42,8 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         id: 2, description: "Large Square", width: 5, height: 5,
         obstacleMap: [
             [0, 0, 0, 1, 1],
-            [0, 1, 0, 0, 0],
-            [0, 1, 1, 0, 0],
+            [0, 1, 0, 0, 3],
+            [0, 1, 1, 0, 2],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0]
         ]
@@ -53,7 +53,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         obstacleMap: [
             [0, 0, 0, 0, 0, 0],
             [0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 1, 0, 0],
+            [0, 0, 3, 1, 0, 0],
             [0, 0, 0, 1, 0, 0]
         ]
     },
@@ -62,7 +62,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         obstacleMap: [
             [1, 1, 1, 1, 1, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 2, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 0]
         ]
     },
@@ -71,7 +71,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         obstacleMap: [
 
             [0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 0],
+            [0, 1, 1, 2, 0],
             [0, 1, 1, 1, 0],
             [0, 0, 1, 0, 0],
             [0, 0, 0, 0, 0],
