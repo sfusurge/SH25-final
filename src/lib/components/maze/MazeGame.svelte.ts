@@ -14,10 +14,7 @@ export class MazeGame {
         40, // maze width
         40, // maze height
         50, // attempts to generate rooms
-        5, // min room size
-        10, // max room size (before rectangularity)
         50, // winding percent for paths: 0 is straight corridors, 100 is max branching
-        3, // rectangularity: higher vals make more rectangular rooms
         0.03 // random open percent: chance to create openings in a wall where the two regions it connects already are connected
     );
 
@@ -40,7 +37,9 @@ export class MazeGame {
     horWallPiller = new Image();
     verWallSprite = new Image();
     verWallCapSprite = new Image();
-
+    rockSprite = new Image();
+    trapSprite = new Image();
+    scrollSprite = new Image();
 
     constructor(canvas: HTMLCanvasElement) {
         // load sprites
@@ -48,6 +47,9 @@ export class MazeGame {
         this.verWallSprite.src = "/maze/wall_ver_short.png";
         this.verWallCapSprite.src = "/maze/wall_ver_cap.png";
         this.horWallPiller.src = "/maze/wall_piller.png";
+        this.rockSprite.src = "/maze/rock_PLACEHOLDER.png";
+        this.trapSprite.src = "/maze/trap.png";
+        this.scrollSprite.src = "/maze/scroll.png";
 
         this.canvas = canvas;
         const ctx = canvas.getContext("2d", {});
@@ -57,13 +59,26 @@ export class MazeGame {
         }
         this.ctx = ctx;
 
-        // put player in a room idk
+        // put player in a room
         const firstRoom = this.mazeGenerator.rooms[0];
-        const roomCenterX = (firstRoom.x1 + firstRoom.x2) / 2;
-        const roomCenterY = (firstRoom.y1 + firstRoom.y2) / 2;
+        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
+        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
+
+        let foundSafeSpot = false;
+        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
+            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
+                const cell = this.maze.map[y * this.maze.width + x];
+                if (!((cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14)) {
+                    playerStartX = x;
+                    playerStartY = y;
+                    foundSafeSpot = true;
+                }
+            }
+        }
+
         const playerStartPos = new Vector2(
-            roomCenterX * CELL_SIZE,
-            roomCenterY * CELL_SIZE
+            (playerStartX + 0.5) * CELL_SIZE,
+            (playerStartY + 0.5) * CELL_SIZE
         );
 
         this.player = new Player(playerStartPos);
@@ -213,6 +228,24 @@ export class MazeGame {
 
             }
 
+
+            const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
+            if (obstacleType === 1) { //rock - 2x2 tiles
+                
+                const halfCell = CELL_SIZE / 2;
+                this.collisionResolution(this.player, AABB.fromPosSize(0, 0, halfCell, halfCell).shift(ox, oy));
+                this.collisionResolution(this.player, AABB.fromPosSize(halfCell, 0, halfCell, halfCell).shift(ox, oy));
+                this.collisionResolution(this.player, AABB.fromPosSize(0, halfCell, halfCell, halfCell).shift(ox, oy));
+                this.collisionResolution(this.player, AABB.fromPosSize(halfCell, halfCell, halfCell, halfCell).shift(ox, oy));
+                count += 4;
+            }
+            else if (obstacleType === 2) { // trap
+                // TODO
+            }
+            else if (obstacleType === 3) { // scroll
+                // TODO
+            }
+
         }
 
         debug.collisionResolutions = count;
@@ -288,6 +321,46 @@ export class MazeGame {
         return [lowX, hightX, lowY, hightY];
     }
 
+    renderImageWithAspectRatio(
+        ctx: CanvasRenderingContext2D,
+        image: HTMLImageElement,
+        x: number,
+        y: number,
+        maxSize: number,
+        centerInCell: boolean = true
+    ) {
+        const naturalWidth = image.naturalWidth || image.width;
+        const naturalHeight = image.naturalHeight || image.height;
+
+        if (naturalWidth <= 0 || naturalHeight <= 0) {
+            // Fallback to square rendering
+            const offset = centerInCell ? (CELL_SIZE - maxSize) / 2 : 0;
+            ctx.drawImage(image, x + offset, y + offset, maxSize, maxSize);
+            return;
+        }
+
+        const aspectRatio = naturalWidth / naturalHeight;
+        let renderWidth, renderHeight;
+
+        if (aspectRatio > 1) {
+            // Wider than tall
+            renderWidth = maxSize;
+            renderHeight = maxSize / aspectRatio;
+        } else {
+            // Taller than wide or square
+            renderHeight = maxSize;
+            renderWidth = maxSize * aspectRatio;
+        }
+
+        if (centerInCell) {
+            const offsetX = (CELL_SIZE - renderWidth) / 2;
+            const offsetY = (CELL_SIZE - renderHeight) / 2;
+            ctx.drawImage(image, x + offsetX, y + offsetY, renderWidth, renderHeight);
+        } else {
+            ctx.drawImage(image, x, y, renderWidth, renderHeight);
+        }
+    }
+
     walls: [string, number, number, number, number][] = [
         ["#d3869b", -WALL_SIZE / 2, 0, WALL_SIZE, CELL_SIZE], // left
         ["#e78a4e", -WALL_SIZE / 2, -WALL_SIZE / 2, CELL_SIZE + WALL_SIZE, WALL_SIZE], // top,
@@ -318,6 +391,32 @@ export class MazeGame {
                     ctx.fillStyle = "#161414";
                     ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
+                //obstacles
+                else if (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) {
+                    const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
+
+                    if (obstacleType === 1) {
+                        // rock - render as 2x2 tiles 
+                        ctx.fillStyle = "#7753A1";
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+
+                        const halfCell = CELL_SIZE / 2;
+                        // Draw four rock sprites in a 2x2 grid with proper aspect ratio
+                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE, row * CELL_SIZE, halfCell, false);
+                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE + halfCell, row * CELL_SIZE, halfCell, false);
+                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE, row * CELL_SIZE + halfCell, halfCell, false);
+                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE + halfCell, row * CELL_SIZE + halfCell, halfCell, false);
+                    } else if (obstacleType === 2) {
+                        // trap
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        this.renderImageWithAspectRatio(ctx, this.trapSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE);
+                    } else if (obstacleType === 3) {
+                        // scroll - preserve aspect ratio and make it smaller
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        this.renderImageWithAspectRatio(ctx, this.scrollSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE * 0.5);
+                    }
+                }
+
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";

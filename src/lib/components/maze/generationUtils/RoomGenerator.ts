@@ -1,13 +1,6 @@
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
-
-export type Room = {
-    id: number;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-};
+import { type Room, ROOM_TEMPLATES, type RoomTemplate } from "$lib/components/maze/Room";
 
 
 export class RoomGenerator {
@@ -39,21 +32,13 @@ export class RoomGenerator {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
-            const sizeRange = this.maxRoomSize - this.minRoomSize + 1;
 
-            // borrowing size specification code from dart example
-            const size = Math.floor(Math.random() * sizeRange) + this.minRoomSize;
-            const rectangleModifier = Math.floor(Math.random() * rectangularity);
 
-            let width = size;
-            let height = size;
-            if (Math.random() < 0.5) {
-                width += rectangleModifier;
-            } else {
-                height += rectangleModifier;
-            }
-            // TODO place rooms from a predetermined list 
-            this.tryAddRoom(width, height)
+            const randomIndex = Math.floor(Math.random() * ROOM_TEMPLATES.length);
+            const template = ROOM_TEMPLATES[randomIndex];
+
+
+            this.tryAddRoom(template);
         }
 
         // Place all rooms in the map
@@ -64,13 +49,29 @@ export class RoomGenerator {
         return [[...this.rooms], this.regionIDCounter]; // Return copy of rooms array
     }
 
-    private tryAddRoom(width: number, height: number): boolean {
-        const x1 = Math.floor(Math.random() * (this.width - width + 1));
-        const y1 = Math.floor(Math.random() * (this.height - height + 1));
-        const x2 = x1 + width;
-        const y2 = y1 + height;
+    private tryAddRoom(template: RoomTemplate): boolean {
+        const flipSize = Math.random() < 0.5;
+        const flipHorizontal = Math.random() < 0.5;
+        const flipVertical = Math.random() < 0.5;
+        const roomWidth = flipSize ? template.height : template.width;
+        const roomHeight = flipSize ? template.width : template.height;
 
-        const newRoom: Room = { id: 0, x1, y1, x2, y2 };
+        const x1 = Math.floor(Math.random() * (this.width - roomWidth + 1));
+        const y1 = Math.floor(Math.random() * (this.height - roomHeight + 1));
+        const x2 = x1 + roomWidth;
+        const y2 = y1 + roomHeight;
+
+        const newRoom: Room = {
+            regionID: this.roomIDCounter,
+            templateID: template.id,
+            flipSize,
+            flipHorizontal,
+            flipVertical,
+            x1,
+            y1,
+            x2,
+            y2
+        };
 
         // Collision check w/ existing rooms
         for (const room of this.rooms) {
@@ -78,7 +79,6 @@ export class RoomGenerator {
                 return false;
             }
         }
-        newRoom.id = this.roomIDCounter;
         this.roomIDCounter += 1;
         this.rooms.push(newRoom);
         return true;
@@ -87,27 +87,53 @@ export class RoomGenerator {
     private placeRoomInMap(room: Room, map: Cell[][]): void {
         // Clear out room; mark room as visited
         this.regionIDCounter++;
+
+        // create copy
+        let obstacleMap = ROOM_TEMPLATES[room.templateID].obstacleMap.map(row => [...row]);
+
+        if (room.flipVertical) {
+            obstacleMap.reverse();
+        }
+        if (room.flipHorizontal) {
+            for (let i = 0; i < obstacleMap.length; i++) {
+                obstacleMap[i].reverse();
+            }
+        }
+        if (room.flipSize) {
+            // Transpose the matrix for size flip
+            const transposed = obstacleMap[0].map((_, colIndex) =>
+                obstacleMap.map(row => row[colIndex])
+            );
+            obstacleMap = transposed;
+        }
+
         for (let x = room.x1; x < room.x2; x++) {
             for (let y = room.y1; y < room.y2; y++) {
+
                 map[x][y].regionID = this.regionIDCounter;
-                // set room id within cell value, shift 14 bits to match roomid mask.
-                map[x][y].walls = room.id << 8; // Remove all walls for inner room cells
+                // set room id within cell value, shift 8 bits to match roomid mask.
+                map[x][y].typeBits = room.regionID << 8;
+
+                // Calculate relative coordinates within the room
+                const relativeX = x - room.x1;
+                const relativeY = y - room.y1;
+
+
+                map[x][y].typeBits |= obstacleMap[relativeY][relativeX] << 14;
+
             }
         }
 
         // Add walls
-
         for (let x = room.x1; x < room.x2; x++) {
-            map[x][room.y1].walls |= CELL_TYPE.UP;
-            map[x][room.y2 - 1].walls |= CELL_TYPE.DOWN;
+            map[x][room.y1].typeBits |= CELL_TYPE.UP;
+            map[x][room.y2 - 1].typeBits |= CELL_TYPE.DOWN;
         }
 
         for (let y = room.y1; y < room.y2; y++) {
-            map[room.x1][y].walls |= CELL_TYPE.LEFT;
-            map[room.x2 - 1][y].walls |= CELL_TYPE.RIGHT;
+            map[room.x1][y].typeBits |= CELL_TYPE.LEFT;
+            map[room.x2 - 1][y].typeBits |= CELL_TYPE.RIGHT;
         }
-
-
     }
 
     private rectsIntersect(r1: Room, r2: Room): boolean {
