@@ -37,6 +37,7 @@ export class MazeGame {
     horWallPiller = new Image();
     verWallSprite = new Image();
     verWallCapSprite = new Image();
+    rockSprite = new Image();
 
 
     constructor(canvas: HTMLCanvasElement) {
@@ -45,6 +46,7 @@ export class MazeGame {
         this.verWallSprite.src = "/maze/wall_ver_short.png";
         this.verWallCapSprite.src = "/maze/wall_ver_cap.png";
         this.horWallPiller.src = "/maze/wall_piller.png";
+        this.rockSprite.src = "/maze/rock_PLACEHOLDER.png";
 
         this.canvas = canvas;
         const ctx = canvas.getContext("2d", {});
@@ -54,13 +56,26 @@ export class MazeGame {
         }
         this.ctx = ctx;
 
-        // put player in a room idk
+        // put player in a room
         const firstRoom = this.mazeGenerator.rooms[0];
-        const roomCenterX = (firstRoom.x1 + firstRoom.x2) / 2;
-        const roomCenterY = (firstRoom.y1 + firstRoom.y2) / 2;
+        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
+        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
+
+        let foundSafeSpot = false;
+        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
+            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
+                const cell = this.maze.map[y * this.maze.width + x];
+                if (!((cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14)) { 
+                    playerStartX = x;
+                    playerStartY = y;
+                    foundSafeSpot = true;
+                }
+            }
+        }
+
         const playerStartPos = new Vector2(
-            roomCenterX * CELL_SIZE,
-            roomCenterY * CELL_SIZE
+            (playerStartX + 0.5) * CELL_SIZE,
+            (playerStartY + 0.5) * CELL_SIZE
         );
 
         this.player = new Player(playerStartPos);
@@ -210,6 +225,15 @@ export class MazeGame {
 
             }
 
+
+            const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
+            if (obstacleType === 1) { //rock?
+
+                // Create a collision box for the entire cell for now
+                this.collisionResolution(this.player, AABB.fromPosSize(0, 0, CELL_SIZE, CELL_SIZE).shift(ox, oy));
+                count += 1;
+            }
+
         }
 
         debug.collisionResolutions = count;
@@ -315,12 +339,22 @@ export class MazeGame {
                     ctx.fillStyle = "#161414";
                     ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
-                //obstacle;for debug
+                //obstacles
                 else if (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) {
-                    ctx.fillStyle = "#3c3836";
-                    ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
+
+                    if (obstacleType === 1) {
+                        // rock
+                        ctx.fillStyle = "#7753A1";
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        ctx.drawImage(this.rockSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    } else {
+                        // temp
+                        ctx.fillStyle = "#3c3836";
+                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
                 }
-                
+
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";
