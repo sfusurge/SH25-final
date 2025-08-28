@@ -19,9 +19,8 @@ export class MazeGenerator {
     map: Cell[][];
     rooms: Room[] = [];
     regionIDCounter: number = 1;
-    private roomGenerator: RoomGenerator;
-    private pathGenerator: PathGenerator;
-
+    roomGenerator: RoomGenerator;
+    pathGenerator: PathGenerator;
 
     constructor(
         width: number,

@@ -1,6 +1,6 @@
 import { AABB, Vector2 } from "$lib/Vector2";
 
-export function loadImageToCanvas(src: string, width: number, flip = false) {
+export function loadImageToCanvas(src: string, width: number, flip = false, padding = 0) {
     const img = new Image();
     img.src = src;
 
@@ -16,8 +16,8 @@ export function loadImageToCanvas(src: string, width: number, flip = false) {
             ctx?.translate(width, 0);
             ctx?.scale(-1, 1);
         }
-
-        ctx?.drawImage(img, 0, 0, width, height);
+        const halfPadding = Math.floor(padding / 2);
+        ctx?.drawImage(img, halfPadding, halfPadding, width - halfPadding, height - halfPadding);
     });
 
     return canvas;
@@ -25,6 +25,8 @@ export function loadImageToCanvas(src: string, width: number, flip = false) {
 export class Entity {
     pos: Vector2;
     vel: Vector2 = Vector2.ZERO;
+
+    static = false; // static entity don't collide with walls, or other static entities
 
     // assume box shaped
     width: number;
@@ -56,6 +58,15 @@ export class Entity {
             this.pos.subp(this.width / 2, this.height / 2),
             this.pos.addp(this.width / 2, this.height / 2)
         );
+    }
+
+    // TODO add collision events
+
+    /**
+     * do state updates here
+     */
+    update(dt: number) {
+
     }
 
     /**

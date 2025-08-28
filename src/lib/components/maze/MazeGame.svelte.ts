@@ -1,15 +1,15 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
-import { CELL_TYPE } from "$lib/components/maze/Maze";
+import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 
 export const debug = $state<{ [key: string]: any }>({
 })
 
-const CELL_SIZE = 100; // px
-const WALL_SIZE = 25;
+
 
 export class MazeGame {
+    // TODO refactor for regenerating rooms
     mazeGenerator = new MazeGenerator(
         40, // maze width
         40, // maze height
@@ -20,6 +20,8 @@ export class MazeGame {
 
     maze = this.mazeGenerator.generate();
     rooms = this.mazeGenerator.rooms;
+    idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+    currentRoomId: number = 0; // 0 means not in a room.
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -107,8 +109,6 @@ export class MazeGame {
                 this.keyMem[e.key] = false;
             }
         })
-
-
         // start update loop
         requestAnimationFrame(this.update.bind(this));
     }
@@ -170,7 +170,8 @@ export class MazeGame {
 
         this.updateCameraPos();
         this.updateEntities();
-        this.resolveWallCollisions()
+        this.resolveWallCollisions();
+
         // this.collsionResolution(this.player, this.entities[0].aabb);
         this.render();
 
@@ -181,8 +182,6 @@ export class MazeGame {
     resolveWallCollisions() {
         const playerCol = Math.floor(this.player.x / CELL_SIZE);
         const playerRow = Math.floor(this.player.y / CELL_SIZE);
-
-        debug.roomid = (this.maze.map[playerRow * this.maze.width + playerCol] & CELL_TYPE.ROOM_MASK) >> 8;
 
         let count = 0;
 
@@ -229,22 +228,22 @@ export class MazeGame {
             }
 
 
-            const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
-            if (obstacleType === 1) { //rock - 2x2 tiles
-                
-                const halfCell = CELL_SIZE / 2;
-                this.collisionResolution(this.player, AABB.fromPosSize(0, 0, halfCell, halfCell).shift(ox, oy));
-                this.collisionResolution(this.player, AABB.fromPosSize(halfCell, 0, halfCell, halfCell).shift(ox, oy));
-                this.collisionResolution(this.player, AABB.fromPosSize(0, halfCell, halfCell, halfCell).shift(ox, oy));
-                this.collisionResolution(this.player, AABB.fromPosSize(halfCell, halfCell, halfCell, halfCell).shift(ox, oy));
-                count += 4;
-            }
-            else if (obstacleType === 2) { // trap
-                // TODO
-            }
-            else if (obstacleType === 3) { // scroll
-                // TODO
-            }
+            // const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
+            // if (obstacleType === 1) { //rock - 2x2 tiles
+
+            //     const halfCell = CELL_SIZE / 2;
+            //     this.collisionResolution(this.player, AABB.fromPosSize(0, 0, halfCell, halfCell).shift(ox, oy));
+            //     this.collisionResolution(this.player, AABB.fromPosSize(halfCell, 0, halfCell, halfCell).shift(ox, oy));
+            //     this.collisionResolution(this.player, AABB.fromPosSize(0, halfCell, halfCell, halfCell).shift(ox, oy));
+            //     this.collisionResolution(this.player, AABB.fromPosSize(halfCell, halfCell, halfCell, halfCell).shift(ox, oy));
+            //     count += 4;
+            // }
+            // else if (obstacleType === 2) { // trap
+            //     // TODO
+            // }
+            // else if (obstacleType === 3) { // scroll
+            //     // TODO
+            // }
 
         }
 
@@ -309,6 +308,23 @@ export class MazeGame {
     updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
+
+        // update entities
+        const playerCol = Math.floor(this.player.x / CELL_SIZE);
+        const playerRow = Math.floor(this.player.y / CELL_SIZE);
+
+        const roomId = ((this.maze.map[playerRow * this.maze.width + playerCol] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111; // mask to only select room range.
+        debug.roomId = roomId;
+        this.currentRoomId = roomId;
+        if (this.currentRoomId > 0) {
+            debug.currentRoomEntity = this.idToRoomLayout[this.currentRoomId];
+            const room = this.idToRoomLayout[this.currentRoomId];
+            for (const e of room.entities) {
+                e.update(this.deltaTime); // TODO trigger collision events.
+            }
+            room.entities.sort((a, b) => a.y - b.y); // sort by depth, to streamline rendering.
+        }
+
     }
 
     getCellRenderRange() {
@@ -391,32 +407,6 @@ export class MazeGame {
                     ctx.fillStyle = "#161414";
                     ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
-                //obstacles
-                else if (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) {
-                    const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
-
-                    if (obstacleType === 1) {
-                        // rock - render as 2x2 tiles 
-                        ctx.fillStyle = "#7753A1";
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-
-                        const halfCell = CELL_SIZE / 2;
-                        // Draw four rock sprites in a 2x2 grid with proper aspect ratio
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE, row * CELL_SIZE, halfCell, false);
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE + halfCell, row * CELL_SIZE, halfCell, false);
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE, row * CELL_SIZE + halfCell, halfCell, false);
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE + halfCell, row * CELL_SIZE + halfCell, halfCell, false);
-                    } else if (obstacleType === 2) {
-                        // trap
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        this.renderImageWithAspectRatio(ctx, this.trapSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE);
-                    } else if (obstacleType === 3) {
-                        // scroll - preserve aspect ratio and make it smaller
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        this.renderImageWithAspectRatio(ctx, this.scrollSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE * 0.5);
-                    }
-                }
-
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";
@@ -425,6 +415,9 @@ export class MazeGame {
             }
         }
 
+        let roomEntityIdx = 0; // tracking how many items in room is already rendered
+        let roomLayout = (this.currentRoomId > 0) ? this.idToRoomLayout[this.currentRoomId] : undefined;
+        let roomEntities = roomLayout?.entities ?? undefined;
         for (let row = lowY; row < highY; row++) {
             // wall pass just for top walls
             for (let col = lowX; col < highX; col++) {
@@ -444,7 +437,27 @@ export class MazeGame {
                 }
             }
 
-            // TODO, draw entities now
+            // draw entities
+            if (roomLayout && roomEntities) {
+                // draw entities in room
+                while (roomEntityIdx < roomEntities.length) {
+                    const e = roomEntities[roomEntityIdx];
+                    const depth = Math.floor(e.y / CELL_SIZE);
+                    console.log(depth, row);
+
+                    if (depth !== row) {
+                        break; // not the right depth to render
+                    }
+
+                    const eCol = Math.floor(e.x / CELL_SIZE);
+
+                    if (true || eCol >= lowX || eCol < highX) {
+                        // render entity in range
+                        e.render(ctx, this.lastTime);
+                    }
+                    roomEntityIdx += 1;
+                }
+            }
 
             // player
             if (row === playerDepth) {
@@ -461,7 +474,6 @@ export class MazeGame {
                     ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                     continue;
                 }
-
 
                 ctx.lineWidth = 2;
 
@@ -532,13 +544,6 @@ export class MazeGame {
         }
 
         debug.cellRenderCount = count;
-
-        // render entities
-        // TODO remove
-        // ctx.fillStyle = "#7daea3";
-        // for (const e of this.entities) {
-        //     ctx.fillRect(e.x - e.width / 2, e.y - e.height / 2, e.width, e.height);
-        // }
     }
 }
 
@@ -553,13 +558,12 @@ class Player extends Entity {
 
     // TODO player stats
     accel = 4000;
-    maxVel: number = 450;
+    maxVel: number = 400;
 
     direction = DOWN;
     playerSpites: { [key: number]: HTMLCanvasElement[] };
     constructor(pos: Vector2) {
         super(pos, 30, 25);
-
 
         this.playerSpites = {
             [LEFT]: [
@@ -635,7 +639,7 @@ class Player extends Entity {
             }
         }
 
-        ctx.translate(this.width / 2, this.height / 2); // translate origin to bottom of player, then offset by image size
+        ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
         ctx.translate(-sprite.width / 2, -sprite.height);
         ctx.drawImage(sprite, this.x, this.y);
 

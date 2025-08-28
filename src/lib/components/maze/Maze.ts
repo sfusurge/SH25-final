@@ -11,7 +11,7 @@ export const CELL_TYPE = Object.freeze({
     RIGHT_DOOR: 0b1000000,
     DOWN_DOOR: 0b10000000,
 
-    ROOM_MASK: 0b11111100000000,  // mask for the id range, 6 bits > 64 rooms, 8 bit offset
+    ROOM_MASK: 0b11111100000000,  // mask for the id range, 6 bits = 63 rooms, 8 bit offset
 
     // 14 bits used so far
 
@@ -19,9 +19,11 @@ export const CELL_TYPE = Object.freeze({
     OBSTACLE_TYPE_MASK: 0b11100000000000000, // 8 types should be enough??
 
     EMPTY: 0,
-    UNUSED: 0b1111 // all four walls being used 
+    UNUSED: 0b1111 // all four walls being used
 });
 
+export const CELL_SIZE = 100; // px
+export const WALL_SIZE = 25;
 
 export class Maze {
     map: Int32Array;

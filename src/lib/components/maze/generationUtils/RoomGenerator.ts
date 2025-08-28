@@ -1,6 +1,6 @@
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
-import { type Room, ROOM_TEMPLATES, type RoomTemplate } from "$lib/components/maze/Room";
+import { type Room, ROOM_TEMPLATES, RoomLayout, type RoomTemplate } from "$lib/components/maze/Room";
 
 
 export class RoomGenerator {
@@ -11,6 +11,8 @@ export class RoomGenerator {
     private height: number;
     private regionIDCounter: number = 1;
     private roomIDCounter = 1;
+
+    idToRoomTemplate: { [key: number]: RoomLayout } = {};
 
     constructor(
         width: number,
@@ -24,7 +26,7 @@ export class RoomGenerator {
         this.maxRoomSize = maxRoomSize;
     }
 
-    /** Main function: generates rooms on the map (returns generated rooms also) 
+    /** Main function: generates rooms on the map (returns generated rooms also)
      * @param map
      * @param attempts
      */
@@ -32,12 +34,8 @@ export class RoomGenerator {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
-
-
             const randomIndex = Math.floor(Math.random() * ROOM_TEMPLATES.length);
             const template = ROOM_TEMPLATES[randomIndex];
-
-
             this.tryAddRoom(template);
         }
 
@@ -115,14 +113,20 @@ export class RoomGenerator {
                 map[x][y].typeBits = room.regionID << 8;
 
                 // Calculate relative coordinates within the room
-                const relativeX = x - room.x1;
-                const relativeY = y - room.y1;
+                // const relativeX = x - room.x1;
+                // const relativeY = y - room.y1;
 
-
-                map[x][y].typeBits |= obstacleMap[relativeY][relativeX] << 14;
-
+                // map[x][y].typeBits |= obstacleMap[relativeY][relativeX] << 14;
             }
         }
+
+        this.idToRoomTemplate[room.regionID] = new RoomLayout(
+            obstacleMap[0].length,
+            obstacleMap.length,
+            room.x1,
+            room.y1,
+            obstacleMap
+        );
 
         // Add walls
         for (let x = room.x1; x < room.x2; x++) {

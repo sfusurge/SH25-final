@@ -1,5 +1,7 @@
-import { CELL_TYPE } from "$lib/components/maze/Maze";
-import type { Cell } from "$lib/components/maze/MazeGenerator";
+import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
+import { CELL_SIZE } from "$lib/components/maze/Maze";
+import { Vector2 } from "$lib/Vector2";
+
 
 export type Room = {
     regionID: number;
@@ -21,6 +23,115 @@ export type RoomTemplate = {
     obstacleMap: number[][];
 };
 
+const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.png", 50, false, 10);
+const ScrollSprite = loadImageToCanvas("/maze/scroll.png", 50, false, 20);
+const TrapSprite = loadImageToCanvas("/maze/trap.png", 50, false, 10);
+
+export class BlockerEntity extends Entity {
+
+    static = true;
+    sprite: HTMLCanvasElement;
+
+    constructor(pos: Vector2, sprite: HTMLCanvasElement) {
+        super(pos, 50, 50);
+        this.sprite = sprite;
+    }
+
+    // static, no updates
+
+    render(ctx: CanvasRenderingContext2D, time: number): void {
+        // TODO
+        const aabb = this.aabb;
+        ctx.drawImage(this.sprite, aabb.x, aabb.y, aabb.width, aabb.height);
+    }
+}
+
+export class ScrollEntity extends Entity {
+    static = true;
+    sprite: HTMLCanvasElement;
+
+    constructor(pos: Vector2) {
+        super(pos, 30, 30);
+        this.sprite = ScrollSprite;
+    }
+
+    // TODO add collision event with player to maybe give some power ups?
+
+    render(ctx: CanvasRenderingContext2D, time: number): void {
+        const aabb = this.aabb;
+        ctx.drawImage(this.sprite, aabb.x, aabb.y, aabb.width, aabb.height);
+    }
+}
+
+
+export class TrapEntity extends Entity {
+    static = true;
+    sprite: HTMLCanvasElement;
+
+    constructor(pos: Vector2) {
+        super(pos, 40, 40);
+        this.sprite = TrapSprite;
+    }
+
+    // TODO add collision event with player to maybe give some power ups?
+
+    render(ctx: CanvasRenderingContext2D, time: number): void {
+        const aabb = this.aabb;
+        ctx.drawImage(this.sprite, aabb.x, aabb.y, aabb.width, aabb.height);
+    }
+}
+
+
+
+export class RoomLayout {
+    width: number;
+    height: number;
+    left: number;
+    top: number;
+    entities: Entity[];
+
+    constructor(width: number, height: number, left: number, top: number, obstacleMap: number[][]) {
+        this.width = width;
+        this.height = height;
+        this.left = left;
+        this.top = top;
+
+        this.entities = [];
+        const HALFCELL = CELL_SIZE / 2;
+        for (let row = 0; row < height; row++) {
+            for (let col = 0; col < width; col++) {
+                // +25 to send to center of cell
+
+
+                const pos = new Vector2(left * CELL_SIZE + col * HALFCELL + 25, top * CELL_SIZE + row * HALFCELL + 25) // TODO maybe replace all magic numbers with CELL_SIZE fractions? maybe not
+                console.log(pos);
+
+                switch (obstacleMap[row][col]) {
+                    case ENTITY_TYPE.rock:
+                        this.entities.push(new BlockerEntity(pos, RockSprite)); // could use other sprites as well
+                        break;
+                    case ENTITY_TYPE.scroll:
+                        this.entities.push(new ScrollEntity(pos));
+                        break;
+                    case ENTITY_TYPE.trap:
+                        this.entities.push(new TrapEntity(pos));
+                        break;
+                }
+            }
+        }
+    }
+}
+
+export const ENTITY_TYPE = Object.freeze({
+    empty: 0,
+    rock: 1,
+    trap: 2,
+    scroll: 3
+}
+)
+
+
+// Make each tile in room half as big as in maze
 export const ROOM_TEMPLATES: RoomTemplate[] = [
     {
         id: 0, description: "Small Square", width: 3, height: 3,
