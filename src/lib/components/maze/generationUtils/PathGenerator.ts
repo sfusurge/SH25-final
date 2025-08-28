@@ -1,6 +1,6 @@
 import { CELL_TYPE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
-import type { Room } from "./RoomGenerator";
+import type { Room } from "$lib/components/maze/Room";
 
 // Simple union find (no recursion needed probably)
 class UnionFind {
@@ -163,20 +163,20 @@ export class PathGenerator {
 
         if (x2 > x1) {
             // Moving right
-            map[x1][y1].walls &= ~CELL_TYPE.RIGHT;
-            map[x2][y2].walls &= ~CELL_TYPE.LEFT;
+            map[x1][y1].typeBits &= ~CELL_TYPE.RIGHT;
+            map[x2][y2].typeBits &= ~CELL_TYPE.LEFT;
         } else if (x2 < x1) {
             // Moving left
-            map[x1][y1].walls &= ~CELL_TYPE.LEFT;
-            map[x2][y2].walls &= ~CELL_TYPE.RIGHT;
+            map[x1][y1].typeBits &= ~CELL_TYPE.LEFT;
+            map[x2][y2].typeBits &= ~CELL_TYPE.RIGHT;
         } else if (y2 > y1) {
             // Moving down
-            map[x1][y1].walls &= ~CELL_TYPE.DOWN;
-            map[x2][y2].walls &= ~CELL_TYPE.UP;
+            map[x1][y1].typeBits &= ~CELL_TYPE.DOWN;
+            map[x2][y2].typeBits &= ~CELL_TYPE.UP;
         } else if (y2 < y1) {
             // Moving up
-            map[x1][y1].walls &= ~CELL_TYPE.UP;
-            map[x2][y2].walls &= ~CELL_TYPE.DOWN;
+            map[x1][y1].typeBits &= ~CELL_TYPE.UP;
+            map[x2][y2].typeBits &= ~CELL_TYPE.DOWN;
         }
     }
 
@@ -199,24 +199,34 @@ export class PathGenerator {
         // Collect all edge positions and directions for all rooms
         const allRoomEdges: Array<{ x: number; y: number; dir: keyof typeof directions }> = [];
 
+        // Filter out cells that are obstacles, so that entrances aren't blocked
         for (const room of rooms) {
             // Top edge
             for (let x = room.x1; x < room.x2; x++) {
+            if (!(map[x][room.y1].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
                 allRoomEdges.push({ x, y: room.y1, dir: "up" });
+            }
             }
             // Bottom edge
             for (let x = room.x1; x < room.x2; x++) {
-                allRoomEdges.push({ x, y: room.y2 - 1, dir: "down" });
+                if (!(map[x][room.y2 - 1].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
+                    allRoomEdges.push({ x, y: room.y2 - 1, dir: "down" });
+                }
             }
             // Left edge
             for (let y = room.y1; y < room.y2; y++) {
-                allRoomEdges.push({ x: room.x1, y, dir: "left" });
+                if (!(map[room.x1][y].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
+                    allRoomEdges.push({ x: room.x1, y, dir: "left" });
+            }
             }
             // Right edge
             for (let y = room.y1; y < room.y2; y++) {
+                if (!(map[room.x2 - 1][y].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
                 allRoomEdges.push({ x: room.x2 - 1, y, dir: "right" });
             }
+            }
         }
+
 
         // Shuffle allEdgeChecks array and perform checks in rand order
         for (let i = allRoomEdges.length - 1; i > 0; i--) {
@@ -234,11 +244,11 @@ export class PathGenerator {
         const ny = y + direction.dy;
 
         const connect = (cell: Cell, neighbour: Cell) => {
-            map[x][y].walls &= ~direction.wall;
-            map[x][y].walls |= direction.wall << 4;
+            map[x][y].typeBits &= ~direction.wall;
+            map[x][y].typeBits |= direction.wall << 4;
 
-            map[nx][ny].walls &= ~direction.oppositeWall;
-            map[nx][ny].walls |= direction.oppositeWall << 4;
+            map[nx][ny].typeBits &= ~direction.oppositeWall;
+            map[nx][ny].typeBits |= direction.oppositeWall << 4;
             this.unionFind.union(cell.regionID, neighbour.regionID);
         };
 
@@ -273,7 +283,7 @@ export class PathGenerator {
                     const cell = map[x][y];
 
 
-                    if (cell.walls === CELL_TYPE.UNUSED) {
+                    if (cell.typeBits === CELL_TYPE.UNUSED) {
                         continue;
                     }
 
@@ -294,7 +304,7 @@ export class PathGenerator {
 
         // = 4 - number of walls
         for (let i = 0; i < 4; i++) {
-            if (((cell.walls >> i) & 1) === 0) {
+            if (((cell.typeBits >> i) & 1) === 0) {
                 openCount++;
             }
         }
@@ -308,26 +318,26 @@ export class PathGenerator {
         // Before marking as unused, close passages to neighbouring cells
 
         // Up
-        if (!(cell.walls & CELL_TYPE.UP) && this.isValidCell(x, y - 1)) {
+        if (!(cell.typeBits & CELL_TYPE.UP) && this.isValidCell(x, y - 1)) {
             const neighbour = map[x][y - 1];
-            neighbour.walls |= CELL_TYPE.DOWN;
+            neighbour.typeBits |= CELL_TYPE.DOWN;
         }
         // Right
-        if (!(cell.walls & CELL_TYPE.RIGHT) && this.isValidCell(x + 1, y)) {
+        if (!(cell.typeBits & CELL_TYPE.RIGHT) && this.isValidCell(x + 1, y)) {
             const neighbour = map[x + 1][y];
-            neighbour.walls |= CELL_TYPE.LEFT;
+            neighbour.typeBits |= CELL_TYPE.LEFT;
         }
         // Down
-        if (!(cell.walls & CELL_TYPE.DOWN) && this.isValidCell(x, y + 1)) {
+        if (!(cell.typeBits & CELL_TYPE.DOWN) && this.isValidCell(x, y + 1)) {
             const neighbour = map[x][y + 1];
-            neighbour.walls |= CELL_TYPE.UP;
+            neighbour.typeBits |= CELL_TYPE.UP;
         }
         // Left
-        if (!(cell.walls & CELL_TYPE.LEFT) && this.isValidCell(x - 1, y)) {
+        if (!(cell.typeBits & CELL_TYPE.LEFT) && this.isValidCell(x - 1, y)) {
             const neighbour = map[x - 1][y];
-            neighbour.walls |= CELL_TYPE.RIGHT;
+            neighbour.typeBits |= CELL_TYPE.RIGHT;
         }
 
-        map[x][y].walls = CELL_TYPE.UNUSED;
+        map[x][y].typeBits = CELL_TYPE.UNUSED;
     }
 }

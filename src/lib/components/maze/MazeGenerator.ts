@@ -1,10 +1,11 @@
 import { Maze, CELL_TYPE } from "$lib/components/maze/Maze";
-import { RoomGenerator, type Room } from "./generationUtils/RoomGenerator";
+import { RoomGenerator } from "./generationUtils/RoomGenerator";
+import type { Room } from "$lib/components/maze/Room";
 import { PathGenerator } from "./generationUtils/PathGenerator";
 
 // TODO: Optimize space?
 export type Cell = {
-    walls: number;
+    typeBits: number;
     regionID: number; // for generating rooms and paths; not for identification
 };
 
@@ -42,7 +43,7 @@ export class MazeGenerator {
         this.pathGenerator = new PathGenerator(width, height);
         this.map = Array.from({ length: width }, () =>
             Array.from({ length: height }, () => ({
-                walls: 0b1111, // Start with all walls
+                typeBits: 0b1111, // Start with all walls
                 regionID: 0 // unvisited
             }))
         );
@@ -65,7 +66,7 @@ export class MazeGenerator {
             map[y] = [];
             for (let x = 0; x < this.width; x++) {
                 const cell = this.map[x][y];
-                map[y][x] = cell.walls;
+                map[y][x] = cell.typeBits;
             }
         }
 
