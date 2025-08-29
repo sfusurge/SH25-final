@@ -138,10 +138,11 @@ export class MazeGame {
         let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
 
         let foundSafeSpot = false;
+        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
+
         for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
             for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
-                const cell = this.maze.map[y * this.maze.width + x];
-                if (!((cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14)) {
+                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
                     playerStartX = x;
                     playerStartY = y;
                     foundSafeSpot = true;
@@ -593,7 +594,7 @@ export class MazeGame {
                 while (roomEntityIdx < roomEntities.length) {
                     const e = roomEntities[roomEntityIdx];
                     const depth = Math.floor(e.y / CELL_SIZE);
-                    console.log(depth, row);
+                    // console.log(depth, row);
 
                     if (depth !== row) {
                         break; // not the right depth to render

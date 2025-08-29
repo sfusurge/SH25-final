@@ -125,6 +125,8 @@ export class RoomGenerator {
             obstacleMap.length,
             room.x1,
             room.y1,
+            room.x2,
+            room.y2,
             obstacleMap
         );
 
