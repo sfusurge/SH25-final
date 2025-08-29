@@ -35,6 +35,7 @@ export class BlockerEntity extends Entity {
     constructor(pos: Vector2, sprite: HTMLCanvasElement) {
         super(pos, 50, 50);
         this.sprite = sprite;
+        this.metadata = {entityType: ENTITY_TYPE.rock };
     }
 
     // static, no updates
@@ -53,6 +54,7 @@ export class ScrollEntity extends Entity {
     constructor(pos: Vector2) {
         super(pos, 30, 30);
         this.sprite = ScrollSprite;
+        this.metadata = {entityType: ENTITY_TYPE.scroll };
     }
 
     // TODO add collision event with player to maybe give some power ups?
@@ -71,6 +73,7 @@ export class TrapEntity extends Entity {
     constructor(pos: Vector2) {
         super(pos, 40, 40);
         this.sprite = TrapSprite;
+        this.metadata = {entityType: ENTITY_TYPE.trap };
     }
 
     // TODO add collision event with player to maybe give some power ups?

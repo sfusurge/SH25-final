@@ -32,7 +32,7 @@ export class Entity {
     width: number;
     height: number;
 
-    metadata: string = "";
+    metadata: { [key: string]: any } = {};
 
     accel: number = 1900;
     maxVel: number = 300;

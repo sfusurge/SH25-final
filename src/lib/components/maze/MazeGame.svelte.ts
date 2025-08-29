@@ -2,12 +2,80 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
+import { ENTITY_TYPE } from "./Room";
 
 export const debug = $state<{ [key: string]: any }>({
 })
 
+/**
+ * Entity grid using actual maze cells for efficient collision detection
+ */
+class EntityGrid {
+    gridWidth: number;
+    gridHeight: number;
+    offsetX: number;
+    offsetY: number;
+    grid: Entity[][][];
+
+    constructor(roomWidth: number, roomHeight: number, offsetX: number, offsetY: number) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.gridWidth = roomWidth;
+        this.gridHeight = roomHeight;
+
+        this.grid = [];
+        for (let y = 0; y < this.gridHeight; y++) {
+            this.grid[y] = [];
+            for (let x = 0; x < this.gridWidth; x++) {
+                this.grid[y][x] = [];
+            }
+        }
+    }
+
+    addEntity(entity: Entity) {
+        const gridX = Math.floor((entity.x - this.offsetX) / CELL_SIZE);
+        const gridY = Math.floor((entity.y - this.offsetY) / CELL_SIZE);
+
+        if (gridX >= 0 && gridX < this.gridWidth && gridY >= 0 && gridY < this.gridHeight) {
+            this.grid[gridY][gridX].push(entity);
+        }
+    }
+
+    getNearbyEntities(entity: Entity): Entity[] {
+        const gridX = Math.floor((entity.x - this.offsetX) / CELL_SIZE);
+        const gridY = Math.floor((entity.y - this.offsetY) / CELL_SIZE);
+
+        const nearbyEntities = new Set<Entity>();
+
+        // Check the entity's current cell and all 8 neighboring cells
+        for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+                const checkX = gridX + dx;
+                const checkY = gridY + dy;
+
+                if (checkX >= 0 && checkX < this.gridWidth && checkY >= 0 && checkY < this.gridHeight) {
+                    for (const e of this.grid[checkY][checkX]) {
+                        if (e !== entity) { // Don't include the entity itself
+                            nearbyEntities.add(e);
+                        }
+                    }
+                }
+            }
+        }
+
+        return Array.from(nearbyEntities);
+    }
 
 
+    clear() {
+        for (let y = 0; y < this.gridHeight; y++) {
+            for (let x = 0; x < this.gridWidth; x++) {
+                this.grid[y][x] = [];
+            }
+        }
+    }
+
+}
 export class MazeGame {
     // TODO refactor for regenerating rooms
     mazeGenerator = new MazeGenerator(
@@ -31,6 +99,9 @@ export class MazeGame {
     zoom = $state(1);
     joystickInput = Vector2.ZERO;
 
+    // Entity grid for collision detection
+    entityGrid: EntityGrid | null = null;
+    lastRoomId: number = -1; // Track when we enter a new room
 
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
@@ -171,8 +242,9 @@ export class MazeGame {
         this.updateCameraPos();
         this.updateEntities();
         this.resolveWallCollisions();
+        this.resolveEntityCollisions();
 
-        // this.collsionResolution(this.player, this.entities[0].aabb);
+        // this.collisionResolution(this.player, this.entities[0].aabb);
         this.render();
 
         this.lastTime = time;
@@ -250,6 +322,54 @@ export class MazeGame {
         debug.collisionResolutions = count;
     }
 
+    resolveEntityCollisions() {
+        if (!this.entityGrid || this.currentRoomId === 0) {
+            return; // No spatial grid or not in a room
+        }
+
+        const nearbyEntities = this.entityGrid.getNearbyEntities(this.player);
+        let entityCollisionCount = 0;
+
+        for (const entity of nearbyEntities) {
+            const entityType = entity.metadata?.entityType;
+
+            switch (entityType) {
+                case ENTITY_TYPE.rock:
+
+                    this.collisionResolution(this.player, entity.aabb);
+                    entityCollisionCount++;
+                    break;
+
+                case ENTITY_TYPE.trap:
+
+                    if (this.player.aabb.collidingWith(entity.aabb)) {
+                        this.handleTrapCollision(entity);
+                        entityCollisionCount++;
+                    }
+                    break;
+
+                case ENTITY_TYPE.scroll:
+                    if (this.player.aabb.collidingWith(entity.aabb)) {
+                        this.handleScrollCollision(entity);
+                        entityCollisionCount++;
+                    }
+                    break;
+            }
+        }
+
+        debug.entityCollisions = entityCollisionCount;
+        debug.nearbyEntitiesCount = nearbyEntities.length;
+    }
+
+    handleTrapCollision(trapEntity: Entity) {
+        // TODO: Implement trap effects
+    }
+
+
+    handleScrollCollision(scrollEntity: Entity) {
+        // TODO: Implement scroll collection 
+    }
+
     collisionResolution(entity: Entity, b: AABB) {
         const a = entity.aabb;
         debug.hasCollision = a.collidingWith(b);
@@ -317,12 +437,42 @@ export class MazeGame {
         debug.roomId = roomId;
         this.currentRoomId = roomId;
         if (this.currentRoomId > 0) {
-            debug.currentRoomEntity = this.idToRoomLayout[this.currentRoomId];
+            if (this.currentRoomId !== this.lastRoomId) {
+                this.rebuildEntityGrid();
+                this.lastRoomId = this.currentRoomId;
+            }
             const room = this.idToRoomLayout[this.currentRoomId];
             for (const e of room.entities) {
                 e.update(this.deltaTime); // TODO trigger collision events.
             }
             room.entities.sort((a, b) => a.y - b.y); // sort by depth, to streamline rendering.
+        }
+    }
+
+    rebuildEntityGrid() {
+        if (this.currentRoomId <= 0) {
+            this.entityGrid = null;
+            return;
+        }
+
+        const room = this.idToRoomLayout[this.currentRoomId];
+        if (!room) {
+            this.entityGrid = null;
+            return;
+        }
+
+        const roomOffsetX = room.left * CELL_SIZE;
+        const roomOffsetY = room.top * CELL_SIZE;
+
+        this.entityGrid = new EntityGrid(
+            room.width,
+            room.height,
+            roomOffsetX,
+            roomOffsetY
+        );
+
+        for (const entity of room.entities) {
+            this.entityGrid.addEntity(entity);
         }
 
     }
