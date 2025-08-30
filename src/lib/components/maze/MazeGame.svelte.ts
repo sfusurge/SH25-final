@@ -2,9 +2,14 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { ENTITY_TYPE } from "./Room";
+import { ENTITY_TYPE } from "./Entities";
 
 export const debug = $state<{ [key: string]: any }>({
+    debugCollision: {
+        rock: false,
+        scroll: false,
+        trap: false
+    }
 })
 
 /**
@@ -40,32 +45,6 @@ class EntityGrid {
             this.grid[gridY][gridX].push(entity);
         }
     }
-
-    getNearbyEntities(entity: Entity): Entity[] {
-        const gridX = Math.floor((entity.x - this.offsetX) / CELL_SIZE);
-        const gridY = Math.floor((entity.y - this.offsetY) / CELL_SIZE);
-
-        const nearbyEntities = new Set<Entity>();
-
-        // Check the entity's current cell and all 8 neighboring cells
-        for (let dy = -1; dy <= 1; dy++) {
-            for (let dx = -1; dx <= 1; dx++) {
-                const checkX = gridX + dx;
-                const checkY = gridY + dy;
-
-                if (checkX >= 0 && checkX < this.gridWidth && checkY >= 0 && checkY < this.gridHeight) {
-                    for (const e of this.grid[checkY][checkX]) {
-                        if (e !== entity) { // Don't include the entity itself
-                            nearbyEntities.add(e);
-                        }
-                    }
-                }
-            }
-        }
-
-        return Array.from(nearbyEntities);
-    }
-
 
     clear() {
         for (let y = 0; y < this.gridHeight; y++) {
@@ -276,26 +255,26 @@ export class MazeGame {
 
             if (cell & CELL_TYPE.LEFT) {
                 const [_, x, y, w, h] = this.walls[0];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
+                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
                 count += 1;
             }
 
             if (cell & CELL_TYPE.UP) {
                 const [_, x, y, w, h] = this.walls[1];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
+                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
                 count += 1;
             }
 
             if (cell & CELL_TYPE.RIGHT) {
                 const [_, x, y, w, h] = this.walls[2];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
+                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
                 count += 1;
 
             }
 
             if (cell & CELL_TYPE.DOWN) {
                 const [_, x, y, w, h] = this.walls[3];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
+                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
                 count += 1;
 
             }
@@ -325,104 +304,62 @@ export class MazeGame {
 
     resolveEntityCollisions() {
         if (!this.entityGrid || this.currentRoomId === 0) {
-            return; // No spatial grid or not in a room
+            return;
         }
 
-        const nearbyEntities = this.entityGrid.getNearbyEntities(this.player);
+        const room = this.idToRoomLayout[this.currentRoomId];
+        if (!room) {
+            return;
+        }
+
+        // Get all entities in room
+        const allEntities = [this.player, ...room.entities];
         let entityCollisionCount = 0;
 
-        for (const entity of nearbyEntities) {
-            const entityType = entity.metadata?.entityType;
+        // pairwise checks
+        for (let i = 0; i < allEntities.length; i++) {
+            const entityA = allEntities[i];
 
-            switch (entityType) {
-                case ENTITY_TYPE.rock:
+            const gridX = Math.floor((entityA.x - this.entityGrid.offsetX) / CELL_SIZE);
+            const gridY = Math.floor((entityA.y - this.entityGrid.offsetY) / CELL_SIZE);
 
-                    this.collisionResolution(this.player, entity.aabb);
-                    entityCollisionCount++;
-                    break;
+            // Check the entity's current cell and all 8 neighboring cells
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const checkX = gridX + dx;
+                    const checkY = gridY + dy;
 
-                case ENTITY_TYPE.trap:
+                    if (checkX >= 0 && checkX < this.entityGrid.gridWidth &&
+                        checkY >= 0 && checkY < this.entityGrid.gridHeight) {
 
-                    if (this.player.aabb.collidingWith(entity.aabb)) {
-                        this.handleTrapCollision(entity);
-                        entityCollisionCount++;
+                        // Check all entities in this grid cell
+                        for (const entityB of this.entityGrid.grid[checkY][checkX]) {
+                            if (entityA === entityB) {
+                                continue;
+                            }
+
+                            // Skip if entityB was already checked (avoid doubling up)
+                            const entityBIndex = allEntities.indexOf(entityB);
+                            if (entityBIndex !== -1 && entityBIndex <= i) {
+                                continue;
+                            }
+
+                            const isColliding = entityA.aabb.collidingWith(entityB.aabb);
+
+                            if (isColliding) {
+                                entityCollisionCount++;
+
+                                entityA.onCollision(entityB, this);
+                                entityB.onCollision(entityA, this);
+                            }
+                        }
                     }
-                    break;
-
-                case ENTITY_TYPE.scroll:
-                    if (this.player.aabb.collidingWith(entity.aabb)) {
-                        this.handleScrollCollision(entity);
-                        entityCollisionCount++;
-                    }
-                    break;
+                }
             }
         }
 
         debug.entityCollisions = entityCollisionCount;
-        debug.nearbyEntitiesCount = nearbyEntities.length;
     }
-
-    handleTrapCollision(trapEntity: Entity) {
-        // TODO: Implement trap effects
-    }
-
-
-    handleScrollCollision(scrollEntity: Entity) {
-        // TODO: Implement scroll collection 
-    }
-
-    collisionResolution(entity: Entity, b: AABB) {
-        const a = entity.aabb;
-        debug.hasCollision = a.collidingWith(b);
-        const isColliding = a.collidingWith(b);
-
-        if (!isColliding) {
-            entity.maxVelMod = 1;
-            return;
-        }
-
-        // intersection dist of how far A went into B
-        let px = 0, py = 0; //
-
-        if (a.right > b.left && a.left < b.right) {
-            // a is intersecting b from left
-            px = b.left - a.right;
-        }
-
-        // a intersection from right
-        if (a.left < b.right && a.right > b.left) {
-            const temp = b.right - a.left;
-
-            if (Math.abs(temp) < Math.abs(px)) {
-                px = temp; // pick which small magnitude direction to move
-            }
-        }
-
-        // a intersect from above
-        if (a.bot > b.top && a.top < b.bot) {
-            py = b.top - a.bot;
-        }
-
-        // a intersect from below
-        if (a.top < b.bot && a.bot > b.top) {
-            const temp = b.bot - a.top;
-            if (Math.abs(temp) < Math.abs(py)) {
-                py = temp;
-            }
-        }
-
-        if (Math.abs(px) < Math.abs(py)) {
-            entity.vel.x = 0;
-            entity.maxVelMod = 0.5; // apply fake friction
-            entity.pos.x += px * 1.01;
-        } else {
-            entity.maxVelMod = 0.5;
-            entity.vel.y = 0;
-            entity.pos.y += py * 1.01;
-        }
-    }
-
-
     /**
      * updates velocity of all entities and then move according to vel.
      */
@@ -472,6 +409,8 @@ export class MazeGame {
             roomOffsetY
         );
 
+        // Add all entities to the grid, including player
+        this.entityGrid.addEntity(this.player);
         for (const entity of room.entities) {
             this.entityGrid.addEntity(entity);
         }
@@ -716,6 +655,8 @@ class Player extends Entity {
     constructor(pos: Vector2) {
         super(pos, 30, 25);
 
+        this.metadata = { entityType: 'player' };
+
         this.playerSpites = {
             [LEFT]: [
                 loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth),
@@ -772,6 +713,27 @@ class Player extends Entity {
             move: movement,
             angle: this.direction
         }
+    }
+
+    onCollision(other: Entity, game?: any): void {
+
+        const entityType = other.metadata?.entityType;
+
+        switch (entityType) {
+            case ENTITY_TYPE.rock:
+                break;
+
+            case ENTITY_TYPE.trap:
+                break;
+
+            case ENTITY_TYPE.scroll:
+                break;
+        }
+    }
+
+    // encapsulated wall collisions a bit
+    resolveWallCollision(wallAABB: AABB): void {
+        this.resolveCollision(wallAABB);
     }
 
     render(ctx: CanvasRenderingContext2D, time: number): void {

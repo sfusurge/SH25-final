@@ -1,6 +1,7 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
 import { Vector2 } from "$lib/Vector2";
+import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE } from "./Entities";
 
 
 export type Room = {
@@ -23,68 +24,8 @@ export type RoomTemplate = {
     obstacleMap: number[][];
 };
 
+
 const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.png", 50, false, 10);
-const ScrollSprite = loadImageToCanvas("/maze/scroll.png", 50, false, 20);
-const TrapSprite = loadImageToCanvas("/maze/trap.png", 50, false, 10);
-
-export class BlockerEntity extends Entity {
-
-    static = true;
-    sprite: HTMLCanvasElement;
-
-    constructor(pos: Vector2, sprite: HTMLCanvasElement) {
-        super(pos, 50, 50);
-        this.sprite = sprite;
-        this.metadata = { entityType: ENTITY_TYPE.rock };
-    }
-
-    // static, no updates
-
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        // TODO
-        const aabb = this.aabb;
-        ctx.drawImage(this.sprite, aabb.x, aabb.y, aabb.width, aabb.height);
-    }
-}
-
-export class ScrollEntity extends Entity {
-    static = true;
-    sprite: HTMLCanvasElement;
-
-    constructor(pos: Vector2) {
-        super(pos, 30, 30);
-        this.sprite = ScrollSprite;
-        this.metadata = { entityType: ENTITY_TYPE.scroll };
-    }
-
-    // TODO add collision event with player to maybe give some power ups?
-
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        const aabb = this.aabb;
-        ctx.drawImage(this.sprite, aabb.x, aabb.y, aabb.width, aabb.height);
-    }
-}
-
-
-export class TrapEntity extends Entity {
-    static = true;
-    sprite: HTMLCanvasElement;
-
-    constructor(pos: Vector2) {
-        super(pos, 40, 40);
-        this.sprite = TrapSprite;
-        this.metadata = { entityType: ENTITY_TYPE.trap };
-    }
-
-    // TODO add collision event with player to maybe give some power ups?
-
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        const aabb = this.aabb;
-        ctx.drawImage(this.sprite, aabb.x, aabb.y, aabb.width, aabb.height);
-    }
-}
-
-
 
 export class RoomLayout {
     width: number;
@@ -134,27 +75,21 @@ export class RoomLayout {
         const relativeX = x - this.left;
         const relativeY = y - this.top;
 
-        const templateX = Math.floor(relativeX * this.width / (this.right - this.left));
-        const templateY = Math.floor(relativeY * this.height / (this.bottom - this.top));
 
-        // Check if there are any entities at this position
+        const templateX = relativeX * 2;
+        const templateY = relativeY * 2;
+
         return this.entities.some(entity => {
-            // Convert entity position back to template coordinates
-            const entityTemplateX = Math.floor((entity.x - this.left * CELL_SIZE) / (CELL_SIZE / 2));
-            const entityTemplateY = Math.floor((entity.y - this.top * CELL_SIZE) / (CELL_SIZE / 2));
+
+            const entityTemplateX = Math.floor((entity.x - this.left * CELL_SIZE - 25) / (CELL_SIZE / 2));
+            const entityTemplateY = Math.floor((entity.y - this.top * CELL_SIZE - 25) / (CELL_SIZE / 2));
 
             return entityTemplateX === templateX && entityTemplateY === templateY;
         });
     }
 }
 
-export const ENTITY_TYPE = Object.freeze({
-    empty: 0,
-    rock: 1,
-    trap: 2,
-    scroll: 3
-}
-)
+
 
 
 // Make each tile in room half as big as in maze

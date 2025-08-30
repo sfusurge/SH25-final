@@ -60,7 +60,66 @@ export class Entity {
         );
     }
 
-    // TODO add collision events
+    /**
+     * Called when this entity collides with another entity
+     * @param other The other entity involved in the collision
+     * @param game Reference to the game instance for accessing game state
+     */
+    onCollision(other: Entity, game?: any): void {
+        // Default implementation does nothing
+    }
+
+    resolveCollision(otherAABB: AABB): boolean {
+        const a = this.aabb;
+        const isColliding = a.collidingWith(otherAABB);
+
+        if (!isColliding) {
+            this.maxVelMod = 1;
+            return false;
+        }
+
+        // intersection dist of how far A went into B
+        let px = 0, py = 0;
+
+        if (a.right > otherAABB.left && a.left < otherAABB.right) {
+            // a is intersecting b from left
+            px = otherAABB.left - a.right;
+        }
+
+        // a intersection from right
+        if (a.left < otherAABB.right && a.right > otherAABB.left) {
+            const temp = otherAABB.right - a.left;
+
+            if (Math.abs(temp) < Math.abs(px)) {
+                px = temp; // pick which small magnitude direction to move
+            }
+        }
+
+        // a intersect from above
+        if (a.bot > otherAABB.top && a.top < otherAABB.bot) {
+            py = otherAABB.top - a.bot;
+        }
+
+        // a intersect from below
+        if (a.top < otherAABB.bot && a.bot > otherAABB.top) {
+            const temp = otherAABB.bot - a.top;
+            if (Math.abs(temp) < Math.abs(py)) {
+                py = temp;
+            }
+        }
+
+        if (Math.abs(px) < Math.abs(py)) {
+            this.vel.x = 0;
+            this.maxVelMod = 0.5; // apply fake friction
+            this.pos.x += px * 1.01;
+        } else {
+            this.maxVelMod = 0.5;
+            this.vel.y = 0;
+            this.pos.y += py * 1.01;
+        }
+
+        return true;
+    }
 
     /**
      * do state updates here
