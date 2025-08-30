@@ -2,14 +2,9 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { ENTITY_TYPE } from "./Entities";
+import { Player } from "./Entities";
 
 export const debug = $state<{ [key: string]: any }>({
-    debugCollision: {
-        rock: false,
-        scroll: false,
-        trap: false
-    }
 })
 
 /**
@@ -637,125 +632,5 @@ export class MazeGame {
     }
 }
 
-const LEFT = 0;
-const UP = 1;
-const RIGHT = 2;
-const DOWN = 3;
 
-class Player extends Entity {
 
-    renderWidth = 50;
-
-    // TODO player stats
-    accel = 4000;
-    maxVel: number = 400;
-
-    direction = DOWN;
-    playerSpites: { [key: number]: HTMLCanvasElement[] };
-    constructor(pos: Vector2) {
-        super(pos, 30, 25);
-
-        this.metadata = { entityType: 'player' };
-
-        this.playerSpites = {
-            [LEFT]: [
-                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth),
-            ],
-            [RIGHT]: [
-                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth, true),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth, true),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth, true),
-            ],
-            [UP]: [
-                loadImageToCanvas("/maze/player_sprites/player_up_neutral.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_up_walk_1.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_up_walk_2.webp", this.renderWidth),
-            ],
-            [DOWN]: [
-                loadImageToCanvas("/maze/player_sprites/player_down_neutral.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_down_walk_1.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_down_walk_2.webp", this.renderWidth),
-            ]
-        };
-    }
-
-    /**
-     * movement vector x,y where each value is a float [-1, 1].
-     * movement should have magnitude clamped to 1 at most.
-     * @param x
-     * @param y
-     * @param dt delta time since the last move input
-     */
-    onMoveInput(movement: Vector2, dt: number) {
-        const mag = movement.mag();
-
-        if (mag < 0.1) {
-            movement = Vector2.ZERO;
-        } else {
-            const angle = movement.angle();
-            if (angle >= -135 && angle <= -45) {
-                this.direction = UP;
-            } else if (angle >= -45 && angle < 45) {
-                this.direction = RIGHT;
-            } else if (angle >= 45 && angle < 135) {
-                this.direction = DOWN;
-            } else if (angle >= 135 || angle < -135) {
-                this.direction = LEFT;
-            }
-        }
-
-        this.move(movement, dt);
-
-        debug.player = {
-            vel: this.vel,
-            move: movement,
-            angle: this.direction
-        }
-    }
-
-    onCollision(other: Entity, game?: any): void {
-
-        const entityType = other.metadata?.entityType;
-
-        switch (entityType) {
-            case ENTITY_TYPE.rock:
-                break;
-
-            case ENTITY_TYPE.trap:
-                break;
-
-            case ENTITY_TYPE.scroll:
-                break;
-        }
-    }
-
-    // encapsulated wall collisions a bit
-    resolveWallCollision(wallAABB: AABB): void {
-        this.resolveCollision(wallAABB);
-    }
-
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        const trans = ctx.getTransform();
-
-        const mag = this.vel.mag();
-        const sprites = this.playerSpites[this.direction];
-
-        let sprite = sprites[0];
-        if (mag > 0.1) {
-            debug.time = time;
-            if (Math.round((time % 1000) / 250) % 2 === 0) { // alternate animation every 250 ms
-                sprite = sprites[1];
-            } else {
-                sprite = sprites[2];
-            }
-        }
-
-        ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
-        ctx.translate(-sprite.width / 2, -sprite.height);
-        ctx.drawImage(sprite, this.x, this.y);
-
-        ctx.setTransform(trans);
-    }
-}
