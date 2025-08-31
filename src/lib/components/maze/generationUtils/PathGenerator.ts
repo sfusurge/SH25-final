@@ -286,7 +286,7 @@ export class PathGenerator {
                     const cell = map[x][y];
 
 
-                    if (cell.typeBits === CELL_TYPE.UNUSED) {
+                    if (cell.typeBits === CELL_TYPE.SOLID) {
                         continue;
                     }
 
@@ -341,6 +341,6 @@ export class PathGenerator {
             neighbour.typeBits |= CELL_TYPE.RIGHT;
         }
 
-        map[x][y].typeBits = CELL_TYPE.UNUSED;
+        map[x][y].typeBits = CELL_TYPE.SOLID;
     }
 }

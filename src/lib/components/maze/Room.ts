@@ -35,6 +35,8 @@ export class RoomLayout {
     right: number;
     bottom: number;
     entities: Entity[];
+    staticEntities: (Entity | undefined)[][] = []; // solid, such as rocks / scroll, is always in depth sorted order.
+    dynamicEntities: Entity[] = [];
 
     constructor(width: number, height: number, left: number, top: number, right: number, bottom: number, obstacleMap: number[][]) {
         this.width = width;
@@ -47,28 +49,39 @@ export class RoomLayout {
         this.entities = [];
         const HALFCELL = CELL_SIZE / 2;
         for (let row = 0; row < height; row++) {
+            this.staticEntities.push(new Array(this.width).fill(undefined));
             for (let col = 0; col < width; col++) {
                 // +25 to send to center of cell
-
-
                 const pos = new Vector2(left * CELL_SIZE + col * HALFCELL + 25, top * CELL_SIZE + row * HALFCELL + 25) // TODO maybe replace all magic numbers with CELL_SIZE fractions? maybe not
                 // console.log(pos);
-
+                let entity: Entity | undefined = undefined;
                 switch (obstacleMap[row][col]) {
                     case ENTITY_TYPE.rock:
-                        this.entities.push(new BlockerEntity(pos, RockSprite)); // could use other sprites as well
+                        entity = new BlockerEntity(pos, RockSprite); // could use other sprites as well
                         break;
                     case ENTITY_TYPE.scroll:
-                        this.entities.push(new ScrollEntity(pos));
+                        entity = new ScrollEntity(pos);
                         break;
                     case ENTITY_TYPE.trap:
-                        this.entities.push(new TrapEntity(pos));
+                        entity = new TrapEntity(pos);
                         break;
                 }
+
+                if (entity) {
+                    if (entity.static) {
+                        this.staticEntities[row][col] = entity;
+                    } else {
+                        this.dynamicEntities.push(entity);
+                        this.staticEntities[row][col] = undefined;
+                    }
+                    this.entities.push(entity);
+                } else {
+                    this.staticEntities[row][col] = undefined;
+                }
+
             }
         }
     }
-
 
     hasEntitiesAtPosition(x: number, y: number): boolean {
 

@@ -133,7 +133,7 @@ export class Player extends Entity {
     }
 }
 
-const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.png", 50, false, 10);
+const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.png", 50, false, 0);
 const ScrollSprite = loadImageToCanvas("/maze/scroll.png", 50, false, 20);
 const TrapSprite = loadImageToCanvas("/maze/trap.png", 50, false, 10);
 
@@ -143,7 +143,7 @@ export class BlockerEntity extends Entity {
     sprite: HTMLCanvasElement;
 
     constructor(pos: Vector2, sprite: HTMLCanvasElement) {
-        super(pos, 50, 50);
+        super(pos, 40, 40);
         this.sprite = RockSprite;
         this.metadata = { entityType: ENTITY_TYPE.rock };
     }

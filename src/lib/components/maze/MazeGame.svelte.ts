@@ -244,7 +244,7 @@ export class MazeGame {
             const cell = this.maze.map[row * this.maze.width + col];
             const ox = col * CELL_SIZE, oy = row * CELL_SIZE;
 
-            if (cell === CELL_TYPE.UNUSED) {
+            if (cell === CELL_TYPE.SOLID) {
                 continue;
             }
 
@@ -273,24 +273,6 @@ export class MazeGame {
                 count += 1;
 
             }
-
-
-            // const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
-            // if (obstacleType === 1) { //rock - 2x2 tiles
-
-            //     const halfCell = CELL_SIZE / 2;
-            //     this.collisionResolution(this.player, AABB.fromPosSize(0, 0, halfCell, halfCell).shift(ox, oy));
-            //     this.collisionResolution(this.player, AABB.fromPosSize(halfCell, 0, halfCell, halfCell).shift(ox, oy));
-            //     this.collisionResolution(this.player, AABB.fromPosSize(0, halfCell, halfCell, halfCell).shift(ox, oy));
-            //     this.collisionResolution(this.player, AABB.fromPosSize(halfCell, halfCell, halfCell, halfCell).shift(ox, oy));
-            //     count += 4;
-            // }
-            // else if (obstacleType === 2) { // trap
-            //     // TODO
-            // }
-            // else if (obstacleType === 3) { // scroll
-            //     // TODO
-            // }
 
         }
 
@@ -343,7 +325,6 @@ export class MazeGame {
 
                             if (isColliding) {
                                 entityCollisionCount++;
-
                                 entityA.onCollision(entityB, this);
                                 entityB.onCollision(entityA, this);
                             }
@@ -376,9 +357,8 @@ export class MazeGame {
             }
             const room = this.idToRoomLayout[this.currentRoomId];
             for (const e of room.entities) {
-                e.update(this.deltaTime); // TODO trigger collision events.
+                e.update(this.deltaTime);
             }
-            room.entities.sort((a, b) => a.y - b.y); // sort by depth, to streamline rendering.
         }
     }
 
@@ -409,7 +389,19 @@ export class MazeGame {
         for (const entity of room.entities) {
             this.entityGrid.addEntity(entity);
         }
+    }
 
+    getRoomsOnScreen(lowX: number, highX: number, lowY: number, highY: number) {
+        const out = new Set<number>();
+        for (let row = lowY; row < highY; row++) {
+            for (let col = lowX; col < highX; col++) {
+                const cellId = (this.maze.map[row * this.maze.width + col] & CELL_TYPE.ROOM_MASK) >> 8;
+                if (cellId > 0) {
+                    out.add(cellId);
+                }
+            }
+        }
+        return Array.from(out);
     }
 
     getCellRenderRange() {
@@ -478,17 +470,18 @@ export class MazeGame {
 
 
         const playerDepth = Math.floor((this.player.y / (this.maze.height * CELL_SIZE)) * this.maze.height);
-        let count = 0;
+        let renderCount = 0;
 
         // render all backgrounds,
         const [lowX, highX, lowY, highY] = this.getCellRenderRange();
 
+        // ======= BACKGROUND ====== //
         for (let row = lowY; row < highY; row++) {
-            // background pass
+
             for (let col = lowX; col < highX; col++) {
                 const cell = this.maze.map[row * this.maze.width + col];
 
-                if (cell === CELL_TYPE.UNUSED) {
+                if (cell === CELL_TYPE.SOLID) {
                     ctx.fillStyle = "#161414";
                     ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
@@ -499,18 +492,26 @@ export class MazeGame {
                 }
             }
         }
+        // ======= END BACKGROUND ====== //
 
-        let roomEntityIdx = 0; // tracking how many items in room is already rendered
-        let roomLayout = (this.currentRoomId > 0) ? this.idToRoomLayout[this.currentRoomId] : undefined;
-        let roomEntities = roomLayout?.entities ?? undefined;
+
+
+        // ===== ROOM ====== //
+        let currentRoomDynamicEntities = undefined;
+        let dynamicRenderIdx = 0;
+        if (this.currentRoomId > 0) {
+            currentRoomDynamicEntities = this.idToRoomLayout[this.currentRoomId].dynamicEntities;
+            currentRoomDynamicEntities.sort((a, b) => a.y - b.y);
+        }
+
         for (let row = lowY; row < highY; row++) {
-            // wall pass just for top walls
+            // ======= TOP WALL ======
             for (let col = lowX; col < highX; col++) {
                 const cell = this.maze.map[row * this.maze.width + col];
 
-                if (cell !== CELL_TYPE.UNUSED && cell & CELL_TYPE.UP) {
+                if (cell !== CELL_TYPE.SOLID && cell & CELL_TYPE.UP) {
                     ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
-                    count += 1;
+                    renderCount += 1;
                     const [color, x, y, w, h] = this.walls[1];
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
 
@@ -522,40 +523,59 @@ export class MazeGame {
                 }
             }
 
-            // draw entities
-            if (roomLayout && roomEntities) {
-                // draw entities in room
-                while (roomEntityIdx < roomEntities.length) {
-                    const e = roomEntities[roomEntityIdx];
-                    const depth = Math.floor(e.y / CELL_SIZE);
-                    // console.log(depth, row);
+            // ====== STATIC ENTITIES ======
+            for (const roomId of this.getRoomsOnScreen(lowX, highX, lowY, highY)) {
 
-                    if (depth !== row) {
-                        break; // not the right depth to render
+                const roomLayout = this.idToRoomLayout[roomId];
+                if (row > roomLayout.bottom || row < roomLayout.top) {
+                    continue;
+                }
+
+                const startRow = (row - roomLayout.top) * 2;
+                for (let r = startRow; r < Math.min(roomLayout.staticEntities.length, startRow + 2); r++) {
+                    const entitiesInRow = roomLayout.staticEntities[r];
+
+                    for (const e of entitiesInRow) {
+                        if (e) {
+                            const col = Math.floor(e.x / CELL_SIZE);
+                            if (col >= lowX && col < highX) {
+                                e.render(ctx, this.lastTime);
+                            }
+                        }
                     }
-
-                    const eCol = Math.floor(e.x / CELL_SIZE);
-
-                    if (true || eCol >= lowX || eCol < highX) {
-                        // render entity in range
-                        e.render(ctx, this.lastTime);
-                    }
-                    roomEntityIdx += 1;
                 }
             }
 
-            // player
+            // ====== DYNAMIC ENTITY ====== //
+            if (currentRoomDynamicEntities) {
+                while (dynamicRenderIdx < currentRoomDynamicEntities.length) {
+                    const entity = currentRoomDynamicEntities[dynamicRenderIdx];
+                    const depth = Math.floor(entity.y / CELL_SIZE);
+
+                    if (depth !== row) {
+                        break;
+                    }
+
+                    const col = Math.floor(entity.x / CELL_SIZE);
+                    if (col >= lowX && col < highX) {
+                        entity.render(ctx, this.lastTime);
+                    }
+                    dynamicRenderIdx += 1;
+                }
+            }
+
+            // ====== PLAYER ====== //
             if (row === playerDepth) {
                 this.player.render(ctx, this.lastTime);
             }
 
 
-            // wall pass
+            // ======= OTHER WALLS ======
             for (let col = lowX; col < highX; col++) {
                 ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
-                count += 1;
+                renderCount += 1;
                 const cell = this.maze.map[row * this.maze.width + col];
-                if (cell === CELL_TYPE.UNUSED) {
+                if (cell === CELL_TYPE.SOLID) {
                     ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                     continue;
                 }
@@ -580,7 +600,7 @@ export class MazeGame {
 
                     const [color, x, y, w, h] = this.walls[2];
 
-                    if (cell & CELL_TYPE.DOWN && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.UNUSED)) {
+                    if (cell & CELL_TYPE.DOWN && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.SOLID)) {
                         ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE / 2);
                     }
                     else if (inline) {
@@ -603,32 +623,10 @@ export class MazeGame {
                 }
 
                 ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
-
-                // const doorColor = "#ccccbb";
-                // if (cell & CELL_TYPE.LEFT_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-
-                // }
-                // if (cell & CELL_TYPE.UP_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
-                // }
-                // if (cell & CELL_TYPE.RIGHT_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-                // }
-                // if (cell & CELL_TYPE.DOWN_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
-                // }
-
             }
-
-            // other entities
         }
 
-        debug.cellRenderCount = count;
+        debug.cellRenderCount = renderCount;
     }
 }
 

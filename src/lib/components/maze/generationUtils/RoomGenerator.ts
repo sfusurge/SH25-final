@@ -12,7 +12,7 @@ export class RoomGenerator {
     private regionIDCounter: number = 1;
     private roomIDCounter = 1;
 
-    idToRoomTemplate: { [key: number]: RoomLayout } = {};
+    idToRoomTemplate: { [key: number | string]: RoomLayout } = {};
 
     constructor(
         width: number,
