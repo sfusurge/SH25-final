@@ -57,6 +57,10 @@ export class Vector2 {
         );
     }
 
+    static of(x: number, y: number) {
+        return new Vector2(x, y);
+    }
+
     /**
      * returns the mid point between the 2 vectors.
      * Same as lerp(v1, v2, 0.5);
@@ -164,6 +168,12 @@ export class Vector2 {
         return new Vector2(this.x / quotient, this.y / quotient);
     }
 
+    divi(quotient: number) {
+        this.x /= quotient;
+        this.y /= quotient;
+        return this;
+    }
+
     mag() {
         return Math.hypot(this.x, this.y);
     }
@@ -178,6 +188,9 @@ export class Vector2 {
 
     normalized() {
         const m = this.mag();
+        if (m === 0) {
+            return Vector2.ZERO;
+        }
         return new Vector2(this.x / m, this.y / m);
     }
 
@@ -186,6 +199,13 @@ export class Vector2 {
      */
     normalize() {
         const m = this.mag();
+
+        if (m === 0) {
+            this.x = 0;
+            this.y = 0;
+            return this;
+        }
+
         this.x = this.x / m;
         this.y = this.y / m;
         return this;
@@ -270,7 +290,7 @@ export class AABB {
         )
     }
 
-    cornerCoain(aabb: AABB | undefined) {
+    cornerContains(aabb: AABB | undefined) {
         if (!aabb) {
             return false;
         }
@@ -349,6 +369,10 @@ export class AABB {
 
     get bot() {
         return this.botright.y;
+    }
+
+    get center() {
+        return this.topleft.add(this.botright).divi(2);
     }
 
 }

@@ -1,6 +1,6 @@
-import { CELL_TYPE } from "$lib/components/maze/Maze";
+import { CELL_TYPE, CELL_SIZE } from "$lib/components/maze/Maze";
 import type { Cell } from "$lib/components/maze/MazeGenerator";
-import type { Room } from "$lib/components/maze/Room";
+import type { Room, RoomLayout } from "$lib/components/maze/Room";
 
 // Simple union find (no recursion needed probably)
 class UnionFind {
@@ -185,9 +185,10 @@ export class PathGenerator {
      * Connects all rooms and paths, creating spanning tree (perfect maze)
      * @param map 
      * @param rooms 
+     * @param idToRoomTemplate - mapping of room IDs to their layouts
      */
 
-    connectRegions(map: Cell[][], rooms: Room[], randomOpenPercent: number): void {
+    connectRegions(map: Cell[][], rooms: Room[], randomOpenPercent: number, idToRoomTemplate: { [key: number]: RoomLayout }): void {
 
         const directions = {
             up: { dx: 0, dy: -1, wall: CELL_TYPE.UP, oppositeWall: CELL_TYPE.DOWN },
@@ -201,29 +202,31 @@ export class PathGenerator {
 
         // Filter out cells that are obstacles, so that entrances aren't blocked
         for (const room of rooms) {
+            const roomLayout = idToRoomTemplate[room.regionID];
+
             // Top edge
             for (let x = room.x1; x < room.x2; x++) {
-            if (!(map[x][room.y1].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
-                allRoomEdges.push({ x, y: room.y1, dir: "up" });
-            }
+                if (!roomLayout?.hasEntitiesAtPosition(x, room.y1)) {
+                    allRoomEdges.push({ x, y: room.y1, dir: "up" });
+                }
             }
             // Bottom edge
             for (let x = room.x1; x < room.x2; x++) {
-                if (!(map[x][room.y2 - 1].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
+                if (!roomLayout?.hasEntitiesAtPosition(x, room.y2 - 1)) {
                     allRoomEdges.push({ x, y: room.y2 - 1, dir: "down" });
                 }
             }
             // Left edge
             for (let y = room.y1; y < room.y2; y++) {
-                if (!(map[room.x1][y].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
+                if (!roomLayout?.hasEntitiesAtPosition(room.x1, y)) {
                     allRoomEdges.push({ x: room.x1, y, dir: "left" });
-            }
+                }
             }
             // Right edge
             for (let y = room.y1; y < room.y2; y++) {
-                if (!(map[room.x2 - 1][y].typeBits & CELL_TYPE.OBSTACLE_TYPE_MASK)) {
-                allRoomEdges.push({ x: room.x2 - 1, y, dir: "right" });
-            }
+                if (!roomLayout?.hasEntitiesAtPosition(room.x2 - 1, y)) {
+                    allRoomEdges.push({ x: room.x2 - 1, y, dir: "right" });
+                }
             }
         }
 
@@ -283,7 +286,7 @@ export class PathGenerator {
                     const cell = map[x][y];
 
 
-                    if (cell.typeBits === CELL_TYPE.UNUSED) {
+                    if (cell.typeBits === CELL_TYPE.SOLID) {
                         continue;
                     }
 
@@ -338,6 +341,6 @@ export class PathGenerator {
             neighbour.typeBits |= CELL_TYPE.RIGHT;
         }
 
-        map[x][y].typeBits = CELL_TYPE.UNUSED;
+        map[x][y].typeBits = CELL_TYPE.SOLID;
     }
 }

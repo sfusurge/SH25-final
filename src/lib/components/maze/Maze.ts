@@ -11,17 +11,16 @@ export const CELL_TYPE = Object.freeze({
     RIGHT_DOOR: 0b1000000,
     DOWN_DOOR: 0b10000000,
 
-    ROOM_MASK: 0b11111100000000,  // mask for the id range, 6 bits > 64 rooms, 8 bit offset
+    ROOM_MASK: 0b11111100000000,  // mask for the id range, 6 bits = 63 rooms, 8 bit offset
 
     // 14 bits used so far
 
-    // If there's a more space efficient solution for representing room obstacle bits, lmk
-    OBSTACLE_TYPE_MASK: 0b11100000000000000, // 8 types should be enough??
-
     EMPTY: 0,
-    UNUSED: 0b1111 // all four walls being used 
+    SOLID: 0b1111 // all four walls being used
 });
 
+export const CELL_SIZE = 100; // px
+export const WALL_SIZE = 25;
 
 export class Maze {
     map: Int32Array;
@@ -41,11 +40,11 @@ export class Maze {
                     let cell = map[row][col];
 
 
-                    if (cell === CELL_TYPE.UNUSED) {
+                    if (cell === CELL_TYPE.SOLID) {
                         continue;
                     }
 
-                    if (row < this.height - 1 && !(map[row + 1][col] === CELL_TYPE.UNUSED)) {
+                    if (row < this.height - 1 && !(map[row + 1][col] === CELL_TYPE.SOLID)) {
                         if (cell & CELL_TYPE.DOWN && map[row + 1][col] & CELL_TYPE.UP) {
                             cell = cell & (~CELL_TYPE.DOWN);
                         }
@@ -55,7 +54,7 @@ export class Maze {
                         }
                     }
 
-                    if (col < this.width - 1 && !(map[row][col + 1] === CELL_TYPE.UNUSED)) {
+                    if (col < this.width - 1 && !(map[row][col + 1] === CELL_TYPE.SOLID)) {
                         if (cell & CELL_TYPE.RIGHT && map[row][col + 1] & CELL_TYPE.LEFT) {
                             cell = cell & (~CELL_TYPE.RIGHT);
                         }

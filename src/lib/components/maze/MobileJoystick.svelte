@@ -61,7 +61,7 @@
         // Calculate input vector: [-1, 1]
         currentInput = new Vector2(
             clampedDistance > 0 ? normalizedX / maxDistance : 0,
-            clampedDistance > 0 ? normalizedY / maxDistance : 0
+            clampedDistance > 0 ? normalizedY / maxDistance : 0,
         );
 
         onmove?.(currentInput);
@@ -160,7 +160,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("/maze/controller_base.png");
+        background-image: url("/maze/controller_base.webp");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
@@ -173,7 +173,7 @@
         left: 50%;
         width: var(--knob-size);
         height: var(--knob-size);
-        background-image: url("/maze/controller_knob.png");
+        background-image: url("/maze/controller_knob.webp");
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

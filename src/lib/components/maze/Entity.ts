@@ -1,6 +1,7 @@
 import { AABB, Vector2 } from "$lib/Vector2";
+import { type MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
 
-export function loadImageToCanvas(src: string, width: number, flip = false) {
+export function loadImageToCanvas(src: string, width: number, flip = false, padding = 0) {
     const img = new Image();
     img.src = src;
 
@@ -17,7 +18,8 @@ export function loadImageToCanvas(src: string, width: number, flip = false) {
             ctx?.scale(-1, 1);
         }
 
-        ctx?.drawImage(img, 0, 0, width, height);
+        const halfPadding = Math.floor(padding / 2);
+        ctx?.drawImage(img, halfPadding, halfPadding, width - padding, height - padding);
     });
 
     return canvas;
@@ -26,11 +28,15 @@ export class Entity {
     pos: Vector2;
     vel: Vector2 = Vector2.ZERO;
 
+    static = false; // static entity don't collide with walls, or other static entities
+    solid = false; // solid objects blocks movement of player and path finding agents.
+
+
     // assume box shaped
     width: number;
     height: number;
 
-    metadata: string = "";
+    metadata: { [key: string]: any } = {};
 
     accel: number = 1900;
     maxVel: number = 300;
@@ -59,10 +65,80 @@ export class Entity {
     }
 
     /**
+     * Called when this entity collides with another entity
+     * @param other The other entity involved in the collision
+     * @param game Reference to the game instance for accessing game state
+     */
+    onCollision(other: Entity, game?: any): void {
+        // Default implementation does nothing
+    }
+
+    resolveCollision(otherAABB: AABB): boolean {
+        const a = this.aabb;
+        const isColliding = a.collidingWith(otherAABB);
+
+        if (!isColliding) {
+            this.maxVelMod = 1;
+            return false;
+        }
+
+        // intersection dist of how far A went into B
+        let px = 0, py = 0;
+
+        if (a.right > otherAABB.left && a.left < otherAABB.right) {
+            // a is intersecting b from left
+            px = otherAABB.left - a.right;
+        }
+
+        // a intersection from right
+        if (a.left < otherAABB.right && a.right > otherAABB.left) {
+            const temp = otherAABB.right - a.left;
+
+            if (Math.abs(temp) < Math.abs(px)) {
+                px = temp; // pick which small magnitude direction to move
+            }
+        }
+
+        // a intersect from above
+        if (a.bot > otherAABB.top && a.top < otherAABB.bot) {
+            py = otherAABB.top - a.bot;
+        }
+
+        // a intersect from below
+        if (a.top < otherAABB.bot && a.bot > otherAABB.top) {
+            const temp = otherAABB.bot - a.top;
+            if (Math.abs(temp) < Math.abs(py)) {
+                py = temp;
+            }
+        }
+
+        if (Math.abs(px) < Math.abs(py)) {
+            // this.vel.x += px / 0.006;
+            // this.maxVelMod = 0.5; // apply fake friction
+            this.pos.x += px * 1.01;
+        } else {
+            // this.maxVelMod = 0.5;
+            // this.vel.y += py / 0.006;
+            this.pos.y += py * 1.01;
+        }
+
+        return true;
+    }
+
+    /**
+     * do state updates here
+     */
+    update(game: MazeGame, dt: number) {
+
+    }
+
+    /**
      * tries to accelerate
      * @param desiredDirection
      */
     move(desiredDirection: Vector2, dt: number) {
+        desiredDirection = desiredDirection.normalized();
+
         const diff = desiredDirection.mul(this.maxVel * this.maxVelMod).subi(this.vel); // missing velocity (unit/s) to reach target velocity
         const diffMag = diff.mag();
 

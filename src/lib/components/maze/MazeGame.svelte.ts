@@ -1,15 +1,57 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
-import { CELL_TYPE } from "$lib/components/maze/Maze";
+import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
+import { Player } from "./Entities";
 
 export const debug = $state<{ [key: string]: any }>({
 })
 
-const CELL_SIZE = 100; // px
-const WALL_SIZE = 25;
+/**
+ * Entity grid using actual maze cells for efficient collision detection
+ */
+class EntityGrid {
+    gridWidth: number;
+    gridHeight: number;
+    offsetX: number;
+    offsetY: number;
+    grid: Entity[][][];
 
+    constructor(roomWidth: number, roomHeight: number, offsetX: number, offsetY: number) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.gridWidth = roomWidth;
+        this.gridHeight = roomHeight;
+
+        this.grid = [];
+        for (let y = 0; y < this.gridHeight; y++) {
+            this.grid[y] = [];
+            for (let x = 0; x < this.gridWidth; x++) {
+                this.grid[y][x] = [];
+            }
+        }
+    }
+
+    addEntity(entity: Entity) {
+        const gridX = Math.floor((entity.x - this.offsetX) / CELL_SIZE);
+        const gridY = Math.floor((entity.y - this.offsetY) / CELL_SIZE);
+
+        if (gridX >= 0 && gridX < this.gridWidth && gridY >= 0 && gridY < this.gridHeight) {
+            this.grid[gridY][gridX].push(entity);
+        }
+    }
+
+    clear() {
+        for (let y = 0; y < this.gridHeight; y++) {
+            for (let x = 0; x < this.gridWidth; x++) {
+                this.grid[y][x] = [];
+            }
+        }
+    }
+
+}
 export class MazeGame {
+    // TODO refactor for regenerating rooms
     mazeGenerator = new MazeGenerator(
         40, // maze width
         40, // maze height
@@ -20,6 +62,8 @@ export class MazeGame {
 
     maze = this.mazeGenerator.generate();
     rooms = this.mazeGenerator.rooms;
+    idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+    currentRoomId: number = 0; // 0 means not in a room.
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -29,12 +73,15 @@ export class MazeGame {
     zoom = $state(1);
     joystickInput = Vector2.ZERO;
 
+    // Entity grid for collision detection
+    entityGrid: EntityGrid | null = null;
+    lastRoomId: number = -1; // Track when we enter a new room
 
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
 
     horWallSprite = new Image();
-    horWallPiller = new Image();
+    horWallPillar = new Image();
     verWallSprite = new Image();
     verWallCapSprite = new Image();
     rockSprite = new Image();
@@ -43,13 +90,13 @@ export class MazeGame {
 
     constructor(canvas: HTMLCanvasElement) {
         // load sprites
-        this.horWallSprite.src = "/maze/wall_hor_short.png";
-        this.verWallSprite.src = "/maze/wall_ver_short.png";
-        this.verWallCapSprite.src = "/maze/wall_ver_cap.png";
-        this.horWallPiller.src = "/maze/wall_piller.png";
-        this.rockSprite.src = "/maze/rock_PLACEHOLDER.png";
-        this.trapSprite.src = "/maze/trap.png";
-        this.scrollSprite.src = "/maze/scroll.png";
+        this.horWallSprite.src = "/maze/wall_hor_short.webp";
+        this.verWallSprite.src = "/maze/wall_ver_short.webp";
+        this.verWallCapSprite.src = "/maze/wall_ver_cap.webp";
+        this.horWallPillar.src = "/maze/wall_pillar.webp";
+        this.rockSprite.src = "/maze/rock_PLACEHOLDER.webp";
+        this.trapSprite.src = "/maze/trap.webp";
+        this.scrollSprite.src = "/maze/scroll.webp";
 
         this.canvas = canvas;
         const ctx = canvas.getContext("2d", {});
@@ -65,10 +112,11 @@ export class MazeGame {
         let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
 
         let foundSafeSpot = false;
+        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
+
         for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
             for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
-                const cell = this.maze.map[y * this.maze.width + x];
-                if (!((cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14)) {
+                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
                     playerStartX = x;
                     playerStartY = y;
                     foundSafeSpot = true;
@@ -107,8 +155,6 @@ export class MazeGame {
                 this.keyMem[e.key] = false;
             }
         })
-
-
         // start update loop
         requestAnimationFrame(this.update.bind(this));
     }
@@ -168,28 +214,31 @@ export class MazeGame {
         this.deltaTime = (time - this.lastTime) / 1000;
         debug.delta = this.deltaTime.toFixed(4);
 
+        if (this.deltaTime > 0.1) {
+            this.lastTime = time;
+            requestAnimationFrame(this.update.bind(this));
+            return;
+        }
+
         this.updateCameraPos();
         this.updateEntities();
-        this.resolveWallCollisions()
-        // this.collsionResolution(this.player, this.entities[0].aabb);
+        this.resolveEntityCollisions();
+
+        // this.collisionResolution(this.player, this.entities[0].aabb);
         this.render();
 
         this.lastTime = time;
         requestAnimationFrame(this.update.bind(this));
     }
 
-    resolveWallCollisions() {
-        const playerCol = Math.floor(this.player.x / CELL_SIZE);
-        const playerRow = Math.floor(this.player.y / CELL_SIZE);
-
-        debug.roomid = (this.maze.map[playerRow * this.maze.width + playerCol] & CELL_TYPE.ROOM_MASK) >> 8;
-
-        let count = 0;
+    resolveWallCollisions(entity: Entity) {
+        const eCol = Math.floor(entity.x / CELL_SIZE);
+        const eRow = Math.floor(entity.y / CELL_SIZE);
 
         // TODO, filter only the wall that matters
         for (const [dr, dc] of [[-1, 0], [1, 0], [0, 1], [0, -1], [0, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
-            const row = playerRow + dr;
-            const col = playerCol + dc;
+            const row = eRow + dr;
+            const col = eCol + dc;
 
             if (!(row >= 0 && col >= 0 && row < this.maze.height && col < this.maze.width)) {
                 continue;
@@ -198,117 +247,161 @@ export class MazeGame {
             const cell = this.maze.map[row * this.maze.width + col];
             const ox = col * CELL_SIZE, oy = row * CELL_SIZE;
 
-            if (cell === CELL_TYPE.UNUSED) {
+            if (cell === CELL_TYPE.SOLID) {
                 continue;
             }
 
             if (cell & CELL_TYPE.LEFT) {
                 const [_, x, y, w, h] = this.walls[0];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
             if (cell & CELL_TYPE.UP) {
                 const [_, x, y, w, h] = this.walls[1];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
             if (cell & CELL_TYPE.RIGHT) {
                 const [_, x, y, w, h] = this.walls[2];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
-
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
             if (cell & CELL_TYPE.DOWN) {
                 const [_, x, y, w, h] = this.walls[3];
-                this.collisionResolution(this.player, AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
-
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
-
-
-            const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
-            if (obstacleType === 1) { //rock - 2x2 tiles
-                
-                const halfCell = CELL_SIZE / 2;
-                this.collisionResolution(this.player, AABB.fromPosSize(0, 0, halfCell, halfCell).shift(ox, oy));
-                this.collisionResolution(this.player, AABB.fromPosSize(halfCell, 0, halfCell, halfCell).shift(ox, oy));
-                this.collisionResolution(this.player, AABB.fromPosSize(0, halfCell, halfCell, halfCell).shift(ox, oy));
-                this.collisionResolution(this.player, AABB.fromPosSize(halfCell, halfCell, halfCell, halfCell).shift(ox, oy));
-                count += 4;
-            }
-            else if (obstacleType === 2) { // trap
-                // TODO
-            }
-            else if (obstacleType === 3) { // scroll
-                // TODO
-            }
-
         }
-
-        debug.collisionResolutions = count;
     }
 
-    collisionResolution(entity: Entity, b: AABB) {
-        const a = entity.aabb;
-        debug.hasCollision = a.collidingWith(b);
-        const isColliding = a.collidingWith(b);
+    resolveEntityCollisions() {
+        this.resolveWallCollisions(this.player);
 
-        if (!isColliding) {
-            entity.maxVelMod = 1;
+        if (!this.entityGrid || this.currentRoomId === 0) {
             return;
         }
 
-        // intersection dist of how far A went into B
-        let px = 0, py = 0; //
-
-        if (a.right > b.left && a.left < b.right) {
-            // a is intersecting b from left
-            px = b.left - a.right;
+        const room = this.idToRoomLayout[this.currentRoomId];
+        if (!room) {
+            return;
         }
 
-        // a intersection from right
-        if (a.left < b.right && a.right > b.left) {
-            const temp = b.right - a.left;
+        // Get all entities in room
+        const allEntities = [this.player, ...room.dynamicEntities];
+        let entityCollisionCount = 0;
 
-            if (Math.abs(temp) < Math.abs(px)) {
-                px = temp; // pick which small magnitude direction to move
+        for (const e of allEntities) {
+            this.resolveWallCollisions(e);
+        }
+
+        // pairwise checks
+        for (let i = 0; i < allEntities.length; i++) {
+            const entityA = allEntities[i];
+
+            const gridX = Math.floor((entityA.x - this.entityGrid.offsetX) / CELL_SIZE);
+            const gridY = Math.floor((entityA.y - this.entityGrid.offsetY) / CELL_SIZE);
+
+            // Check the entity's current cell and all 8 neighboring cells
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const checkX = gridX + dx;
+                    const checkY = gridY + dy;
+
+                    if (checkX >= 0 && checkX < this.entityGrid.gridWidth &&
+                        checkY >= 0 && checkY < this.entityGrid.gridHeight) {
+
+                        // Check all entities in this grid cell
+                        for (const entityB of this.entityGrid.grid[checkY][checkX]) {
+                            if (entityA === entityB) {
+                                continue;
+                            }
+
+                            // Skip if entityB was already checked (avoid doubling up)
+                            const entityBIndex = allEntities.indexOf(entityB);
+                            if (entityBIndex !== -1 && entityBIndex <= i) {
+                                continue;
+                            }
+
+                            const isColliding = entityA.aabb.collidingWith(entityB.aabb);
+
+                            if (isColliding) {
+                                entityCollisionCount++;
+                                entityA.onCollision(entityB, this);
+                                entityB.onCollision(entityA, this);
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        // a intersect from above
-        if (a.bot > b.top && a.top < b.bot) {
-            py = b.top - a.bot;
-        }
-
-        // a intersect from below
-        if (a.top < b.bot && a.bot > b.top) {
-            const temp = b.bot - a.top;
-            if (Math.abs(temp) < Math.abs(py)) {
-                py = temp;
-            }
-        }
-
-        if (Math.abs(px) < Math.abs(py)) {
-            entity.vel.x = 0;
-            entity.maxVelMod = 0.5; // apply fake friction
-            entity.pos.x += px * 1.01;
-        } else {
-            entity.maxVelMod = 0.5;
-            entity.vel.y = 0;
-            entity.pos.y += py * 1.01;
-        }
+        debug.entityCollisions = entityCollisionCount;
     }
-
-
     /**
      * updates velocity of all entities and then move according to vel.
      */
     updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
+
+        // update entities
+        const playerCol = Math.floor(this.player.x / CELL_SIZE);
+        const playerRow = Math.floor(this.player.y / CELL_SIZE);
+
+        const roomId = ((this.maze.map[playerRow * this.maze.width + playerCol] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111; // mask to only select room range.
+        debug.roomId = roomId;
+        this.currentRoomId = roomId;
+        if (this.currentRoomId > 0) {
+            if (this.currentRoomId !== this.lastRoomId) {
+                this.rebuildEntityGrid(); // TODO respawn enemy
+                this.lastRoomId = this.currentRoomId;
+            }
+            const room = this.idToRoomLayout[this.currentRoomId];
+            for (const e of room.entities) {
+                e.update(this, this.deltaTime);
+            }
+        }
+    }
+
+    rebuildEntityGrid() {
+        if (this.currentRoomId <= 0) {
+            this.entityGrid = null;
+            return;
+        }
+
+        const room = this.idToRoomLayout[this.currentRoomId];
+        if (!room) {
+            this.entityGrid = null;
+            return;
+        }
+
+        const roomOffsetX = room.left * CELL_SIZE;
+        const roomOffsetY = room.top * CELL_SIZE;
+
+        this.entityGrid = new EntityGrid(
+            room.width,
+            room.height,
+            roomOffsetX,
+            roomOffsetY
+        );
+
+        // Add all entities to the grid, including player
+        this.entityGrid.addEntity(this.player);
+        for (const entity of room.entities) {
+            this.entityGrid.addEntity(entity);
+        }
+    }
+
+    getRoomsOnScreen(lowX: number, highX: number, lowY: number, highY: number) {
+        const out = new Set<number>();
+        for (let row = lowY; row < highY; row++) {
+            for (let col = lowX; col < highX; col++) {
+                const cellId = (this.maze.map[row * this.maze.width + col] & CELL_TYPE.ROOM_MASK) >> 8;
+                if (cellId > 0) {
+                    out.add(cellId);
+                }
+            }
+        }
+        return Array.from(out);
     }
 
     getCellRenderRange() {
@@ -377,46 +470,21 @@ export class MazeGame {
 
 
         const playerDepth = Math.floor((this.player.y / (this.maze.height * CELL_SIZE)) * this.maze.height);
-        let count = 0;
+        let renderCount = 0;
 
         // render all backgrounds,
         const [lowX, highX, lowY, highY] = this.getCellRenderRange();
 
+        // ======= BACKGROUND ====== //
         for (let row = lowY; row < highY; row++) {
-            // background pass
+
             for (let col = lowX; col < highX; col++) {
                 const cell = this.maze.map[row * this.maze.width + col];
 
-                if (cell === CELL_TYPE.UNUSED) {
+                if (cell === CELL_TYPE.SOLID) {
                     ctx.fillStyle = "#161414";
                     ctx.fillRect(col * CELL_SIZE - 1, row * CELL_SIZE - 1, CELL_SIZE + 1, CELL_SIZE + 1);
                 }
-                //obstacles
-                else if (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) {
-                    const obstacleType = (cell & CELL_TYPE.OBSTACLE_TYPE_MASK) >> 14;
-
-                    if (obstacleType === 1) {
-                        // rock - render as 2x2 tiles 
-                        ctx.fillStyle = "#7753A1";
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-
-                        const halfCell = CELL_SIZE / 2;
-                        // Draw four rock sprites in a 2x2 grid with proper aspect ratio
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE, row * CELL_SIZE, halfCell, false);
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE + halfCell, row * CELL_SIZE, halfCell, false);
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE, row * CELL_SIZE + halfCell, halfCell, false);
-                        this.renderImageWithAspectRatio(ctx, this.rockSprite, col * CELL_SIZE + halfCell, row * CELL_SIZE + halfCell, halfCell, false);
-                    } else if (obstacleType === 2) {
-                        // trap
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        this.renderImageWithAspectRatio(ctx, this.trapSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE);
-                    } else if (obstacleType === 3) {
-                        // scroll - preserve aspect ratio and make it smaller
-                        ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                        this.renderImageWithAspectRatio(ctx, this.scrollSprite, col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE * 0.5);
-                    }
-                }
-
                 else {
                     // paint default background color
                     ctx.fillStyle = "#7753A1";
@@ -424,44 +492,93 @@ export class MazeGame {
                 }
             }
         }
+        // ======= END BACKGROUND ====== //
+
+
+
+        // ===== ROOM ====== //
+        let currentRoomDynamicEntities = undefined;
+        let dynamicRenderIdx = 0;
+        if (this.currentRoomId > 0) {
+            currentRoomDynamicEntities = this.idToRoomLayout[this.currentRoomId].dynamicEntities;
+            currentRoomDynamicEntities.sort((a, b) => a.y - b.y);
+        }
 
         for (let row = lowY; row < highY; row++) {
-            // wall pass just for top walls
+            // ======= TOP WALL ======
             for (let col = lowX; col < highX; col++) {
                 const cell = this.maze.map[row * this.maze.width + col];
 
-                if (cell !== CELL_TYPE.UNUSED && cell & CELL_TYPE.UP) {
+                if (cell !== CELL_TYPE.SOLID && cell & CELL_TYPE.UP) {
                     ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
-                    count += 1;
+                    renderCount += 1;
                     const [color, x, y, w, h] = this.walls[1];
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
 
                     const hasRightCell = (col < this.maze.width - 1) && (this.maze.map[row * this.maze.width + col + 1] & CELL_TYPE.UP);
                     if (!hasRightCell) {
-                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                        ctx.drawImage(this.horWallPillar, x + CELL_SIZE, y - WALL_SIZE * 2);
                     }
                     ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                 }
             }
 
-            // TODO, draw entities now
+            // ====== STATIC ENTITIES ======
+            for (const roomId of this.getRoomsOnScreen(lowX, highX, lowY, highY)) {
 
-            // player
+                const roomLayout = this.idToRoomLayout[roomId];
+                if (row > roomLayout.bottom || row < roomLayout.top) {
+                    continue;
+                }
+
+                const startRow = (row - roomLayout.top) * 2;
+                for (let r = startRow; r < Math.min(roomLayout.staticEntities.length, startRow + 2); r++) {
+                    const entitiesInRow = roomLayout.staticEntities[r];
+
+                    for (const e of entitiesInRow) {
+                        if (e) {
+                            const col = Math.floor(e.x / CELL_SIZE);
+                            if (col >= lowX && col < highX) {
+                                e.render(ctx, this.lastTime);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ====== DYNAMIC ENTITY ====== //
+            if (currentRoomDynamicEntities) {
+                while (dynamicRenderIdx < currentRoomDynamicEntities.length) {
+                    const entity = currentRoomDynamicEntities[dynamicRenderIdx];
+                    const depth = Math.floor(entity.y / CELL_SIZE);
+
+                    if (depth !== row) {
+                        break;
+                    }
+
+                    const col = Math.floor(entity.x / CELL_SIZE);
+                    if (col >= lowX && col < highX) {
+                        entity.render(ctx, this.lastTime);
+                    }
+                    dynamicRenderIdx += 1;
+                }
+            }
+
+            // ====== PLAYER ====== //
             if (row === playerDepth) {
                 this.player.render(ctx, this.lastTime);
             }
 
 
-            // wall pass
+            // ======= OTHER WALLS ======
             for (let col = lowX; col < highX; col++) {
                 ctx.translate(col * CELL_SIZE, row * CELL_SIZE);
-                count += 1;
+                renderCount += 1;
                 const cell = this.maze.map[row * this.maze.width + col];
-                if (cell === CELL_TYPE.UNUSED) {
+                if (cell === CELL_TYPE.SOLID) {
                     ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                     continue;
                 }
-
 
                 ctx.lineWidth = 2;
 
@@ -483,7 +600,7 @@ export class MazeGame {
 
                     const [color, x, y, w, h] = this.walls[2];
 
-                    if (cell & CELL_TYPE.DOWN && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.UNUSED)) {
+                    if (cell & CELL_TYPE.DOWN && (this.maze.map[(row + 1) * this.maze.width + col] & CELL_TYPE.SOLID)) {
                         ctx.drawImage(this.verWallSprite, x, y - CELL_SIZE / 2);
                     }
                     else if (inline) {
@@ -501,144 +618,17 @@ export class MazeGame {
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
 
                     if (!hasRightCell) {
-                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                        ctx.drawImage(this.horWallPillar, x + CELL_SIZE, y - WALL_SIZE * 2);
                     }
                 }
 
                 ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
-
-                // const doorColor = "#ccccbb";
-                // if (cell & CELL_TYPE.LEFT_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-
-                // }
-                // if (cell & CELL_TYPE.UP_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, WALL_SIZE);
-                // }
-                // if (cell & CELL_TYPE.RIGHT_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE + CELL_SIZE - WALL_SIZE, row * CELL_SIZE, WALL_SIZE, CELL_SIZE);
-                // }
-                // if (cell & CELL_TYPE.DOWN_DOOR) {
-                //     ctx.fillStyle = doorColor;
-                //     ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE + CELL_SIZE - WALL_SIZE, CELL_SIZE, WALL_SIZE);
-                // }
-
             }
-
-            // other entities
         }
 
-        debug.cellRenderCount = count;
-
-        // render entities
-        // TODO remove
-        // ctx.fillStyle = "#7daea3";
-        // for (const e of this.entities) {
-        //     ctx.fillRect(e.x - e.width / 2, e.y - e.height / 2, e.width, e.height);
-        // }
+        debug.cellRenderCount = renderCount;
     }
 }
 
-const LEFT = 0;
-const UP = 1;
-const RIGHT = 2;
-const DOWN = 3;
-
-class Player extends Entity {
-
-    renderWidth = 50;
-
-    // TODO player stats
-    accel = 4000;
-    maxVel: number = 450;
-
-    direction = DOWN;
-    playerSpites: { [key: number]: HTMLCanvasElement[] };
-    constructor(pos: Vector2) {
-        super(pos, 30, 25);
 
 
-        this.playerSpites = {
-            [LEFT]: [
-                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth),
-            ],
-            [RIGHT]: [
-                loadImageToCanvas("/maze/player_sprites/player_left_neutral.webp", this.renderWidth, true),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_1.webp", this.renderWidth, true),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_2.webp", this.renderWidth, true),
-            ],
-            [UP]: [
-                loadImageToCanvas("/maze/player_sprites/player_up_neutral.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_up_walk_1.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_up_walk_2.webp", this.renderWidth),
-            ],
-            [DOWN]: [
-                loadImageToCanvas("/maze/player_sprites/player_down_neutral.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_down_walk_1.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_down_walk_2.webp", this.renderWidth),
-            ]
-        };
-    }
-
-    /**
-     * movement vector x,y where each value is a float [-1, 1].
-     * movement should have magnitude clamped to 1 at most.
-     * @param x
-     * @param y
-     * @param dt delta time since the last move input
-     */
-    onMoveInput(movement: Vector2, dt: number) {
-        const mag = movement.mag();
-
-        if (mag < 0.1) {
-            movement = Vector2.ZERO;
-        } else {
-            const angle = movement.angle();
-            if (angle >= -135 && angle <= -45) {
-                this.direction = UP;
-            } else if (angle >= -45 && angle < 45) {
-                this.direction = RIGHT;
-            } else if (angle >= 45 && angle < 135) {
-                this.direction = DOWN;
-            } else if (angle >= 135 || angle < -135) {
-                this.direction = LEFT;
-            }
-        }
-
-        this.move(movement, dt);
-
-        debug.player = {
-            vel: this.vel,
-            move: movement,
-            angle: this.direction
-        }
-    }
-
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        const trans = ctx.getTransform();
-
-        const mag = this.vel.mag();
-        const sprites = this.playerSpites[this.direction];
-
-        let sprite = sprites[0];
-        if (mag > 0.1) {
-            debug.time = time;
-            if (Math.round((time % 1000) / 250) % 2 === 0) { // alternate animation every 250 ms
-                sprite = sprites[1];
-            } else {
-                sprite = sprites[2];
-            }
-        }
-
-        ctx.translate(this.width / 2, this.height / 2); // translate origin to bottom of player, then offset by image size
-        ctx.translate(-sprite.width / 2, -sprite.height);
-        ctx.drawImage(sprite, this.x, this.y);
-
-        ctx.setTransform(trans);
-    }
-}
