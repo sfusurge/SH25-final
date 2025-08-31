@@ -1,4 +1,5 @@
 import { AABB, Vector2 } from "$lib/Vector2";
+import { type MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
 
 export function loadImageToCanvas(src: string, width: number, flip = false, padding = 0) {
     const img = new Image();
@@ -16,8 +17,9 @@ export function loadImageToCanvas(src: string, width: number, flip = false, padd
             ctx?.translate(width, 0);
             ctx?.scale(-1, 1);
         }
+
         const halfPadding = Math.floor(padding / 2);
-        ctx?.drawImage(img, halfPadding, halfPadding, width - halfPadding, height - halfPadding);
+        ctx?.drawImage(img, halfPadding, halfPadding, width - padding, height - padding);
     });
 
     return canvas;
@@ -27,6 +29,8 @@ export class Entity {
     vel: Vector2 = Vector2.ZERO;
 
     static = false; // static entity don't collide with walls, or other static entities
+    solid = false; // solid objects blocks movement of player and path finding agents.
+
 
     // assume box shaped
     width: number;
@@ -110,10 +114,10 @@ export class Entity {
 
         if (Math.abs(px) < Math.abs(py)) {
             this.vel.x = 0;
-            this.maxVelMod = 0.5; // apply fake friction
+            // this.maxVelMod = 0.5; // apply fake friction
             this.pos.x += px * 1.01;
         } else {
-            this.maxVelMod = 0.5;
+            // this.maxVelMod = 0.5;
             this.vel.y = 0;
             this.pos.y += py * 1.01;
         }
@@ -124,7 +128,7 @@ export class Entity {
     /**
      * do state updates here
      */
-    update(dt: number) {
+    update(game: MazeGame, dt: number) {
 
     }
 
@@ -133,6 +137,8 @@ export class Entity {
      * @param desiredDirection
      */
     move(desiredDirection: Vector2, dt: number) {
+        desiredDirection = desiredDirection.normalized();
+
         const diff = desiredDirection.mul(this.maxVel * this.maxVelMod).subi(this.vel); // missing velocity (unit/s) to reach target velocity
         const diffMag = diff.mag();
 

@@ -1,7 +1,7 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
 import { Vector2 } from "$lib/Vector2";
-import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE } from "./Entities";
+import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, WalkerEntity } from "./Entities";
 
 
 export type Room = {
@@ -25,7 +25,7 @@ export type RoomTemplate = {
 };
 
 
-const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.png", 50, false, 10);
+const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.webp", 50, false, 10);
 
 export class RoomLayout {
     width: number;
@@ -65,6 +65,8 @@ export class RoomLayout {
                     case ENTITY_TYPE.trap:
                         entity = new TrapEntity(pos);
                         break;
+                    case ENTITY_TYPE.enemy1:
+                        entity = new WalkerEntity(pos);
                 }
 
                 if (entity) {
@@ -104,7 +106,6 @@ export class RoomLayout {
 
 
 
-
 // Make each tile in room half as big as in maze
 // -> dimensions have to be even
 export const ROOM_TEMPLATES: RoomTemplate[] = [
@@ -113,7 +114,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         obstacleMap: [
             [0, 0, 0, 0, 1, 0],
             [1, 2, 0, 0, 2, 1],
-            [1, 0, 0, 0, 0, 0],
+            [1, 0, ENTITY_TYPE.enemy1, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0]
@@ -126,7 +127,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
             [0, 0, 2, 0, 0, 1, 0, 0],
             [0, 0, 1, 1, 1, 1, 0, 0],
             [0, 0, 1, 3, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, ENTITY_TYPE.enemy1, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
     },
@@ -139,7 +140,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
             [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 1, 1, 0, 1, 1, 0, 2, 3],
             [0, 0, 1, 1, 1, 1, 1, 0, 2, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, ENTITY_TYPE.enemy1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -153,7 +154,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
             [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0],
             [0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
             [0, 0, 0, 2, 0, 3, 1, 1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, ENTITY_TYPE.enemy1, 0, 1, 1, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
         ]
@@ -167,7 +168,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [3, 0, 0, 0, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, ENTITY_TYPE.enemy1, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]
     },
@@ -175,7 +176,7 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
         id: 5, description: "Large Square 2", width: 5, height: 5,
         obstacleMap: [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, ENTITY_TYPE.enemy1, 0, 0, 0],
             [0, 0, 0, 1, 1, 1, 2, 0, 0, 0],
             [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
             [0, 0, 1, 1, 1, 3, 1, 1, 0, 0],

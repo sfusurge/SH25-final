@@ -81,7 +81,7 @@ export class MazeGame {
     entities: Entity[] = [];
 
     horWallSprite = new Image();
-    horWallPiller = new Image();
+    horWallPillar = new Image();
     verWallSprite = new Image();
     verWallCapSprite = new Image();
     rockSprite = new Image();
@@ -90,13 +90,13 @@ export class MazeGame {
 
     constructor(canvas: HTMLCanvasElement) {
         // load sprites
-        this.horWallSprite.src = "/maze/wall_hor_short.png";
-        this.verWallSprite.src = "/maze/wall_ver_short.png";
-        this.verWallCapSprite.src = "/maze/wall_ver_cap.png";
-        this.horWallPiller.src = "/maze/wall_piller.png";
-        this.rockSprite.src = "/maze/rock_PLACEHOLDER.png";
-        this.trapSprite.src = "/maze/trap.png";
-        this.scrollSprite.src = "/maze/scroll.png";
+        this.horWallSprite.src = "/maze/wall_hor_short.webp";
+        this.verWallSprite.src = "/maze/wall_ver_short.webp";
+        this.verWallCapSprite.src = "/maze/wall_ver_cap.webp";
+        this.horWallPillar.src = "/maze/wall_pillar.webp";
+        this.rockSprite.src = "/maze/rock_PLACEHOLDER.webp";
+        this.trapSprite.src = "/maze/trap.webp";
+        this.scrollSprite.src = "/maze/scroll.webp";
 
         this.canvas = canvas;
         const ctx = canvas.getContext("2d", {});
@@ -214,9 +214,14 @@ export class MazeGame {
         this.deltaTime = (time - this.lastTime) / 1000;
         debug.delta = this.deltaTime.toFixed(4);
 
+        if (this.deltaTime > 0.1) {
+            this.lastTime = time;
+            requestAnimationFrame(this.update.bind(this));
+            return;
+        }
+
         this.updateCameraPos();
         this.updateEntities();
-        this.resolveWallCollisions();
         this.resolveEntityCollisions();
 
         // this.collisionResolution(this.player, this.entities[0].aabb);
@@ -226,16 +231,14 @@ export class MazeGame {
         requestAnimationFrame(this.update.bind(this));
     }
 
-    resolveWallCollisions() {
-        const playerCol = Math.floor(this.player.x / CELL_SIZE);
-        const playerRow = Math.floor(this.player.y / CELL_SIZE);
-
-        let count = 0;
+    resolveWallCollisions(entity: Entity) {
+        const eCol = Math.floor(entity.x / CELL_SIZE);
+        const eRow = Math.floor(entity.y / CELL_SIZE);
 
         // TODO, filter only the wall that matters
         for (const [dr, dc] of [[-1, 0], [1, 0], [0, 1], [0, -1], [0, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
-            const row = playerRow + dr;
-            const col = playerCol + dc;
+            const row = eRow + dr;
+            const col = eCol + dc;
 
             if (!(row >= 0 && col >= 0 && row < this.maze.height && col < this.maze.width)) {
                 continue;
@@ -250,36 +253,29 @@ export class MazeGame {
 
             if (cell & CELL_TYPE.LEFT) {
                 const [_, x, y, w, h] = this.walls[0];
-                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
             if (cell & CELL_TYPE.UP) {
                 const [_, x, y, w, h] = this.walls[1];
-                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
             if (cell & CELL_TYPE.RIGHT) {
                 const [_, x, y, w, h] = this.walls[2];
-                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
-
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
 
             if (cell & CELL_TYPE.DOWN) {
                 const [_, x, y, w, h] = this.walls[3];
-                this.player.resolveWallCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
-                count += 1;
-
+                entity.resolveCollision(AABB.fromPosSize(x, y, w, h).shift(ox, oy));
             }
-
         }
-
-        debug.collisionResolutions = count;
     }
 
     resolveEntityCollisions() {
+        this.resolveWallCollisions(this.player);
+
         if (!this.entityGrid || this.currentRoomId === 0) {
             return;
         }
@@ -290,8 +286,12 @@ export class MazeGame {
         }
 
         // Get all entities in room
-        const allEntities = [this.player, ...room.entities];
+        const allEntities = [this.player, ...room.dynamicEntities];
         let entityCollisionCount = 0;
+
+        for (const e of allEntities) {
+            this.resolveWallCollisions(e);
+        }
 
         // pairwise checks
         for (let i = 0; i < allEntities.length; i++) {
@@ -352,12 +352,12 @@ export class MazeGame {
         this.currentRoomId = roomId;
         if (this.currentRoomId > 0) {
             if (this.currentRoomId !== this.lastRoomId) {
-                this.rebuildEntityGrid();
+                this.rebuildEntityGrid(); // TODO respawn enemy
                 this.lastRoomId = this.currentRoomId;
             }
             const room = this.idToRoomLayout[this.currentRoomId];
             for (const e of room.entities) {
-                e.update(this.deltaTime);
+                e.update(this, this.deltaTime);
             }
         }
     }
@@ -517,7 +517,7 @@ export class MazeGame {
 
                     const hasRightCell = (col < this.maze.width - 1) && (this.maze.map[row * this.maze.width + col + 1] & CELL_TYPE.UP);
                     if (!hasRightCell) {
-                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                        ctx.drawImage(this.horWallPillar, x + CELL_SIZE, y - WALL_SIZE * 2);
                     }
                     ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
                 }
@@ -618,7 +618,7 @@ export class MazeGame {
                     ctx.drawImage(this.horWallSprite, x, y - CELL_SIZE + WALL_SIZE * 2);
 
                     if (!hasRightCell) {
-                        ctx.drawImage(this.horWallPiller, x + CELL_SIZE, y - WALL_SIZE * 2);
+                        ctx.drawImage(this.horWallPillar, x + CELL_SIZE, y - WALL_SIZE * 2);
                     }
                 }
 
