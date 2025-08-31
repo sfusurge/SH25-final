@@ -113,12 +113,12 @@ export class Entity {
         }
 
         if (Math.abs(px) < Math.abs(py)) {
-            this.vel.x = 0;
+            // this.vel.x += px / 0.006;
             // this.maxVelMod = 0.5; // apply fake friction
             this.pos.x += px * 1.01;
         } else {
             // this.maxVelMod = 0.5;
-            this.vel.y = 0;
+            // this.vel.y += py / 0.006;
             this.pos.y += py * 1.01;
         }
 

@@ -221,8 +221,8 @@ export class WalkerEntity extends Entity {
 
     sprite: HTMLCanvasElement;
 
-    maxVel: number = 100;
-    accel: number = 1000;
+    maxVel: number = 200;
+    accel: number = 4000;
 
     pathFinds: { x: number, y: number }[] = [];
 
@@ -231,6 +231,12 @@ export class WalkerEntity extends Entity {
 
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
         this.metadata.entityType = "enemy";
+    }
+
+    onCollision(other: Entity, game?: any): void {
+        if (other.metadata.entityType === "player") {
+            this.resolveCollision(other.aabb);
+        }
     }
 
     update(game: MazeGame, dt: number): void {
@@ -298,10 +304,6 @@ export class WalkerEntity extends Entity {
             const last = this.pathFinds.at(-1)!;
             ctx.fillRect(last.x - 5, last.y - 5, 10, 10);
         }
-
-
-
-
 
         ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height)
 

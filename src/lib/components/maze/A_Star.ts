@@ -63,8 +63,7 @@ export function AStar(room: (Entity | undefined)[][], startX: number, startY: nu
 
         // add nearby nodes to visit
         const children: Node[] = [];
-        //  [-1, -1], [-1, 1], [1, -1], [1, 1]
-        const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1], ]
+        const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1], [-1, -1], [-1, 1], [1, -1], [1, 1]]
         for (const [dx, dy] of dirs) {
             // x prime y prime xd
             const xp = cur.x + dx;
