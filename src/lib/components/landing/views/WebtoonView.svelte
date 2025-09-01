@@ -3,19 +3,11 @@
 </script>
 
 <div class="container">
-    <!-- Top diamond -->
-    <div class="diamond diamond-top"></div>
+    <div class="diamond diamond-top-left"></div>
+    <div class="diamond diamond-top-right"></div>
+    <div class="diamond diamond-bottom-left"></div>
+    <div class="diamond diamond-bottom-right"></div>
 
-    <!-- Left diamond -->
-    <div class="diamond diamond-left"></div>
-
-    <!-- Right diamond -->
-    <div class="diamond diamond-right"></div>
-
-    <!-- Bottom diamond -->
-    <div class="diamond diamond-bottom"></div>
-
-    <!-- Central scrollable image area -->
     <div class="image-container">
         <img src={imageUrl} alt="Scrollable content" />
     </div>
@@ -42,28 +34,24 @@
         background: #0C0C0B;
     }
 
-    .diamond-top {
+    .diamond-top-left {
         top: -11px;
-        left: 50%;
-        transform: translateX(-50%) rotate(-45deg);
-    }
-
-    .diamond-bottom {
-        bottom: -11px;
-        left: 50%;
-        transform: translateX(-50%) rotate(-45deg);
-    }
-
-    .diamond-left {
         left: -11px;
-        top: 50%;
-        transform: translateY(-50%) rotate(-45deg);
     }
 
-    .diamond-right {
+    .diamond-top-right {
+        top: -11px;
         right: -11px;
-        top: 50%;
-        transform: translateY(-50%) rotate(-45deg);
+    }
+
+    .diamond-bottom-left {
+        bottom: -11px;
+        left: -11px;
+    }
+
+    .diamond-bottom-right {
+        bottom: -11px;
+        right: -11px;
     }
 
     .image-container {
@@ -83,7 +71,6 @@
         display: block;
     }
 
-    /* Custom scrollbar styling */
     .image-container::-webkit-scrollbar {
         width: 8px;
         height: 8px;

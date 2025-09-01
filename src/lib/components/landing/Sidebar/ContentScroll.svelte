@@ -24,7 +24,11 @@
             </h3>
         </div>
 
-        <HoverEffectButton> Apply Now</HoverEffectButton>
+        <HoverEffectButton
+                onClick={()=>window.open('https://portal.sfusurge.com', '_blank')}
+        >
+            Apply Now
+        </HoverEffectButton>
     </div>
 
     <div class="flex flex-col justify-center pt-5 pr-3 pl-6 pb-10 gap-5">

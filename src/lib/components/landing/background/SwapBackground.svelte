@@ -2,7 +2,7 @@
     import HoverEffectButton from '$lib/components/landing/HoverEffectButton.svelte';
     import BlockPatternVertical from '$lib/components/landing/svgs/BlockPatternVertical.svelte';
     import RockFilter from '$lib/components/landing/svgs/RockFilter.svelte';
-    import {backgrounds, currentBackgroundIndex} from '$lib/stores/background';
+    import {backgrounds, currentBackgroundIndex} from '$lib/stores/background.js';
 
     function changeBackground() {
         currentBackgroundIndex.update(index => {

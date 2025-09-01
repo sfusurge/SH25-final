@@ -7,6 +7,7 @@
 	import FAQ from "$lib/components/landing/views/FAQ.svelte";
 	import SponsorsView from "$lib/components/landing/views/SponsorsView.svelte";
 	import GardenGame from "$lib/components/landing/views/GardenGame.svelte";
+	import WebtoonView from "$lib/components/landing/views/WebtoonView.svelte";
 
 </script>
 
@@ -38,6 +39,10 @@
 			<SponsorsView/>
 		{:else if $currentView === 'FAQ'}
 			<FAQ/>
+		{:else if $currentView === 'webtoon-1'}
+			<WebtoonView
+					imageUrl="/backgrounds/fountain.webp"
+			/>
 		{:else}
 			<MainView/>
 		{/if}

@@ -1,7 +1,7 @@
 <script>
     import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import Timer from '$lib/components/landing/Timer/Timer.svelte';
-    import MobileSwapBackground from '$lib/components/landing/MobileSwapBackground.svelte';
+    import MobileSwapBackground from '$lib/components/landing/background/MobileSwapBackground.svelte';
 
     export let onClose;
     export let mobileMode = false;
