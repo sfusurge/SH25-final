@@ -104,7 +104,6 @@ export function resetTimer() {
     remainingSeconds.set(25 * 60);
 }
 
-// Cleanup function for when the store is no longer needed
 export function cleanup() {
     if (timerInterval) {
         clearInterval(timerInterval);

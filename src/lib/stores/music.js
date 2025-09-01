@@ -1,4 +1,3 @@
-// src/lib/stores/musicStore.js
 import { writable, derived } from 'svelte/store';
 import {
     calmMusicLibrary,
@@ -15,23 +14,29 @@ export const musicLibOptions = {
 };
 
 function shuffleArr(arr) {
-    for (let i = arr.length - 1; i > -1; i--) {
+    const shuffled = [...arr]; // Create a copy to avoid mutating the original
+    for (let i = shuffled.length - 1; i > 0; i--) { // Changed condition to i > 0
         const j = Math.floor(Math.random() * (i + 1));
-        [arr[j], arr[i]] = [arr[i], arr[j]];
+        [shuffled[j], shuffled[i]] = [shuffled[i], shuffled[j]];
     }
-    return arr;
+    return shuffled;
 }
 
 export const trackIndex = writable(0);
 export const currentLibType = writable('calm');
 
-const _musicLib = writable(shuffleArr([...musicLibOptions.calm]));
+const _musicLib = writable(shuffleArr(musicLibOptions.calm));
 
 export const musicLib = derived(_musicLib, ($lib) => $lib);
 
 export function setMusicLibrary(variant) {
-    const newLib = [...musicLibOptions[variant]];
-    shuffleArr(newLib);
+    console.error(`Setting music library to: ${variant}`);
+    if (!musicLibOptions[variant]) {
+        console.error(`Invalid music library variant: ${variant}`);
+        return;
+    }
+
+    const newLib = shuffleArr(musicLibOptions[variant]);
     _musicLib.set(newLib);
     trackIndex.set(0);
     currentLibType.set(variant);

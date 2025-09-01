@@ -16,28 +16,30 @@
         {triggerButton}
         {show}
 >
-    <HoverEffectButton
-            onClick={() => setMusicLibrary("calm")}
-            style="padding: 0.1rem 0.75rem"
-            active={$currentLibType === "calm"}
-            aria-pressed={$currentLibType === "calm"}
-    >
-        Calm
-    </HoverEffectButton>
+    <div class="flex gap-2">
+        <HoverEffectButton
+                onClick={() => setMusicLibrary("calm")}
+                style="padding: 0.1rem 0.75rem"
+                active={$currentLibType === "calm"}
+                aria-pressed={$currentLibType === "calm"}
+        >
+            Calm
+        </HoverEffectButton>
 
-    <HoverEffectButton
-            onClick={() => setMusicLibrary("special")}
-            active={$currentLibType === "special"}
-            aria-pressed={$currentLibType === "special"}
-    >
-        Special
-    </HoverEffectButton>
+        <HoverEffectButton
+                onClick={() => setMusicLibrary("special")}
+                active={$currentLibType === "special"}
+                aria-pressed={$currentLibType === "special"}
+        >
+            Special
+        </HoverEffectButton>
 
-    <HoverEffectButton
-            onClick={() => setMusicLibrary("epic")}
-            active={$currentLibType === "epic"}
-            aria-pressed={$currentLibType === "epic"}
-    >
-        Epic
-    </HoverEffectButton>
+        <HoverEffectButton
+                onClick={() => setMusicLibrary("epic")}
+                active={$currentLibType === "epic"}
+                aria-pressed={$currentLibType === "epic"}
+        >
+            Epic
+        </HoverEffectButton>
+    </div>
 </Dialog>

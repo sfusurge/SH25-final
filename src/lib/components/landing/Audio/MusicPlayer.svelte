@@ -50,6 +50,9 @@
     let isLoading = false;
     let showMusicSelector = false;
     let showAmbianceMenu = false;
+    let currentTime = 0;
+    let duration = 0;
+    let progressPercent = 0;
 
     $: currentTrack = $musicLib[$trackIndex];
     $: currentTitle = currentTrack?.title || '';
@@ -59,32 +62,34 @@
         audioRef.volume = $masterVolume;
     }
 
-    $: if (currentTrack && audioRef && !isLoading) {
+    $: progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+    $: if (currentTrack && audioRef) {
         handleTrackChange();
     }
 
     async function handleTrackChange() {
-        if (!audioRef || isLoading) return;
+        if (!audioRef || !currentTrack) return;
 
-        if (isPlaying && audioRef.paused) {
-            if (audioRef.src !== currentTrack.file) {
-                audioRef.src = currentTrack.file;
-            }
+        if (audioRef.src !== currentTrack.file) {
+            audioRef.src = currentTrack.file;
+            audioRef.load();
+            currentTime = 0;
+            duration = 0;
+        }
 
+        if (isPlaying) {
             try {
                 await audioRef.play();
-                isPlaying = true;
             } catch (error) {
                 console.log('Play interrupted:', error);
                 isPlaying = false;
             }
-        } else if (!isPlaying && !audioRef.paused) {
-            audioRef.pause();
         }
     }
 
     async function togglePlayPause() {
-        if (!audioRef) return;
+        if (!audioRef || !currentTrack) return;
 
         isLoading = true;
 
@@ -92,9 +97,10 @@
             audioRef.pause();
             isPlaying = false;
         } else {
-            if (initialPlay) {
+            if (initialPlay || audioRef.src !== currentTrack.file) {
                 initialPlay = false;
                 audioRef.src = currentTrack.file;
+                audioRef.load();
             }
 
             try {
@@ -109,24 +115,30 @@
         isLoading = false;
     }
 
-    function playNext() {
-        isLoading = true;
+    async function playNext() {
+        if (!audioRef) return;
+
         const nextIndex = ($trackIndex + 1) % $musicLib.length;
         trackIndex.set(nextIndex);
-        isPlaying = true;
-        isLoading = false;
+
+        // Don't manipulate isLoading here - let the reactive statement handle the change
+        // If we were playing, continue playing the new track
+        if (isPlaying) {
+            // The reactive statement will handle the actual track change and playback
+        }
     }
 
-    function playPrevious() {
-        isLoading = true;
+    async function playPrevious() {
+        if (!audioRef) return;
+
         const prevIndex = $trackIndex === 0 ? $musicLib.length - 1 : $trackIndex - 1;
         trackIndex.set(prevIndex);
-        isPlaying = true;
-        isLoading = false;
+        if (isPlaying) {
+        }
     }
 
     function handleAudioEnded() {
-        isPlaying = false;
+        // Don't set isPlaying to false immediately, let playNext handle it
         playNext();
     }
 
@@ -137,7 +149,37 @@
     function handleAudioPause() {
         isPlaying = false;
     }
+
+    function handleTimeUpdate() {
+        if (audioRef) {
+            currentTime = audioRef.currentTime;
+        }
+    }
+
+    function handleLoadedMetadata() {
+        if (audioRef) {
+            duration = audioRef.duration;
+        }
+    }
+
+    function handleProgressChange(e) {
+        if (!audioRef || !duration) return;
+
+        const newProgress = parseInt(e.target.value);
+        const newTime = (newProgress / 100) * duration;
+        audioRef.currentTime = newTime;
+        currentTime = newTime;
+    }
+
+    function formatTime(seconds) {
+        if (!seconds || isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
 </script>
+
+
 
 {#if $$props.trackInfoOnly}
     <div class="flex flex-col flex-1 min-w-0 pr-3 w-[20px]">
@@ -150,6 +192,8 @@
             on:ended={handleAudioEnded}
             on:play={handleAudioPlay}
             on:pause={handleAudioPause}
+            on:timeupdate={handleTimeUpdate}
+            on:loadedmetadata={handleLoadedMetadata}
     ></audio>
 
     <!-- MOBILE -->
@@ -250,7 +294,7 @@
     </div>
 
     <!-- DESKTOP -->
-    <div class="hidden sm:block mt-auto mb-4 relative border border-border bg-background sm:w-[80%] xl:w-[50%] h-[43px]">
+    <div class="hidden sm:block mt-auto mb-4 relative border border-border bg-background sm:w-[80%] xl:w-[70%] h-[43px]">
         <RockFilter />
         <div class="flex justify-between h-full">
             <div class="flex flex-row gap-2">
@@ -361,7 +405,73 @@
                     />
                 </HoverEffectButton>
             </div>
+
+            <!-- Progress Bar -->
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-primary font-mono">{formatTime(currentTime)}</span>
+                <div class="sliderWrapper w-53" style="--progress: {progressPercent / 100}">
+                    <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            class="slider"
+                            value={progressPercent}
+                            on:input={handleProgressChange}
+                    />
+                </div>
+                <span class="text-xs text-primary font-mono">{formatTime(duration)}</span>
+            </div>
+
             <Diamond width={8} height={14} />
         </div>
     </div>
 {/if}
+
+<style>
+    .sliderWrapper {
+        position: relative;
+        height: 0.5rem;
+        display: flex;
+        width: 100%;
+    }
+
+    .slider {
+        width: 100%;
+        height: 0.5rem;
+        position: relative;
+        border: 1px solid var(--color-primary);
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        z-index: 2;
+        cursor: pointer;
+        background: transparent;
+    }
+
+    .sliderWrapper::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: calc(100% * var(--progress));
+        background-color: var(--color-primary);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 1rem;
+        height: 1rem;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 1rem;
+        height: 1rem;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+</style>
