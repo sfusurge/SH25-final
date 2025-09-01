@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ['./src/app/**/*.{js,ts,jsx,tsx}'],
+    content: ['./src/**/*.{js,ts,jsx,tsx,svelte}'],
     theme: {
         extend: {
             colors: {
@@ -9,7 +9,7 @@ module.exports = {
                 primary: "var(--primary)",
                 border: "var(--border)",
                 borderalt: "var(--border2)",
-                background: "var(--bg)",
+                background: "#231f1f",
                 backgroundalt: "var(--bg2)"
             },
             fontFamily: {

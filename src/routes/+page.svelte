@@ -1,59 +1,114 @@
-<script lang="ts">
-	import Counter from "./Counter.svelte";
-	import welcome from "$lib/images/svelte-welcome.webp";
-	import welcomeFallback from "$lib/images/svelte-welcome.webp";
+<script>
+	import { onMount } from 'svelte';
+	import { writable } from 'svelte/store';
+	import Sidebar from '$lib/components/landing/Sidebar.svelte';
+	import Frame from '$lib/components/landing/Frame.svelte';
+	import CurrentBackgroundMobile from '$lib/components/landing/CurrentBackgroundMobile.svelte';
+	import Controls from '$lib/components/landing/MusicPlayer.svelte';
+	import CurrentTrackInfo from '$lib/components/landing/CurrentTrackInfo.svelte';
+	import Timer from '$lib/components/landing/Timer/Timer.svelte';
+	import TimerDisplay from '$lib/components/landing/Timer/TimerDisplay.svelte';
+	import SwapBackground from '$lib/components/landing/SwapBackground.svelte';
+	import HoverEffectButton from '$lib/components/landing/ScrollingText.svelte';
+	import AmbiancePlayer from '$lib/components/landing/AmbiancePlayer.svelte';
+	import TimerDialog from '$lib/components/landing/Timer/TimerDialog.svelte';
+	import { currentBackgroundIndex, backgrounds } from '$lib/stores/background.js';
+
+	let showSettings = false;
+
+	$: currentBackground = backgrounds[$currentBackgroundIndex];
+
+	function onChangeBackground() {
+		const nextIndex = ($currentBackgroundIndex + 1) % backgrounds.length;
+		currentBackgroundIndex.set(nextIndex);
+	}
+
+	function toggleSettings() {
+		showSettings = !showSettings;
+	}
+
+	function closeSettings() {
+		showSettings = false;
+	}
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
+<div class="font-catriel h-screen w-full relative overflow-x-hidden sm:overflow-hidden bg-[#0C0C0B]">
+	<AmbiancePlayer />
 
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset={welcome} type="image/webp" />
-				<img src={welcomeFallback} alt="Welcome" />
-			</picture>
-		</span>
+	<!-- background tiling -->
+	<div class="absolute inset-0 z-10 overflow-hidden">
+		<div
+				class="absolute
+				bg-[length:82.5px_82.5px]
+				bg-center
+				bg-repeat
+				w-[250%] h-[250%]
+				left-[-50%] top-[-50%]
+				rotate-45
+				origin-center"
+				style="background: url('/assets/pattern-element-buffer.svg')"
+				data-demon="background"></div>
+	</div>
 
-		to your new<br />SvelteKit app
-	</h1>
+	<div class="relative z-30 flex flex-col lg:flex-row h-full">
+		<Sidebar />
 
-	<h2>
-		try editing <strong>src/routes/+page.svelte</strong>
-	</h2>
+		<!-- Mobile layout -->
+		<div class="sm:hidden w-full">
+			<div class="flex w-full px-5 py-5 italic justify-between leading-tight">
+				<CurrentTrackInfo />
 
-	<Counter />
-</section>
+				<div class="flex justify-center items-center gap-3">
+					<TimerDisplay />
+					<TimerDialog
+							mobileTriggerButton={true}
+							mobileShow={showSettings}
+							{onChangeBackground}
+							mobileMode={true}
+							onClose={closeSettings}
+					>
+						<HoverEffectButton
+								slot="trigger"
+								style="width: 40px; aspect-ratio: 1"
+								on:click={toggleSettings}
+						>
+							<img
+									data-demon="primary"
+									src="/assets/gear.svg"
+									height="40"
+									width="40"
+									alt="Open Settings Modal"
+									style="width: 32px"
+							/>
+						</HoverEffectButton>
+					</TimerDialog>
+				</div>
+			</div>
+			<div class="relative w-full h-full">
+				<CurrentBackgroundMobile {currentBackground} />
+			</div>
+		</div>
+
+		<!-- Desktop layout -->
+		<div class="flex-1 sm:flex flex-col hidden h-full" style="max-height: 100dvh">
+			<div class="flex justify-between items-start pt-8 px-8">
+				<Timer />
+				<SwapBackground {onChangeBackground} />
+			</div>
+
+			<div class="m-8 flex-1 flex items-center justify-center" style="min-height: 0">
+				<Frame {currentBackground} />
+			</div>
+
+			<div class="flex justify-center pb-4">
+				<Controls />
+			</div>
+		</div>
+	</div>
+</div>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 0.6;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
+	:global(.font-catriel) {
+		font-family: 'Catriel', sans-serif;
 	}
 </style>
