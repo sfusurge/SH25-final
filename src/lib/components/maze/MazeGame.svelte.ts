@@ -2,10 +2,16 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { Player } from "./Entities";
+import { Player, ProjectileEntity } from "./Entities";
 
 export const debug = $state<{ [key: string]: any }>({
 })
+
+// Direction constants
+const LEFT = 0;
+const UP = 1;
+const RIGHT = 2;
+const DOWN = 3;
 
 /**
  * Entity grid using actual maze cells for efficient collision detection
@@ -79,6 +85,7 @@ export class MazeGame {
 
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
+    projectiles: ProjectileEntity[] = [];
 
     horWallSprite = new Image();
     horWallPillar = new Image();
@@ -138,7 +145,11 @@ export class MazeGame {
         w: false,
         a: false,
         s: false,
-        d: false
+        d: false,
+        ArrowUp: false,
+        ArrowDown: false,
+        ArrowLeft: false,
+        ArrowRight: false
     };
 
     init() {
@@ -200,6 +211,18 @@ export class MazeGame {
         }
 
         return new Vector2(x, y).clampMagnitude(1);
+    }
+
+    getShootingInput() {
+        if (this.keyMem.ArrowUp) return UP;
+        if (this.keyMem.ArrowDown) return DOWN;
+        if (this.keyMem.ArrowLeft) return LEFT;
+        if (this.keyMem.ArrowRight) return RIGHT;
+        return -1; // no shooting input
+    }
+
+    addProjectile(projectile: ProjectileEntity) {
+        this.projectiles.push(projectile);
     }
 
     updateCameraPos() {
@@ -276,6 +299,11 @@ export class MazeGame {
     resolveEntityCollisions() {
         this.resolveWallCollisions(this.player);
 
+        // Handle projectile wall collisions
+        for (const projectile of this.projectiles) {
+            this.resolveWallCollisions(projectile);
+        }
+
         if (!this.entityGrid || this.currentRoomId === 0) {
             return;
         }
@@ -291,6 +319,23 @@ export class MazeGame {
 
         for (const e of allEntities) {
             this.resolveWallCollisions(e);
+        }
+
+        // Handle projectile vs entity collisions
+        for (const projectile of this.projectiles) {
+            // projectile vs player
+            if (projectile.aabb.collidingWith(this.player.aabb)) {
+                projectile.onCollision(this.player, this);
+                this.player.onCollision(projectile, this);
+            }
+
+            // projectile vs room entities
+            for (const entity of room.entities) {
+                if (projectile.aabb.collidingWith(entity.aabb)) {
+                    projectile.onCollision(entity, this);
+                    entity.onCollision(projectile, this);
+                }
+            }
         }
 
         // pairwise checks
@@ -335,6 +380,8 @@ export class MazeGame {
         }
 
         debug.entityCollisions = entityCollisionCount;
+        debug.projectileCount = this.projectiles.length;
+
     }
     /**
      * updates velocity of all entities and then move according to vel.
@@ -342,6 +389,17 @@ export class MazeGame {
     updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
+
+        // Handle shooting input
+        const shootDirection = this.getShootingInput();
+        this.player.onShootInput(shootDirection, this);
+
+        // Update projectiles
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.projectiles[i];
+            projectile.update(this, this.deltaTime);
+
+        }
 
         // update entities
         const playerCol = Math.floor(this.player.x / CELL_SIZE);
@@ -569,6 +627,16 @@ export class MazeGame {
                 this.player.render(ctx, this.lastTime);
             }
 
+            // ====== PROJECTILES ====== //
+            for (const projectile of this.projectiles) {
+                const projectileDepth = Math.floor(projectile.y / CELL_SIZE);
+                if (projectileDepth === row) {
+                    const col = Math.floor(projectile.x / CELL_SIZE);
+                    if (col >= lowX && col < highX) {
+                        projectile.render(ctx, this.lastTime);
+                    }
+                }
+            }
 
             // ======= OTHER WALLS ======
             for (let col = lowX; col < highX; col++) {
