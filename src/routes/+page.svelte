@@ -1,36 +1,12 @@
 <script>
 
 	import Sidebar from '$lib/components/landing/Sidebar/Sidebar.svelte';
-	import Frame from '$lib/components/landing/Frame.svelte';
-	import CurrentBackgroundMobile from '$lib/components/landing/CurrentBackgroundMobile.svelte';
-	import Controls from '$lib/components/landing/Audio/MusicPlayer.svelte';
-	import CurrentTrackInfo from '$lib/components/landing/CurrentTrackInfo.svelte';
-	import Timer from '$lib/components/landing/Timer/Timer.svelte';
-	import TimerDisplay from '$lib/components/landing/Timer/TimerDisplay.svelte';
-	import SwapBackground from '$lib/components/landing/SwapBackground.svelte';
-	import HoverEffectButton from '$lib/components/landing/Audio/ScrollingText.svelte';
 	import AmbiancePlayer from '$lib/components/landing/Audio/AmbiancePlayer.svelte';
-	import TimerDialog from '$lib/components/landing/Timer/TimerDialog.svelte';
-	import { currentBackgroundIndex, backgrounds } from '$lib/stores/background.js';
-
 	import MainView from "$lib/components/landing/views/MainView.svelte";
-
-	let showSettings = false;
-
-	$: currentBackground = backgrounds[$currentBackgroundIndex];
-
-	function onChangeBackground() {
-		const nextIndex = ($currentBackgroundIndex + 1) % backgrounds.length;
-		currentBackgroundIndex.set(nextIndex);
-	}
-
-	function toggleSettings() {
-		showSettings = !showSettings;
-	}
-
-	function closeSettings() {
-		showSettings = false;
-	}
+	import { currentView } from '$lib/stores/currentView.js';
+	import FAQ from "$lib/components/landing/views/FAQ.svelte";
+	import SponsorsView from "$lib/components/landing/views/SponsorsView.svelte";
+	import GardenGame from "$lib/components/landing/views/GardenGame.svelte";
 
 </script>
 
@@ -54,7 +30,17 @@
 
 	<div class="relative z-30 flex flex-col lg:flex-row h-full">
 		<Sidebar/>
-		<MainView/>
+		{#if $currentView === 'home'}
+			<MainView/>
+		{:else if $currentView === 'garden'}
+			<GardenGame/>
+		{:else if $currentView === 'partners'}
+			<SponsorsView/>
+		{:else if $currentView === 'FAQ'}
+			<FAQ/>
+		{:else}
+			<MainView/>
+		{/if}
 	</div>
 </div>
 

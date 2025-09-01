@@ -1,12 +1,15 @@
-<script>
+<script lang="ts">
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import ExperienceTile from "$lib/components/landing/Sidebar/ExperienceTile.svelte";
     import LockedTile from "$lib/components/landing/Sidebar/LockedTile.svelte";
     import WebtoonTile from "$lib/components/landing/Sidebar/WebtoonTile.svelte";
     import InformationTile from "$lib/components/landing/Sidebar/InformationTile.svelte";
+    import { currentView } from '$lib/stores/currentView.js';
 
-    function handleClick(option) {
-        window.open('https://stormhacks2025.devpost.com/', '_blank');
+    type TileType = 'garden' | 'lofi' | 'webtoon-1' | 'FAQ' | 'partners';
+
+    function handleClick(option: TileType) {
+        currentView.set(option);
     }
 </script>
 
@@ -17,7 +20,7 @@
                 Welcome to StormHacks 2025!
             </h1>
             <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
-                Join us at SFU Burnaby Campus from October 4th to 5th for StormHacks 2025. This is Western Canada’s biggest hackathon, a place where innovators like you can turn their visions into reality.
+                Join us at SFU Burnaby Campus from October 4th to 5th for StormHacks 2025. This is Western Canada's biggest hackathon, a place where innovators like you can turn their visions into reality.
             </h3>
         </div>
 
@@ -33,16 +36,16 @@
                 imageAlt="Stump's Community Garden"
                 imageClass="w-full h-32 object-cover p-2"
                 className="mt-4"
-                onClick={handleClick('garden')}
+                onClick={() => handleClick('garden')}
                 header="Stump's Community Garden"
                 text="Tend to your garden and its visitors, expanding your plant shop's catalogue and handling challenges as they arise."
         />
         <ExperienceTile
                 imageSrc="/assets/experiences/lofi.png"
-                imageAlt="Stump's Community Garden"
+                imageAlt="Lofi Player"
                 imageClass="w-full h-32 object-cover p-2"
                 className="mt-4"
-                onClick={handleClick('lofi')}
+                onClick={() => handleClick('lofi')}
                 header="Lofi Player"
                 text="Tend to your garden and its visitors, expanding your plant shop's catalogue and handling challenges as they arise."
         />
@@ -59,7 +62,7 @@
                 imageAlt="[Ch 1] Together"
                 imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
                 className="mt-4"
-                onClick={handleClick('webtoon-ep1')}
+                onClick={() => handleClick('webtoon-1')}
                 header="[Ch 1] Together"
                 text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
         />
@@ -75,13 +78,13 @@
         </h1>
         <InformationTile
                 className="p-2"
-                onClick={handleClick('schedule')}
+                onClick={() => handleClick('FAQ')}
                 header="Frequently Asked Questions"
                 text="Confused about anything related to StormHacks? Check out our curated list of questions and answers."
         />
         <InformationTile
                 className="p-2"
-                onClick={handleClick('schedule')}
+                onClick={() => handleClick('partners')}
                 header="Our Partners"
                 text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."/>
         <LockedTile release="Coming Soon..."/>
