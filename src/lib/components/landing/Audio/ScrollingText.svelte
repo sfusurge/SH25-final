@@ -11,7 +11,7 @@
         {type}
         {style}
         class={`bg-backgroundalt flex justify-center items-center cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
-        on:click={onClick}
+        onClick={onClick}
 >
     <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg]">
         {#if $$slots.default}

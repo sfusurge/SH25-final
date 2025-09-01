@@ -1,5 +1,4 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
     import { writable, derived } from 'svelte/store';
     import {
         calmMusicLibrary,
@@ -10,11 +9,11 @@
     import HoverEffectButton from '$lib/components/landing/HoverEffectButton.svelte';
     import BlockPatternVertical from '$lib/components/landing/svgs/BlockPatternVertical.svelte';
     import Diamond from '$lib/components/landing/svgs/Diamond.svelte';
-    import MusicTypeSelectorDialog from '$lib/components/landing/MusicTypeSelectorDialog.svelte';
-    import AmbianceDialog from '$lib/components/landing/AmbianceDialog.svelte';
+    import MusicTypeSelectorDialog from '$lib/components/landing/Audio/MusicTypeSelectorDialog.svelte';
+    import AmbianceDialog from '$lib/components/landing/Audio/AmbianceDialog.svelte';
     import { masterVolume } from '$lib/stores/ambiance.js';
-    import ScrollingText from '$lib/components/landing/ScrollingText.svelte';
-    import RockFilter from '$lib/components/landing/RockFilter.svelte';
+    import ScrollingText from '$lib/components/landing/Audio/ScrollingText.svelte';
+    import RockFilter from '$lib/components/landing/svgs/RockFilter.svelte';
 
     export const trackIndex = writable(0);
     export const currentLibType = writable('calm');
@@ -163,7 +162,7 @@
             >
                 <HoverEffectButton
                         slot="trigger"
-                        on:click={() => (showMusicSelector = !showMusicSelector)}
+                        onClick={() => (showMusicSelector = !showMusicSelector)}
                         className="flex-1 min-w-15 max-w-15"
                         style="aspect-ratio: 1"
                 >
@@ -180,7 +179,7 @@
 
             <div class="flex flex-1 gap-4 justify-center">
                 <HoverEffectButton
-                        on:click={playPrevious}
+                        onClick={playPrevious}
                         className="flex-1 min-w-6 max-w-14"
                         style="aspect-ratio: 1"
                 >
@@ -195,7 +194,7 @@
                 </HoverEffectButton>
 
                 <HoverEffectButton
-                        on:click={togglePlayPause}
+                        onClick={togglePlayPause}
                         className="flex-1 min-w-6 max-w-14"
                         style="aspect-ratio: 1"
                 >
@@ -210,7 +209,7 @@
                 </HoverEffectButton>
 
                 <HoverEffectButton
-                        on:click={playNext}
+                        onClick={playNext}
                         className="flex-1 min-w-6 max-w-14"
                         style="aspect-ratio: 1"
                 >
@@ -233,7 +232,7 @@
             >
                 <HoverEffectButton
                         slot="trigger"
-                        on:click={() => (showAmbianceMenu = !showAmbianceMenu)}
+                        onClick={() => (showAmbianceMenu = !showAmbianceMenu)}
                         className="flex-1 min-w-15 max-w-15"
                         style="aspect-ratio: 1"
                 >
@@ -261,7 +260,7 @@
                         <div class="self-center relative flex">
                             <HoverEffectButton
                                     className="w-[24px] h-[24px]"
-                                    on:click={() => (showMusicSelector = !showMusicSelector)}
+                                    onClick={() => (showMusicSelector = !showMusicSelector)}
                             >
                                 <img
                                         data-demon="primary"
@@ -301,7 +300,7 @@
                         />
                     {/if}
                     <HoverEffectButton
-                            on:click={() => (showAmbianceMenu = !showAmbianceMenu)}
+                            onClick={() => (showAmbianceMenu = !showAmbianceMenu)}
                             className="self-center w-[24px] h-[24px]"
                     >
                         <img
@@ -323,7 +322,7 @@
             <div class="flex items-center justify-center gap-4">
                 <HoverEffectButton
                         className="cursor-pointer w-[24px] h-[24px]"
-                        on:click={playPrevious}
+                        onClick={playPrevious}
                 >
                     <img
                             data-demon="primary"
@@ -336,7 +335,7 @@
 
                 <HoverEffectButton
                         className="cursor-pointer w-[24px] h-[24px]"
-                        on:click={togglePlayPause}
+                        onClick={togglePlayPause}
                 >
                     <img
                             data-demon="primary"
@@ -350,7 +349,7 @@
 
                 <HoverEffectButton
                         className="cursor-pointer w-[24px] h-[24px]"
-                        on:click={playNext}
+                        onClick={playNext}
                         style="transform: scale(-1, 1)"
                 >
                     <img

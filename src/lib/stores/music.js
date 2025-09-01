@@ -1,3 +1,4 @@
+// src/lib/stores/musicStore.js
 import { writable, derived } from 'svelte/store';
 import {
     calmMusicLibrary,
@@ -21,17 +22,13 @@ function shuffleArr(arr) {
     return arr;
 }
 
-// Core stores
 export const trackIndex = writable(0);
 export const currentLibType = writable('calm');
 
-// Internal music library store
 const _musicLib = writable(shuffleArr([...musicLibOptions.calm]));
 
-// Derived store for reading music library
 export const musicLib = derived(_musicLib, ($lib) => $lib);
 
-// Function to change music library
 export function setMusicLibrary(variant) {
     const newLib = [...musicLibOptions[variant]];
     shuffleArr(newLib);

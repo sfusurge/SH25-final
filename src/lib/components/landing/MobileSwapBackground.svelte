@@ -13,7 +13,7 @@
     <div class="flex gap-3 items-center">
         <HoverEffectButton
                 class="px-4 not-italic py-2 text-base sm:text-sm text-decor border-[0.643px] border-decor cursor-pointer h-11 flex-1 flex items-center justify-center"
-                on:click={onChangeBackground}
+                onClick={onChangeBackground}
         >
             Swap Background
         </HoverEffectButton>

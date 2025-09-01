@@ -1,4 +1,3 @@
-// src/lib/stores/backgrounds.ts
 import { readable, writable, derived } from "svelte/store";
 
 export const backgrounds = readable([

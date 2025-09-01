@@ -1,5 +1,5 @@
 <script>
-    import ScrollingText from '$lib/components/landing/ScrollingText.svelte';
+    import ScrollingText from '$lib/components/landing/Audio/ScrollingText.svelte';
 
     import { musicLib, trackIndex } from '$lib/stores/music.js';
 

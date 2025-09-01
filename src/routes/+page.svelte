@@ -4,13 +4,13 @@
 	import Sidebar from '$lib/components/landing/Sidebar.svelte';
 	import Frame from '$lib/components/landing/Frame.svelte';
 	import CurrentBackgroundMobile from '$lib/components/landing/CurrentBackgroundMobile.svelte';
-	import Controls from '$lib/components/landing/MusicPlayer.svelte';
+	import Controls from '$lib/components/landing/Audio/MusicPlayer.svelte';
 	import CurrentTrackInfo from '$lib/components/landing/CurrentTrackInfo.svelte';
 	import Timer from '$lib/components/landing/Timer/Timer.svelte';
 	import TimerDisplay from '$lib/components/landing/Timer/TimerDisplay.svelte';
 	import SwapBackground from '$lib/components/landing/SwapBackground.svelte';
-	import HoverEffectButton from '$lib/components/landing/ScrollingText.svelte';
-	import AmbiancePlayer from '$lib/components/landing/AmbiancePlayer.svelte';
+	import HoverEffectButton from '$lib/components/landing/Audio/ScrollingText.svelte';
+	import AmbiancePlayer from '$lib/components/landing/Audio/AmbiancePlayer.svelte';
 	import TimerDialog from '$lib/components/landing/Timer/TimerDialog.svelte';
 	import { currentBackgroundIndex, backgrounds } from '$lib/stores/background.js';
 
@@ -70,7 +70,7 @@
 						<HoverEffectButton
 								slot="trigger"
 								style="width: 40px; aspect-ratio: 1"
-								on:click={toggleSettings}
+								onClick={toggleSettings}
 						>
 							<img
 									data-demon="primary"

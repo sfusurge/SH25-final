@@ -5,7 +5,6 @@ export const minutes = writable('25');
 export const seconds = writable('00');
 
 let timerInterval = null;
-let totalSeconds = 0;
 
 export const totalTime = derived(
     [minutes, seconds],
@@ -16,15 +15,16 @@ export const totalTime = derived(
     }
 );
 
+// Derived store to track remaining time in seconds for the active timer
+export const remainingSeconds = writable(0);
+
 export function toggleTimer() {
     const isPaused = get(paused);
 
     if (isPaused) {
         startTimer();
-        paused.set(false);
     } else {
         stopTimer();
-        paused.set(true);
     }
 }
 
@@ -32,7 +32,6 @@ export function setTime({ minutes: newMinutes, seconds: newSeconds }) {
     // Stop timer when manually changing time
     if (!get(paused)) {
         stopTimer();
-        paused.set(true);
     }
 
     if (newMinutes !== undefined) {
@@ -41,19 +40,25 @@ export function setTime({ minutes: newMinutes, seconds: newSeconds }) {
     if (newSeconds !== undefined) {
         seconds.set(newSeconds);
     }
+
+    // Update remaining seconds when time is changed manually
+    const currentMinutes = parseInt(get(minutes)) || 0;
+    const currentSeconds = parseInt(get(seconds)) || 0;
+    remainingSeconds.set(currentMinutes * 60 + currentSeconds);
 }
 
 function startTimer() {
-    // Use get() to read current values without creating subscriptions
     const currentMinutes = parseInt(get(minutes)) || 0;
     const currentSeconds = parseInt(get(seconds)) || 0;
+    let totalSecondsRemaining = currentMinutes * 60 + currentSeconds;
 
-    totalSeconds = currentMinutes * 60 + currentSeconds;
-
-    if (totalSeconds <= 0) {
+    if (totalSecondsRemaining <= 0) {
         paused.set(true);
         return;
     }
+
+    paused.set(false);
+    remainingSeconds.set(totalSecondsRemaining);
 
     // Clear any existing interval
     if (timerInterval) {
@@ -61,20 +66,22 @@ function startTimer() {
     }
 
     timerInterval = setInterval(() => {
-        totalSeconds--;
+        totalSecondsRemaining--;
+        remainingSeconds.set(totalSecondsRemaining);
 
-        if (totalSeconds <= 0) {
+        if (totalSecondsRemaining <= 0) {
             stopTimer();
             minutes.set('0');
             seconds.set('00');
             paused.set(true);
+            remainingSeconds.set(0);
             // Optional: Add timer completion callback here
             // onTimerComplete?.();
             return;
         }
 
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
+        const mins = Math.floor(totalSecondsRemaining / 60);
+        const secs = totalSecondsRemaining % 60;
 
         minutes.set(mins.toString());
         seconds.set(secs < 10 ? `0${secs}` : secs.toString());
@@ -86,6 +93,7 @@ function stopTimer() {
         clearInterval(timerInterval);
         timerInterval = null;
     }
+    paused.set(true);
 }
 
 export function resetTimer() {
@@ -93,6 +101,13 @@ export function resetTimer() {
     paused.set(true);
     minutes.set('25');
     seconds.set('00');
-    totalSeconds = 0;
+    remainingSeconds.set(25 * 60);
 }
 
+// Cleanup function for when the store is no longer needed
+export function cleanup() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}

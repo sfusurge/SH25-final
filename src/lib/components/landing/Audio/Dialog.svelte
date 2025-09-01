@@ -1,7 +1,7 @@
 <script>
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
-    import RockFilter from "$lib/components/landing/RockFilter.svelte";
-    import HorizontalDivider from "./HorizontalDivider.svelte";
+    import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
+    import HorizontalDivider from "../HorizontalDivider.svelte";
 
     export let title;
     export let onClose = () => {};
@@ -88,49 +88,6 @@
         color: var(--color-header);
         font-weight: 700;
     }
-
-    .closeButton {
-        width: 16px;
-        height: 16px;
-
-        padding: 0.25rem;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .divider {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 100%;
-        height: fit-content;
-    }
-
-    .divider::before {
-        content: "";
-        height: 0;
-        width: 65px;
-        margin: 1rem 0;
-        margin-right: 15px;
-        flex: 1;
-        border-top: 1px solid var(--color-border-s);
-    }
-
-    .divider::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: 0;
-        transform: translate(0, -50%);
-        width: 16px;
-        height: 16px;
-
-        background-image: url("/assets/swirl.svg");
-    }
 </style>
 
 {#if mobileMode}
@@ -147,7 +104,7 @@
 
                 <div class="titleBar">
                     <p class="title">{title}</p>
-                    <HoverEffectButton on:click={onClose} style="width: 24px; height: 24px;">
+                    <HoverEffectButton onClick={onClose} style="width: 24px; height: 24px;">
                         X
                     </HoverEffectButton>
                 </div>
@@ -163,7 +120,7 @@
         </div>
     {/if}
 {:else}
-    <div class="dialog">
+    <div class="dialog bg-background">
         <RockFilter />
 
         <div data-demon='border' class="decorBar"></div>
@@ -171,7 +128,7 @@
 
         <div class="titleBar">
             <p class="title">{title}</p>
-            <HoverEffectButton on:click={onClose} style="width: 24px; height: 24px;">
+            <HoverEffectButton onClick={onClose} style="width: 24px; height: 24px;">
                 X
             </HoverEffectButton>
         </div>

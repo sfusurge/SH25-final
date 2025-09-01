@@ -5,7 +5,7 @@
     import Diamond from '$lib/components/landing/svgs/Diamond.svelte';
     import LineDiamond from '$lib/components/landing/svgs/LineDiamond.svelte';
     import LineDiamondVertical from '$lib/components/landing/svgs/LineDiamondVertical.svelte';
-    import RockFilter from '$lib/components/landing/RockFilter.svelte';
+    import RockFilter from '$lib/components/landing/svgs/RockFilter.svelte';
 </script>
 
 <div class="p-4 sm:pb-4 pb-8 flex flex-col w-full lg:w-[302px] lg:border-r border-b lg:border-b-0 border-border bg-[#231f1f] justify-between items-center gap-4 relative">

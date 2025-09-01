@@ -1,6 +1,3 @@
-import { writable, derived } from 'svelte/store';
-
-
 export const calmMusicLibrary = [
     //Calm music
     { title: "Never Meant", artist: "American Football", file: "https://x9bwborp6xanhdzl.public.blob.vercel-storage.com/Calm%20Music/american_football_never_meant.mp3" },
@@ -75,51 +72,3 @@ export const ambianceLibrary = [
     { title: "Coffee Shop Ambience", artist: "Ambience", file: "/audio/Ambiance/cofee_shop_ambience.mp3" }, // filename kept as-is
     { title: "Museum Café", artist: "Ambience", file: "/audio/Ambiance/museum_cafe.mp3" },
 ];
-
-// Music library options mapping
-export const musicLibOptions = {
-    calm: calmMusicLibrary,
-    epic: epicMusicLibrary,
-    special: specialMusicLibrary,
-    ambiance: ambianceLibrary,
-};
-
-// Utility function for shuffling arrays
-function shuffleArr(arr) {
-    const shuffled = [...arr]; // Create a copy to avoid mutating original
-    for (let i = shuffled.length - 1; i > -1; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[j], shuffled[i]] = [shuffled[i], shuffled[j]];
-    }
-    return shuffled;
-}
-
-// Music player stores
-export const trackIndex = writable(0);
-export const currentLibType = writable('calm');
-
-// Internal music library store (shuffled)
-const _musicLib = writable(shuffleArr(musicLibOptions.calm));
-
-// Derived store for reading music library
-export const musicLib = derived(_musicLib, ($lib) => $lib);
-
-// Function to change music library (equivalent to the Jotai atom setter)
-export function setMusicLibrary(variant) {
-    if (musicLibOptions[variant]) {
-        const newLib = shuffleArr(musicLibOptions[variant]);
-        _musicLib.set(newLib);
-        trackIndex.set(0);
-        currentLibType.set(variant);
-    }
-}
-
-// Derived store for current track
-export const currentTrack = derived(
-    [musicLib, trackIndex],
-    ([$musicLib, $trackIndex]) => $musicLib[$trackIndex]
-);
-
-// Derived stores for current track info
-export const currentTrackTitle = derived(currentTrack, ($track) => $track?.title || '');
-export const currentTrackArtist = derived(currentTrack, ($track) => $track?.artist || '');

@@ -1,5 +1,5 @@
 <script>
-    import Dialog from "$lib/components/landing/Dialog.svelte";
+    import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import Timer from '$lib/components/landing/Timer/Timer.svelte';
     import MobileSwapBackground from '$lib/components/landing/MobileSwapBackground.svelte';
 

@@ -1,7 +1,7 @@
 <script>
-    import Dialog from "$lib/components/landing/Dialog.svelte";
+    import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
-    import {currentLibType, setMusicLibrary} from "$lib/stores/music";
+    import {currentLibType, setMusicLibrary} from "$lib/stores/music.js";
 
     export let onClose = () => {
     };
@@ -17,7 +17,7 @@
         {show}
 >
     <HoverEffectButton
-            on:click={() => setMusicLibrary("calm")}
+            onClick={() => setMusicLibrary("calm")}
             style="padding: 0.1rem 0.75rem"
             active={$currentLibType === "calm"}
             aria-pressed={$currentLibType === "calm"}
@@ -26,7 +26,7 @@
     </HoverEffectButton>
 
     <HoverEffectButton
-            on:click={() => setMusicLibrary("special")}
+            onClick={() => setMusicLibrary("special")}
             active={$currentLibType === "special"}
             aria-pressed={$currentLibType === "special"}
     >
@@ -34,7 +34,7 @@
     </HoverEffectButton>
 
     <HoverEffectButton
-            on:click={() => setMusicLibrary("epic")}
+            onClick={() => setMusicLibrary("epic")}
             active={$currentLibType === "epic"}
             aria-pressed={$currentLibType === "epic"}
     >
