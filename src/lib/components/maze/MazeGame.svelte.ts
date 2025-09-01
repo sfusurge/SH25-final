@@ -587,15 +587,20 @@ export class MazeGame {
 
             // ====== DYNAMIC ENTITY ====== //
             if (currentRoomDynamicEntities) {
+                debug.entitiesDepth = (currentRoomDynamicEntities.map(item => item.y.toFixed(0)).join(", "));
+
                 while (dynamicRenderIdx < currentRoomDynamicEntities.length) {
                     const entity = currentRoomDynamicEntities[dynamicRenderIdx];
-                    const depth = Math.floor(entity.y / CELL_SIZE);
+                    const depth = Math.round(entity.y / CELL_SIZE);
 
+                    if (row > depth) {
+                        dynamicRenderIdx += 1;
+                        continue;
+                    }
                     if (depth !== row) {
                         break;
                     }
 
-                    const col = Math.floor(entity.x / CELL_SIZE);
                     entity.render(ctx, this.lastTime);
                     dynamicRenderIdx += 1;
                 }
