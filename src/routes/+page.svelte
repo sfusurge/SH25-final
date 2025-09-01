@@ -34,7 +34,7 @@
 
 </script>
 
-<div class="font-catriel h-screen w-full relative overflow-x-hidden sm:overflow-hidden bg-background">
+<div class="font-catriel h-screen w-full relative overflow-x-hidden sm:overflow-hidden bg-[#0C0C0B]">
 	<AmbiancePlayer />
 
 	<!-- background tiling -->
