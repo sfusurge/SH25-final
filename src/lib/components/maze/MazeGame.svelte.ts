@@ -405,9 +405,9 @@ export class MazeGame {
     }
 
     getCellRenderRange() {
-        const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width));
+        const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) - 1);
         const hightX = Math.min(this.maze.width, Math.floor(((this.camera.x + (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) + 2);
-        const lowY = Math.max(0, Math.floor(((this.camera.y - (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height));
+        const lowY = Math.max(0, Math.floor(((this.camera.y - (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) - 1);
         const hightY = Math.min(this.maze.height, Math.floor(((this.camera.y + (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) + 2);
 
         debug.renderRange = [lowX, hightX, lowY, hightY];
@@ -557,9 +557,7 @@ export class MazeGame {
                     }
 
                     const col = Math.floor(entity.x / CELL_SIZE);
-                    if (col >= lowX && col < highX) {
-                        entity.render(ctx, this.lastTime);
-                    }
+                    entity.render(ctx, this.lastTime);
                     dynamicRenderIdx += 1;
                 }
             }
