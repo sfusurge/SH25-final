@@ -9,9 +9,9 @@
                 <img
                         src={icon.src}
                         alt={icon.alt}
-                        height="24"
-                        width="24"
-                        class="w-[44px] h-[44px] sm:w-[24px] sm:h-[24px]"
+                        height="16"
+                        width= "16"
+                        class="w-[24px] h-[24px] sm:w-[16px] sm:h-[16px]"
                         data-demon="primary"
                 />
             </a>
