@@ -73,13 +73,12 @@ export class Entity {
         // Default implementation does nothing
     }
 
-    resolveCollision(otherAABB: AABB): boolean {
+    resolveCollision(otherAABB: AABB, otherVel = Vector2.ZERO) {
         const a = this.aabb;
         const isColliding = a.collidingWith(otherAABB);
 
         if (!isColliding) {
-            this.maxVelMod = 1;
-            return false;
+            return;
         }
 
         // intersection dist of how far A went into B
@@ -112,17 +111,19 @@ export class Entity {
             }
         }
 
+
         if (Math.abs(px) < Math.abs(py)) {
-            // this.vel.x += px / 0.006;
-            // this.maxVelMod = 0.5; // apply fake friction
             this.pos.x += px * 1.01;
         } else {
-            // this.maxVelMod = 0.5;
-            // this.vel.y += py / 0.006;
             this.pos.y += py * 1.01;
         }
+    }
 
-        return true;
+    /**
+     * maybe do some physics, just modify velocity directly for now.
+     */
+    applyImpulse(dv: Vector2) {
+        this.vel.addi(dv);
     }
 
     /**

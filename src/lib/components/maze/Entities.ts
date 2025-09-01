@@ -7,6 +7,7 @@ import { CELL_SIZE } from "$lib/components/maze/Maze";
 import type { Room, RoomLayout } from "$lib/components/maze/Room";
 
 export const ENTITY_TYPE = Object.freeze({
+    player: -1,
     empty: 0,
     rock: 1,
     trap: 2,
@@ -19,19 +20,21 @@ const UP = 1;
 const RIGHT = 2;
 const DOWN = 3;
 export class Player extends Entity {
-
     renderWidth = 50;
 
     // TODO player stats
-    accel = 4000;
+    accel = 3500;
     maxVel: number = 400;
 
     direction = DOWN;
     playerSpites: { [key: number]: HTMLCanvasElement[] };
+
+    immuneDuration = 0;
+
     constructor(pos: Vector2) {
         super(pos, 30, 25);
 
-        this.metadata = { entityType: 'player' };
+        this.metadata = { entityType: ENTITY_TYPE.player };
 
         this.playerSpites = {
             [LEFT]: [
@@ -91,19 +94,17 @@ export class Player extends Entity {
         }
     }
 
+    update(game: MazeGame, dt: number): void {
+        if (this.immuneDuration > 0) {
+            this.immuneDuration -= dt;
+        }
+    }
+
     onCollision(other: Entity, game?: any): void {
 
-        const entityType = other.metadata?.entityType;
-
-        switch (entityType) {
-            case ENTITY_TYPE.rock:
-                break;
-
-            case ENTITY_TYPE.trap:
-                break;
-
-            case ENTITY_TYPE.scroll:
-                break;
+        if (other.metadata.entityType === ENTITY_TYPE.enemy1 && this.immuneDuration <= 0) {
+            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(500));
+            this.immuneDuration = 1;
         }
     }
 
@@ -222,8 +223,8 @@ export class WalkerEntity extends Entity {
 
     sprite: HTMLCanvasElement;
 
-    maxVel: number = 200;
-    accel: number = 4000;
+    maxVel: number = 150;
+    accel: number = 2000;
 
     // drawing for debug
     pathFinds: { x: number, y: number }[] = [];
@@ -233,15 +234,15 @@ export class WalkerEntity extends Entity {
     directTarget = false;
 
     constructor(pos: Vector2) {
-        super(pos, 30, 30);
+        super(pos, 25, 25);
 
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
-        this.metadata.entityType = "enemy";
+        this.metadata.entityType = ENTITY_TYPE.enemy1;
     }
 
     onCollision(other: Entity, game?: any): void {
-        if (other.metadata.entityType === "player") {
-            this.resolveCollision(other.aabb);
+        if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy1) {
+            this.resolveCollision(other.aabb, other.vel);
         }
     }
 
@@ -278,13 +279,12 @@ export class WalkerEntity extends Entity {
                 this.directTarget = true;
                 this.move(player.pos.sub(this.pos), dt);
                 this.playerLoc = player.pos;
+                this.pathFinds = [];
                 return;
             }
         } else {
             this.directTarget = false;
         }
-
-
 
         const pathFinds = AStar(staticEntities, col, row, playerCol, playerRow);
         if (pathFinds) {

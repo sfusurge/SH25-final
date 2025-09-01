@@ -44,7 +44,7 @@ class EntityGrid {
     clear() {
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
-                this.grid[y][x] = [];
+                this.grid[y][x].length = 0;
             }
         }
     }
@@ -138,21 +138,32 @@ export class MazeGame {
         w: false,
         a: false,
         s: false,
-        d: false
+        d: false,
+        space: false,
     };
 
     init() {
         //keyboard input event
         this.canvas.addEventListener("keydown", (e) => {
-            if (e.key in this.keyMem) {
+            if (e.key.toLowerCase() in this.keyMem) {
                 // @ts-ignore
-                this.keyMem[e.key] = true;
+                this.keyMem[e.key.toLowerCase()] = true;
+                e.preventDefault();
+            }
+            if (e.key === " ") {
+                e.preventDefault();
+                this.keyMem["space"] = true;
             }
         });
         this.canvas.addEventListener("keyup", (e) => {
-            if (e.key in this.keyMem) {
+            if (e.key.toLowerCase() in this.keyMem) {
+                e.preventDefault();
                 // @ts-ignore :^(
-                this.keyMem[e.key] = false;
+                this.keyMem[e.key.toLowerCase()] = false;
+            }
+            if (e.key === " ") {
+                e.preventDefault();
+                this.keyMem["space"] = false;
             }
         })
         // start update loop
@@ -197,6 +208,12 @@ export class MazeGame {
             // On desktop, combine keyboard and joystick inputs
             x += this.joystickInput.x;
             y += this.joystickInput.y;
+        }
+
+        // DEBUG remove
+        if (this.keyMem.space) {
+            this.player.applyImpulse(Vector2.UNIT_Y.mul(600));
+            this.keyMem.space = false;
         }
 
         return new Vector2(x, y).clampMagnitude(1);
@@ -275,7 +292,7 @@ export class MazeGame {
 
     resolveEntityCollisions() {
         this.resolveWallCollisions(this.player);
-
+        this.updateEntityGrid();
         if (!this.entityGrid || this.currentRoomId === 0) {
             return;
         }
@@ -342,7 +359,6 @@ export class MazeGame {
     updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
-
         // update entities
         const playerCol = Math.floor(this.player.x / CELL_SIZE);
         const playerRow = Math.floor(this.player.y / CELL_SIZE);
@@ -360,6 +376,7 @@ export class MazeGame {
                 e.update(this, this.deltaTime);
             }
         }
+        this.player.update(this, this.deltaTime);
     }
 
     rebuildEntityGrid() {
@@ -388,6 +405,28 @@ export class MazeGame {
         this.entityGrid.addEntity(this.player);
         for (const entity of room.entities) {
             this.entityGrid.addEntity(entity);
+        }
+    }
+
+    updateEntityGrid() {
+        if (this.currentRoomId <= 0) {
+            return;
+        }
+        const room = this.idToRoomLayout[this.currentRoomId];
+        if (!room) {
+            return;
+        }
+        const grid = this.entityGrid;
+
+        if (!grid) {
+            return;
+        }
+
+        grid.clear();
+        // Add all entities to the grid, including player
+        grid.addEntity(this.player);
+        for (const entity of room.entities) {
+            grid.addEntity(entity);
         }
     }
 

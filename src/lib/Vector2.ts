@@ -178,6 +178,10 @@ export class Vector2 {
         return Math.hypot(this.x, this.y);
     }
 
+    dot(other: Vector2) {
+        return this.x * other.x + this.y * other.y;
+    }
+
     distTo(other: Vector2) {
         return other.sub(this).mag();
     }
