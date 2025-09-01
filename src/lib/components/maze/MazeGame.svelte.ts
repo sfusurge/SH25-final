@@ -124,6 +124,7 @@ export class MazeGame {
         for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
             for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
                 if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
+                    console.log("Found safe spot for player:", x, y);
                     playerStartX = x;
                     playerStartY = y;
                     foundSafeSpot = true;

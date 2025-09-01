@@ -52,8 +52,8 @@ export class RoomLayout {
             this.staticEntities.push(new Array(this.width).fill(undefined));
             for (let col = 0; col < width; col++) {
                 // +25 to send to center of cell
-                const pos = new Vector2(left * CELL_SIZE + col * HALFCELL + 25, top * CELL_SIZE + row * HALFCELL + 25) // TODO maybe replace all magic numbers with CELL_SIZE fractions? maybe not
-                // console.log(pos);
+                const pos = new Vector2(left * CELL_SIZE + col * HALFCELL + 25, top * CELL_SIZE + row * HALFCELL + 25);
+
                 let entity: Entity | undefined = undefined;
                 switch (obstacleMap[row][col]) {
                     case ENTITY_TYPE.rock:
@@ -99,7 +99,9 @@ export class RoomLayout {
             const entityTemplateX = Math.floor((entity.x - this.left * CELL_SIZE - 25) / (CELL_SIZE / 2));
             const entityTemplateY = Math.floor((entity.y - this.top * CELL_SIZE - 25) / (CELL_SIZE / 2));
 
-            return entityTemplateX === templateX && entityTemplateY === templateY;
+            // Check if entity is in any of the 4 template cells that make up this maze cell
+            return (entityTemplateX === templateX || entityTemplateX === templateX + 1) &&
+                (entityTemplateY === templateY || entityTemplateY === templateY + 1);
         });
     }
 }

@@ -206,25 +206,42 @@ export class PathGenerator {
 
             // Top edge
             for (let x = room.x1; x < room.x2; x++) {
-                if (!roomLayout?.hasEntitiesAtPosition(x, room.y1)) {
+                const hasEntityInThisRoom = roomLayout?.hasEntitiesAtPosition(x, room.y1);
+                
+                const roomAbove = rooms.find(r => r.y2 === room.y1 && x >= r.x1 && x < r.x2);
+                const hasEntityInRoomAbove = roomAbove ? idToRoomTemplate[roomAbove.regionID]?.hasEntitiesAtPosition(x, room.y1 - 1) : false;
+
+                if (!hasEntityInThisRoom && !hasEntityInRoomAbove) {
                     allRoomEdges.push({ x, y: room.y1, dir: "up" });
                 }
             }
             // Bottom edge
             for (let x = room.x1; x < room.x2; x++) {
-                if (!roomLayout?.hasEntitiesAtPosition(x, room.y2 - 1)) {
+                const hasEntityInThisRoom = roomLayout?.hasEntitiesAtPosition(x, room.y2 - 1);
+                const roomBelow = rooms.find(r => r.y1 === room.y2 && x >= r.x1 && x < r.x2);
+                const hasEntityInRoomBelow = roomBelow ? idToRoomTemplate[roomBelow.regionID]?.hasEntitiesAtPosition(x, room.y2) : false;
+
+                if (!hasEntityInThisRoom && !hasEntityInRoomBelow) {
                     allRoomEdges.push({ x, y: room.y2 - 1, dir: "down" });
                 }
             }
             // Left edge
             for (let y = room.y1; y < room.y2; y++) {
-                if (!roomLayout?.hasEntitiesAtPosition(room.x1, y)) {
+                const hasEntityInThisRoom = roomLayout?.hasEntitiesAtPosition(room.x1, y);
+                const roomLeft = rooms.find(r => r.x2 === room.x1 && y >= r.y1 && y < r.y2);
+                const hasEntityInRoomLeft = roomLeft ? idToRoomTemplate[roomLeft.regionID]?.hasEntitiesAtPosition(room.x1 - 1, y) : false;
+
+                if (!hasEntityInThisRoom && !hasEntityInRoomLeft) {
                     allRoomEdges.push({ x: room.x1, y, dir: "left" });
                 }
             }
             // Right edge
             for (let y = room.y1; y < room.y2; y++) {
-                if (!roomLayout?.hasEntitiesAtPosition(room.x2 - 1, y)) {
+                const hasEntityInThisRoom = roomLayout?.hasEntitiesAtPosition(room.x2 - 1, y);
+                const roomRight = rooms.find(r => r.x1 === room.x2 && y >= r.y1 && y < r.y2);
+                const hasEntityInRoomRight = roomRight ? idToRoomTemplate[roomRight.regionID]?.hasEntitiesAtPosition(room.x2, y) : false;
+
+                if (!hasEntityInThisRoom && !hasEntityInRoomRight) {
                     allRoomEdges.push({ x: room.x2 - 1, y, dir: "right" });
                 }
             }
