@@ -399,6 +399,10 @@ export class MazeGame {
             const projectile = this.projectiles[i];
             projectile.update(this, this.deltaTime);
 
+            // Remove if destroyed
+            if (projectile.metadata.destroyed) {
+                this.projectiles.splice(i, 1);
+            }
         }
 
         // update entities
@@ -417,6 +421,10 @@ export class MazeGame {
             for (const e of room.entities) {
                 e.update(this, this.deltaTime);
             }
+
+            // Remove destroyed entities
+            room.entities = room.entities.filter(e => !e.metadata.destroyed);
+            room.dynamicEntities = room.dynamicEntities.filter(e => !e.metadata.destroyed);
         }
     }
 

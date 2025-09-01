@@ -61,16 +61,23 @@ export class ProjectileEntity extends Entity {
     onCollision(other: Entity, game?: MazeGame): void {
         const entityType = other.metadata?.entityType;
 
+        // Destroy projectile on collision with solid objects
+        if (entityType === ENTITY_TYPE.rock || entityType === 'enemy') {
+            this.metadata.destroyed = true;
+        }
+
+        // Handle hitting enemies
         if (entityType === 'enemy') {
-            // TODO: Add damage/destroy enemy logic
+            // TODO: Add damage/destroy enemy logic/enemy HP 
+            other.metadata.destroyed = true;
         }
     }
 
     resolveCollision(otherAABB: AABB): boolean {
         // For projectiles, any wall collision destroys them
         const isColliding = this.aabb.collidingWith(otherAABB);
-        if (isColliding) {
             this.metadata.destroyed = true;
+        if (isColliding) {
         }
         return isColliding;
     }
@@ -94,8 +101,9 @@ export class Player extends Entity {
     direction = DOWN;
     playerSpites: { [key: number]: HTMLCanvasElement[] };
 
+    // Shooting cooldown
     shootCooldown = 0;
-    shootCooldownTime = 0.5; // 500ms
+    shootCooldownTime = 0.2; // 200ms between shots
 
     constructor(pos: Vector2) {
         super(pos, 30, 25);
@@ -269,7 +277,6 @@ export class BlockerEntity extends Entity {
 }
 
 export class ScrollEntity extends Entity {
-    static = true;
     sprite: HTMLCanvasElement;
 
     constructor(pos: Vector2) {
@@ -280,6 +287,7 @@ export class ScrollEntity extends Entity {
 
     onCollision(other: Entity, game?: any): void {
         if (other.metadata?.entityType === 'player') {
+            this.metadata.destroyed = true;
             // TODO
         }
     }
