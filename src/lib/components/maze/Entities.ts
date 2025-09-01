@@ -2,10 +2,12 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { Vector2 } from "$lib/Vector2";
 import { AABB } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
-import { AStar } from "$lib/components/maze/A_Star";
+import { AStar, lineOfSight } from "$lib/components/maze/PathFind";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
+import type { Room, RoomLayout } from "$lib/components/maze/Room";
 
 export const ENTITY_TYPE = Object.freeze({
+    player: -1,
     empty: 0,
     rock: 1,
     trap: 2,
@@ -18,19 +20,21 @@ const UP = 1;
 const RIGHT = 2;
 const DOWN = 3;
 export class Player extends Entity {
-
     renderWidth = 50;
 
     // TODO player stats
-    accel = 4000;
+    accel = 3500;
     maxVel: number = 400;
 
     direction = DOWN;
     playerSpites: { [key: number]: HTMLCanvasElement[] };
+
+    immuneDuration = 0;
+
     constructor(pos: Vector2) {
         super(pos, 30, 25);
 
-        this.metadata = { entityType: 'player' };
+        this.metadata = { entityType: ENTITY_TYPE.player };
 
         this.playerSpites = {
             [LEFT]: [
@@ -90,19 +94,17 @@ export class Player extends Entity {
         }
     }
 
+    update(game: MazeGame, dt: number): void {
+        if (this.immuneDuration > 0) {
+            this.immuneDuration -= dt;
+        }
+    }
+
     onCollision(other: Entity, game?: any): void {
 
-        const entityType = other.metadata?.entityType;
-
-        switch (entityType) {
-            case ENTITY_TYPE.rock:
-                break;
-
-            case ENTITY_TYPE.trap:
-                break;
-
-            case ENTITY_TYPE.scroll:
-                break;
+        if (other.metadata.entityType === ENTITY_TYPE.enemy1 && this.immuneDuration <= 0) {
+            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(500));
+            this.immuneDuration = 1;
         }
     }
 
@@ -221,21 +223,26 @@ export class WalkerEntity extends Entity {
 
     sprite: HTMLCanvasElement;
 
-    maxVel: number = 200;
-    accel: number = 4000;
+    maxVel: number = 150;
+    accel: number = 2000;
 
+    // drawing for debug
     pathFinds: { x: number, y: number }[] = [];
+    lineOfSight: { x: number, y: number }[] = [];
+    currentRoom?: RoomLayout;
+    playerLoc?: Vector2;
+    directTarget = false;
 
     constructor(pos: Vector2) {
-        super(pos, 30, 30);
+        super(pos, 25, 25);
 
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
-        this.metadata.entityType = "enemy";
+        this.metadata.entityType = ENTITY_TYPE.enemy1;
     }
 
     onCollision(other: Entity, game?: any): void {
-        if (other.metadata.entityType === "player") {
-            this.resolveCollision(other.aabb);
+        if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy1) {
+            this.resolveCollision(other.aabb, other.vel);
         }
     }
 
@@ -254,6 +261,30 @@ export class WalkerEntity extends Entity {
         const playerRow = (Math.floor(player.y / halfCell) - (room.top * 2));
         const playerCol = (Math.floor(player.x / halfCell) - (room.left * 2));
 
+        this.lineOfSight = lineOfSight(col, row, playerCol, playerRow);
+        this.currentRoom = room;
+
+        if (player.pos.distTo(this.pos) < 2 * CELL_SIZE) {
+            let clear = true;
+            // check if this ent has clear los
+            for (const los of this.lineOfSight) {
+                if (staticEntities[los.y][los.x]?.solid) {
+                    clear = false;
+                    break;
+                }
+            }
+
+            if (clear) {
+                // if close enough and have clear los, then head straight to player.
+                this.directTarget = true;
+                this.move(player.pos.sub(this.pos), dt);
+                this.playerLoc = player.pos;
+                this.pathFinds = [];
+                return;
+            }
+        } else {
+            this.directTarget = false;
+        }
 
         const pathFinds = AStar(staticEntities, col, row, playerCol, playerRow);
         if (pathFinds) {
@@ -279,17 +310,28 @@ export class WalkerEntity extends Entity {
         let verOffset = 0;
         let angleOffset = 0;
 
+        // bounce animation
         if (mag > 0.5) {
             const period = ((time % 1000) / 1000) * Math.PI * 2;
             verOffset = Math.abs(Math.sin(period) * 10); // 15px bounce
             angleOffset = Math.cos(period) * Math.PI / 30;
         }
 
+        // draw path finding dot
         const transform = ctx.getTransform();
-        ctx.strokeStyle = "red"
+        ctx.strokeStyle = "#7daea3"
         const center = this.aabb.center;
 
+        // draw direct targeting
+        if (this.directTarget && this.playerLoc) {
+            ctx.strokeStyle = "#d8a657";
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(this.playerLoc.x, this.playerLoc.y);
+            ctx.stroke();
+        }
 
+        // draw path finding path
         if (this.pathFinds && this.pathFinds.length > 0) {
             ctx.beginPath()
             ctx.moveTo(this.pathFinds[0].x, this.pathFinds[0].y);
@@ -300,12 +342,26 @@ export class WalkerEntity extends Entity {
             }
             ctx.stroke();
 
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = '#7daea3';
             const last = this.pathFinds.at(-1)!;
             ctx.fillRect(last.x - 5, last.y - 5, 10, 10);
         }
 
-        ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height)
+        // draw line of sight
+        ctx.fillStyle = "#e78a4e33";
+        const halfCell = CELL_SIZE * 0.5;
+        if (this.lineOfSight && this.currentRoom) {
+
+            for (const los of this.lineOfSight) {
+                ctx.fillRect(los.x * halfCell + this.currentRoom.left * CELL_SIZE,
+                    los.y * halfCell + this.currentRoom.top * CELL_SIZE,
+                    halfCell,
+                    halfCell
+                );
+            }
+        }
+
+
 
 
         ctx.translate(this.x, this.y + verOffset + this.height / 2);
@@ -315,5 +371,8 @@ export class WalkerEntity extends Entity {
         ctx.drawImage(this.sprite, 0, 0);
 
         ctx.setTransform(transform);
+
+        // draw hitbox
+        ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height)
     }
 }
