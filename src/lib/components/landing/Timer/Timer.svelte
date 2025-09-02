@@ -203,8 +203,8 @@
     <RockFilter/>
     <div class="flex justify-between items-center h-full">
         <BlockPatternVertical className="h-[44px] mr-1.5"/>
-        <div class="flex justify-between px-2 items-center w-[153px] gap-2 h-[33px] p-[6.427px] flex-shrink-0 border-[0.643px] border-borderalt bg-[#231f1f] alt">
-            <div class="flex flex-row gap-0 justify-between items-center">
+        <div class="flex justify-between px-2 items-center w-[153px] gap-2 h-[33px] p-[6.427px] flex-shrink-0 border-[0.643px] border-borderalt  bg-[#06060599] alt">
+            <div class="flex flex-row gap-0 justify-between items-center ">
                 <img
                         src="/assets/clock.svg"
                         height="15"

@@ -14,7 +14,7 @@
 </script>
 
 <div class={`flex flex-col overflow-y-auto overflow-x-hidden h-full w-full bg-[#0C0C0B] border border-[#574E49] custom-scrollbar`}>
-    <div class="flex flex-col justify-center pt-5 pr-3 pl-6 pb-10">
+    <div class="flex flex-col justify-center pt-5 pr-6 pl-6 pb-10">
         <div class="pb-6">
             <h1 class="text-header text-sm italic self-stretch leading-normal font-bold">
                 Welcome to StormHacks 2025!

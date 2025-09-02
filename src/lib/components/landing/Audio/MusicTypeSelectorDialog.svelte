@@ -11,6 +11,7 @@
 </script>
 
 <Dialog
+        title="Music Type"
         {onClose}
         {mobileMode}
         {triggerButton}
@@ -28,6 +29,7 @@
 
         <HoverEffectButton
                 onClick={() => setMusicLibrary("special")}
+                style="padding: 0.1rem 0.75rem"
                 active={$currentLibType === "special"}
                 aria-pressed={$currentLibType === "special"}
         >
@@ -36,6 +38,7 @@
 
         <HoverEffectButton
                 onClick={() => setMusicLibrary("epic")}
+                style="padding: 0.1rem 0.75rem"
                 active={$currentLibType === "epic"}
                 aria-pressed={$currentLibType === "epic"}
         >
