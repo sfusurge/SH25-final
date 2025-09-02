@@ -15,7 +15,7 @@
             },
             {
                 name: "Kardium",
-                picture: "/assets/sponsors/Monetary/Logo/Kardium /Bronze Kardium.png",
+                picture: "/assets/sponsors/Monetary/Logo/Kardium/Bronze Kardium.png",
                 link: "https://kardium.com/"
             },
             {
