@@ -6,16 +6,6 @@ export const seconds = writable('00');
 
 let timerInterval = null;
 
-export const totalTime = derived(
-    [minutes, seconds],
-    ([$minutes, $seconds]) => {
-        const mins = parseInt($minutes) || 0;
-        const secs = parseInt($seconds) || 0;
-        return mins * 60 + secs;
-    }
-);
-
-// Derived store to track remaining time in seconds for the active timer
 export const remainingSeconds = writable(0);
 
 export function toggleTimer() {
@@ -29,7 +19,6 @@ export function toggleTimer() {
 }
 
 export function setTime({ minutes: newMinutes, seconds: newSeconds }) {
-    // Stop timer when manually changing time
     if (!get(paused)) {
         stopTimer();
     }
@@ -60,7 +49,6 @@ function startTimer() {
     paused.set(false);
     remainingSeconds.set(totalSecondsRemaining);
 
-    // Clear any existing interval
     if (timerInterval) {
         clearInterval(timerInterval);
     }

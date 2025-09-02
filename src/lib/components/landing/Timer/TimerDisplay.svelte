@@ -4,7 +4,6 @@
 
     export let showWhenPaused = false;
 
-    // Create a formatted time derived store
     const formattedTime = derived(
         [minutes, seconds],
         ([$minutes, $seconds]) => {

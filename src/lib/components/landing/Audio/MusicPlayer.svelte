@@ -1,11 +1,6 @@
 <script>
-    import { writable, derived } from 'svelte/store';
-    import {
-        calmMusicLibrary,
-        epicMusicLibrary,
-        specialMusicLibrary,
-        ambianceLibrary
-    } from '$lib/stores/audioLibrary.js';
+    import {trackIndex, musicLib, currentTrack} from '$lib/stores/music.js';
+
     import HoverEffectButton from '$lib/components/landing/HoverEffectButton.svelte';
     import BlockPatternVertical from '$lib/components/landing/svgs/BlockPatternVertical.svelte';
     import Diamond from '$lib/components/landing/svgs/Diamond.svelte';
@@ -15,48 +10,23 @@
     import ScrollingText from '$lib/components/landing/Audio/ScrollingText.svelte';
     import RockFilter from '$lib/components/landing/svgs/RockFilter.svelte';
 
-    export const trackIndex = writable(0);
-    export const currentLibType = writable('calm');
-
-    export const musicLibOptions = {
-        calm: calmMusicLibrary,
-        epic: epicMusicLibrary,
-        special: specialMusicLibrary,
-        ambiance: ambianceLibrary,
-    };
-
-    function shuffleArr(arr) {
-        for (let i = arr.length - 1; i > -1; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[j], arr[i]] = [arr[i], arr[j]];
-        }
-        return arr;
-    }
-
-    const _musicLib = writable(shuffleArr([...musicLibOptions.calm]));
-    export const musicLib = derived(_musicLib, ($lib) => $lib);
-
-    export function setMusicLibrary(variant) {
-        const newLib = [...musicLibOptions[variant]];
-        shuffleArr(newLib);
-        _musicLib.set(newLib);
-        trackIndex.set(0);
-        currentLibType.set(variant);
-    }
-
     let isPlaying = false;
     let audioRef;
     let initialPlay = true;
-    let isLoading = false;
     let showMusicSelector = false;
     let showAmbianceMenu = false;
     let currentTime = 0;
     let duration = 0;
     let progressPercent = 0;
 
-    $: currentTrack = $musicLib[$trackIndex];
-    $: currentTitle = currentTrack?.title || '';
-    $: currentArtist = currentTrack?.artist || '';
+    $: currentTitle = $currentTrack?.title || '';
+    $: currentArtist = $currentTrack?.artist || '';
+
+    $: {
+        console.log('Music lib updated:', $musicLib?.length || 0, 'tracks');
+        console.log('Current track:', $currentTrack?.title || 'None');
+        console.log('Track index:', $trackIndex);
+    }
 
     $: if (audioRef && $masterVolume !== undefined) {
         audioRef.volume = $masterVolume;
@@ -64,15 +34,17 @@
 
     $: progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-    $: if (currentTrack && audioRef) {
+    $: if ($currentTrack && audioRef) {
         handleTrackChange();
     }
 
     async function handleTrackChange() {
-        if (!audioRef || !currentTrack) return;
+        if (!audioRef || !$currentTrack) return;
 
-        if (audioRef.src !== currentTrack.file) {
-            audioRef.src = currentTrack.file;
+        console.log('Handling track change to:', $currentTrack.title);
+
+        if (audioRef.src !== $currentTrack.file) {
+            audioRef.src = $currentTrack.file;
             audioRef.load();
             currentTime = 0;
             duration = 0;
@@ -89,17 +61,16 @@
     }
 
     async function togglePlayPause() {
-        if (!audioRef || !currentTrack) return;
+        if (!audioRef || !$currentTrack) return;
 
-        isLoading = true;
 
         if (isPlaying) {
             audioRef.pause();
             isPlaying = false;
         } else {
-            if (initialPlay || audioRef.src !== currentTrack.file) {
+            if (initialPlay || audioRef.src !== $currentTrack.file) {
                 initialPlay = false;
-                audioRef.src = currentTrack.file;
+                audioRef.src = $currentTrack.file;
                 audioRef.load();
             }
 
@@ -116,29 +87,22 @@
     }
 
     async function playNext() {
-        if (!audioRef) return;
+        if (!audioRef || !$musicLib.length) return;
 
         const nextIndex = ($trackIndex + 1) % $musicLib.length;
         trackIndex.set(nextIndex);
-
-        // Don't manipulate isLoading here - let the reactive statement handle the change
-        // If we were playing, continue playing the new track
-        if (isPlaying) {
-            // The reactive statement will handle the actual track change and playback
-        }
+        console.log('Playing next track, index:', nextIndex);
     }
 
     async function playPrevious() {
-        if (!audioRef) return;
+        if (!audioRef || !$musicLib.length) return;
 
         const prevIndex = $trackIndex === 0 ? $musicLib.length - 1 : $trackIndex - 1;
         trackIndex.set(prevIndex);
-        if (isPlaying) {
-        }
+        console.log('Playing previous track, index:', prevIndex);
     }
 
     function handleAudioEnded() {
-        // Don't set isPlaying to false immediately, let playNext handle it
         playNext();
     }
 
@@ -178,8 +142,6 @@
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 </script>
-
-
 
 {#if $$props.trackInfoOnly}
     <div class="flex flex-col flex-1 min-w-0 pr-3 w-[20px]">

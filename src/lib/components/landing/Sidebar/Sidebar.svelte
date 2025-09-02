@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex lg:flex-col md:grid grid-cols-[1fr_auto_1fr] lg:px-0 md:px-8 px-0 md:place-items-center gap-10">
+        <div class="flex flex-col lg:flex lg:flex-col px-0 gap-10">
             <StormHacksLogo />
 
             <div class="md:flex flex-col items-center hidden lg:hidden xl:hidden">
