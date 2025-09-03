@@ -84,14 +84,14 @@
     };
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen gap-2 p-4">
+<div class="flex flex-col items-center justify-center min-h-screen gap-2 p-4 w-screen">
 
     <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414] backdrop-blur-[5px] overflow-hidden">
         <div class="flex flex-row items-center justify-between min-h-[200px]">
             <BlockPatternVertical className="h-full flex-shrink-0" />
 
             <div class="flex flex-col flex-1 items-center">
-                <h1 class="text-start">
+                <h1 class="text-start font-semibold pt-2">
                     Monetary
                 </h1>
                 <div class="flex flex-row gap-6 justify-center items-center flex-wrap p-8 w-full">
@@ -124,7 +124,7 @@
             <BlockPatternVertical className="h-full flex-shrink-0" />
 
             <div class="flex flex-col flex-1 items-center">
-                <h1 class="text-start">
+                <h1 class="text-start font-semibold pt-2">
                     In Kind
                 </h1>
                 <div class="flex flex-row gap-6 justify-center items-center flex-wrap p-8 w-full">
