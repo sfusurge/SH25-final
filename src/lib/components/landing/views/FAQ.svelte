@@ -34,37 +34,40 @@
     }
 </script>
 
-<div class="flex flex-wrap gap-6 p-6 justify-center">
-    {#each faqData as faq, index}
-        <div
+<div class="w-full flex items-center justify-center">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {#each faqData as faq, index}
+            <div
                 class="flip-card w-[270px] h-[338px] cursor-pointer"
                 role="button"
                 tabindex="0"
                 on:click={() => toggleFlip(index)}
                 on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFlip(index) : null}
-        >
-            <div class="flip-card-inner" class:flipped={flippedCards[index]}>
-                <div class="flip-card-front flex px-16 py-[123px] flex-col justify-center items-center gap-2.5 flex-shrink-0">
-                    <p class="text-[#F1ECEB] text-center text-[15px] italic font-bold leading-normal">
-                        {faq.question}
-                    </p>
-                    <p class="text-[#A7928E] text-center text-[8px] italic font-normal leading-normal">
-                        [Click For Answer]
-                    </p>
-                </div>
+            >
+                <div class="flip-card-inner" class:flipped={flippedCards[index]}>
+                    <div class="flip-card-front flex px-16 flex-col justify-center items-center gap-2.5 flex-shrink-0">
+                        <p class="text-[#F1ECEB] text-center text-[15px] italic font-bold leading-normal">
+                            {faq.question}
+                        </p>
+                        <p class="text-[#A7928E] text-center text-[8px] italic font-normal leading-normal">
+                            [Click For Answer]
+                        </p>
+                    </div>
 
-                <div class="text-start flip-card-back px-6 py-2 flex flex-col justify-center items-center gap-2.5 flex-shrink-0">
-                    <h1 class="text-header text-sm italic self-stretch leading-normal font-bold">
-                        {faq.question}
-                    </h1>
-                    <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
-                        {faq.answer}
-                    </h3>
+                    <div class="text-start flip-card-back px-6 py-2 flex flex-col justify-center items-center gap-2.5 flex-shrink-0">
+                        <h1 class="text-header text-sm italic self-stretch leading-normal font-bold">
+                            {faq.question}
+                        </h1>
+                        <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
+                            {faq.answer}
+                        </h3>
+                    </div>
                 </div>
             </div>
-        </div>
-    {/each}
+        {/each}
+    </div>
 </div>
+
 
 <style>
     .flip-card {
