@@ -19,6 +19,79 @@ const LEFT = 0;
 const UP = 1;
 const RIGHT = 2;
 const DOWN = 3;
+
+export class ProjectileEntity extends Entity {
+    direction: number;
+    speed: number = 450;
+    maxDistance: number = 250;
+    distanceTraveled: number = 0;
+
+    constructor(pos: Vector2, direction: number) {
+        super(pos, 8, 8); // small projectile
+        this.direction = direction;
+        this.metadata = { entityType: 'projectile' };
+    }
+
+    update(game: MazeGame, dt: number): void {
+        // Calculate movement vector based on direction
+        let moveVector = Vector2.ZERO;
+        switch (this.direction) {
+            case LEFT:
+                moveVector = new Vector2(-1, 0);
+                break;
+            case RIGHT:
+                moveVector = new Vector2(1, 0);
+                break;
+            case UP:
+                moveVector = new Vector2(0, -1);
+                break;
+            case DOWN:
+                moveVector = new Vector2(0, 1);
+                break;
+        }
+
+        // Move projectile
+        const movement = moveVector.mul(this.speed * dt);
+        this.pos.addi(movement);
+        this.distanceTraveled += movement.mag();
+
+        if (this.distanceTraveled >= this.maxDistance) {
+            this.metadata.destroyed = true;
+        }
+    }
+
+    onCollision(other: Entity, game?: MazeGame): void {
+        const entityType = other.metadata?.entityType;
+
+        // Destroy projectile on collision with solid objects
+        if (entityType === ENTITY_TYPE.rock || entityType === 'enemy') {
+            this.metadata.destroyed = true;
+        }
+
+        // Handle hitting enemies
+        if (entityType === 'enemy') {
+            // TODO: Add damage/destroy enemy logic/enemy HP
+            other.metadata.destroyed = true;
+        }
+    }
+
+    resolveCollision(otherAABB: AABB): boolean {
+        // For projectiles, any wall collision destroys them
+        const isColliding = this.aabb.collidingWith(otherAABB);
+            this.metadata.destroyed = true;
+        if (isColliding) {
+        }
+        return isColliding;
+    }
+
+    render(ctx: CanvasRenderingContext2D, time: number): void {
+        ctx.fillStyle = "#FFD700"; // Gold color for projectile
+        ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        // TODO: Change to actual sprite
+
+    }
+}
+
 export class Player extends Entity {
     renderWidth = 50;
 
@@ -30,6 +103,9 @@ export class Player extends Entity {
     playerSpites: { [key: number]: HTMLCanvasElement[] };
 
     immuneDuration = 0;
+    // Shooting cooldown
+    shootCooldown = 0;
+    shootCooldownTime = 0.2; // 200ms between shots
 
     constructor(pos: Vector2) {
         super(pos, 30, 25);
@@ -68,6 +144,11 @@ export class Player extends Entity {
      * @param dt delta time since the last move input
      */
     onMoveInput(movement: Vector2, dt: number) {
+
+        if (this.shootCooldown > 0) {
+            this.shootCooldown -= dt;
+        }
+
         const mag = movement.mag();
 
         if (mag < 0.1) {
@@ -90,7 +171,8 @@ export class Player extends Entity {
         debug.player = {
             vel: this.vel,
             move: movement,
-            angle: this.direction
+            angle: this.direction,
+            shootCooldown: this.shootCooldown
         }
     }
 
@@ -106,6 +188,33 @@ export class Player extends Entity {
             this.applyImpulse(this.pos.sub(other.pos).normalize().muli(500));
             this.immuneDuration = 1;
         }
+    }
+
+    onShootInput(direction: number, game: any): void {
+        if (direction === -1 || this.shootCooldown > 0) return;
+
+        this.shootCooldown = this.shootCooldownTime;
+
+        const projectilePos = this.pos.clone();
+
+        // Offset projectile a bit
+        switch (direction) {
+            case LEFT:
+                projectilePos.x -= this.width / 2 + 5;
+                break;
+            case RIGHT:
+                projectilePos.x += this.width / 2 + 5;
+                break;
+            case UP:
+                projectilePos.y -= this.height / 2 + 5;
+                break;
+            case DOWN:
+                projectilePos.y += this.height / 2 + 5;
+                break;
+        }
+
+        const projectile = new ProjectileEntity(projectilePos, direction);
+        game.addProjectile(projectile);
     }
 
     render(ctx: CanvasRenderingContext2D, time: number): void {
@@ -168,7 +277,6 @@ export class BlockerEntity extends Entity {
 }
 
 export class ScrollEntity extends Entity {
-    static = true;
     sprite: HTMLCanvasElement;
 
     constructor(pos: Vector2) {
@@ -179,6 +287,7 @@ export class ScrollEntity extends Entity {
 
     onCollision(other: Entity, game?: any): void {
         if (other.metadata?.entityType === 'player') {
+            this.metadata.destroyed = true;
             // TODO
         }
     }
