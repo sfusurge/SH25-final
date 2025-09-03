@@ -30,7 +30,7 @@
             },
             {
                 name: "Trulioo",
-                picture: "/assets/sponsors/Monetary/Logo/Trulioo/Trulioo Logo.png",
+                picture: "/assets/sponsors/Monetary/Logo/Trulioo/Trulioo light.png",
                 link: "https://www.trulioo.com/"
             },
             {
@@ -52,12 +52,12 @@
             },
             {
                 name: "CodeCrafters",
-                picture: "/assets/sponsors/In-Kind/Logos/CodeCrafters/Copy of Logomark (No BG).png",
+                picture: "/assets/sponsors/In-Kind/Logos/CodeCrafters/Copy of CodeCrafters Workmark (White).png",
                 link: "https://codecrafters.io/"
             },
             {
                 name: "Electronic Arts",
-                picture: "/assets/sponsors/In-Kind/Logos/Electronic Arts/EA_Logo_BLK.png",
+                picture: "/assets/sponsors/In-Kind/Logos/Electronic Arts/EA_Logo_WH.svg",
                 link: "https://www.ea.com/"
             },
             {
@@ -72,7 +72,7 @@
             },
             {
                 name: "Vancouver Mysteries",
-                picture: "/assets/sponsors/In-Kind/Logos/Vancouver Mysteries/VAN_MYST_LOGO_FINALv5_STANDARD LOGO.png",
+                picture: "/assets/sponsors/In-Kind/Logos/Vancouver Mysteries/transparent.png",
                 link: "https://vancouvermysteries.com/"
             },
             {

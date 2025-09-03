@@ -7,6 +7,7 @@
     import LineDiamondVertical from '$lib/components/landing/svgs/LineDiamondVertical.svelte';
     import RockFilter from '$lib/components/landing/svgs/RockFilter.svelte';
     import ContentScroll from "$lib/components/landing/Sidebar/ContentScroll.svelte";
+    import MLH from "$lib/components/landing/Sidebar/MLH.svelte";
 </script>
 
 <div class="w-full sm:w-64 flex-none p-4 sm:pb-4 pb-8 flex flex-col lg:w-[302px] lg:border-r border-b lg:border-b-0 border-border bg-[#231f1f] justify-between items-center gap-4 relative">
@@ -24,7 +25,10 @@
         </div>
 
         <div class="flex flex-col lg:flex lg:flex-col px-0 gap-10">
-            <StormHacksLogo />
+            <div>
+                <StormHacksLogo />
+                <MLH />
+            </div>
 
             <div class="md:flex flex-col items-center hidden lg:hidden xl:hidden">
                 <LineDiamondVertical
