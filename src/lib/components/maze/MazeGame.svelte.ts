@@ -50,7 +50,7 @@ class EntityGrid {
     clear() {
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
-                this.grid[y][x] = [];
+                this.grid[y][x].length = 0;
             }
         }
     }
@@ -147,6 +147,7 @@ export class MazeGame {
         a: false,
         s: false,
         d: false,
+        space: false,
         ArrowUp: false,
         ArrowDown: false,
         ArrowLeft: false,
@@ -156,15 +157,25 @@ export class MazeGame {
     init() {
         //keyboard input event
         this.canvas.addEventListener("keydown", (e) => {
-            if (e.key in this.keyMem) {
+            if (e.key.toLowerCase() in this.keyMem) {
                 // @ts-ignore
-                this.keyMem[e.key] = true;
+                this.keyMem[e.key.toLowerCase()] = true;
+                e.preventDefault();
+            }
+            if (e.key === " ") {
+                e.preventDefault();
+                this.keyMem["space"] = true;
             }
         });
         this.canvas.addEventListener("keyup", (e) => {
-            if (e.key in this.keyMem) {
+            if (e.key.toLowerCase() in this.keyMem) {
+                e.preventDefault();
                 // @ts-ignore :^(
-                this.keyMem[e.key] = false;
+                this.keyMem[e.key.toLowerCase()] = false;
+            }
+            if (e.key === " ") {
+                e.preventDefault();
+                this.keyMem["space"] = false;
             }
         })
         // start update loop
@@ -209,6 +220,12 @@ export class MazeGame {
             // On desktop, combine keyboard and joystick inputs
             x += this.joystickInput.x;
             y += this.joystickInput.y;
+        }
+
+        // DEBUG remove
+        if (this.keyMem.space) {
+            this.player.applyImpulse(Vector2.UNIT_Y.mul(600));
+            this.keyMem.space = false;
         }
 
         return new Vector2(x, y).clampMagnitude(1);
@@ -427,6 +444,7 @@ export class MazeGame {
             room.entities = room.entities.filter(e => !e.metadata.destroyed);
             room.dynamicEntities = room.dynamicEntities.filter(e => !e.metadata.destroyed);
         }
+        this.player.update(this, this.deltaTime);
     }
 
     rebuildEntityGrid() {
@@ -458,6 +476,28 @@ export class MazeGame {
         }
     }
 
+    updateEntityGrid() {
+        if (this.currentRoomId <= 0) {
+            return;
+        }
+        const room = this.idToRoomLayout[this.currentRoomId];
+        if (!room) {
+            return;
+        }
+        const grid = this.entityGrid;
+
+        if (!grid) {
+            return;
+        }
+
+        grid.clear();
+        // Add all entities to the grid, including player
+        grid.addEntity(this.player);
+        for (const entity of room.entities) {
+            grid.addEntity(entity);
+        }
+    }
+
     getRoomsOnScreen(lowX: number, highX: number, lowY: number, highY: number) {
         const out = new Set<number>();
         for (let row = lowY; row < highY; row++) {
@@ -472,9 +512,9 @@ export class MazeGame {
     }
 
     getCellRenderRange() {
-        const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width));
+        const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) - 1);
         const hightX = Math.min(this.maze.width, Math.floor(((this.camera.x + (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) + 2);
-        const lowY = Math.max(0, Math.floor(((this.camera.y - (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height));
+        const lowY = Math.max(0, Math.floor(((this.camera.y - (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) - 1);
         const hightY = Math.min(this.maze.height, Math.floor(((this.camera.y + (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) + 2);
 
         debug.renderRange = [lowX, hightX, lowY, hightY];
@@ -615,18 +655,21 @@ export class MazeGame {
 
             // ====== DYNAMIC ENTITY ====== //
             if (currentRoomDynamicEntities) {
+                debug.entitiesDepth = (currentRoomDynamicEntities.map(item => item.y.toFixed(0)).join(", "));
+
                 while (dynamicRenderIdx < currentRoomDynamicEntities.length) {
                     const entity = currentRoomDynamicEntities[dynamicRenderIdx];
-                    const depth = Math.floor(entity.y / CELL_SIZE);
+                    const depth = Math.round(entity.y / CELL_SIZE);
 
+                    if (row > depth) {
+                        dynamicRenderIdx += 1;
+                        continue;
+                    }
                     if (depth !== row) {
                         break;
                     }
 
-                    const col = Math.floor(entity.x / CELL_SIZE);
-                    if (col >= lowX && col < highX) {
-                        entity.render(ctx, this.lastTime);
-                    }
+                    entity.render(ctx, this.lastTime);
                     dynamicRenderIdx += 1;
                 }
             }

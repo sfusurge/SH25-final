@@ -63,7 +63,7 @@ export function AStar(room: (Entity | undefined)[][], startX: number, startY: nu
 
         // add nearby nodes to visit
         const children: Node[] = [];
-        const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1], [-1, -1], [-1, 1], [1, -1], [1, 1]]
+        const dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
         for (const [dx, dy] of dirs) {
             // x prime y prime xd
             const xp = cur.x + dx;
@@ -84,9 +84,33 @@ export function AStar(room: (Entity | undefined)[][], startX: number, startY: nu
                 f: 0, g: 0, h: 0,
                 parent: cur
             });
-
         }
 
+        // add diagonals
+        for (const [dx, dy] of [[-1, -1], [-1, 1], [1, -1], [1, 1]]) {
+            const xp = cur.x + dx;
+            const yp = cur.y + dy;
+
+            if (xp < 0 || xp >= room[0].length || yp < 0 || yp >= room.length) {
+                continue;
+            }
+
+            if (room[yp][xp] !== undefined) {
+                if (room[yp][xp].solid) {
+                    continue;
+                }
+            } else {
+                if (room[yp][cur.x]?.solid || room[cur.y][xp]?.solid) {
+                    continue;
+                }
+            }
+
+            children.push({
+                x: xp, y: yp,
+                f: 0, g: 0, h: 0,
+                parent: cur
+            });
+        }
 
         // process each children
         for (const c of children) {
@@ -117,9 +141,42 @@ export function AStar(room: (Entity | undefined)[][], startX: number, startY: nu
             queue.push(c);
             queueSet.add(c.x * 1000 + c.y);
         }
-
-
     }
 
     return undefined; // none of reachable nodes are dest.
+}
+
+/**
+ * 
+ * https://medium.com/@trey.tomes/bresenhams-line-algorithm-2dc69ee7dc15
+ * @param x1 
+ * @param y1 
+ * @param x2 
+ * @param y2 
+ */
+export function lineOfSight(x1: number, y1: number, x2: number, y2: number) {
+    let dx = Math.abs(x2 - x1);
+    let sx = (x1 < x2) ? 1 : -1;
+    let dy = Math.abs(y2 - y1);
+    dy = -dy;
+    let sy = (y1 < y2) ? 1 : -1;
+    let err = dx + dy;
+    const out: { x: number, y: number }[] = [];
+    while (true) {
+        out.push({ x: x1, y: y1 });
+        if ((x1 == x2) && (y1 == y2)) break;
+        let e2 = err << 1;
+        if (e2 >= dy) {
+            if (x1 === x2) break
+            err += dy;
+            x1 += sx;
+        }
+        if (e2 <= dx) {
+            if (y1 === y2) break;
+            err += dx;
+            y1 += sy;
+        }
+    }
+
+    return out;
 }
