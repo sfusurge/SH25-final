@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import '@fontsource/fira-mono';
 @plugin '@tailwindcss/typography';
+@config "../tailwind.config.js";
 
 :root {
 	--header: #F1ECEB;
@@ -17,17 +18,44 @@
     --green: #a9b665;
     --aqua: #7daea3;
     --purple: #d3869b;
-
+	--color-header: #F1ECEB;
+	--color-special-text: #A7928E;
+	--color-primary: #d0a79d;
+	--color-border: #91837c;
+	--color-border-s: #91837c;
+	--color-border2: #5d4e4b;
+	--color-background: #231f1f;
+	--color-background2: #151311;
 }
 
-h1, h2, h3 {
-	color: var(--header)
+[data-mode='demon'] {
+
+	--color-header: #c11326;
+	--color-special-text: #c11326;
+	--color-primary: #c11326;
+	--color-border: #c11326;
+	--color-border2: #c11326;
+
+	[data-demon='border']{
+		filter: hue-rotate(-20deg) saturate(18) brightness(.8);
+	}
+
+	[data-demon='primary']{
+		filter: hue-rotate(-15deg) brightness(0.8) saturate(10) ;
+	}
+
+	[data-demon='background']{
+		filter: saturate(25) brightness(0.7);
+	}
+
+	[data-demon='title']{
+		filter: brightness(0.35) saturate(100) ;
+	}
 }
 
 body {
 	background: var(--bg);
-	padding: 5rem;
-
+	font-family: Catriel, sans-serif;
 	color: var(--primary);
 }
 
@@ -42,7 +70,9 @@ button {
 	cursor: pointer;
 }
 
-
+p, span {
+	transition: color 300ms ease-out;
+}
 
 .visually-hidden {
 	border: 0;

@@ -1,0 +1,34 @@
+<script>
+    export let onClick = () => {};
+    export let className = '';
+    export let style = '';
+    export let active = false;
+    export let release = '';
+</script>
+
+<button
+        {style}
+        class={`bg-[#231f1f] alt flex flex-col items-center gap-2.5 self-stretch cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] p-2 ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
+        on:click={onClick}
+>
+    <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg]">
+        <img
+                src={'/assets/lock.svg'}
+                alt={'locked'}
+                class={release ? "w-full h-auto" : "w-8 h-8"}
+        />
+    </div>
+
+    {#if release}
+        <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg]">
+            <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
+                {release}
+            </h3>
+        </div>
+    {/if}
+
+    <span class="absolute -top-0.5 -left-0.5 w-2 h-2 border-l-1 border-t-1 border-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+    <span class="absolute -top-0.5 -right-0.5 w-2 h-2 border-r-1 border-t-1 border-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+    <span class="absolute -bottom-0.5 -left-0.5 w-2 h-2 border-l-1 border-b-1 border-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+    <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 border-r-1 border-b-1 border-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+</button>
