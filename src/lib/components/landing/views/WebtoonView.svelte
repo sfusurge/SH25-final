@@ -2,18 +2,30 @@
     export let imageUrl = "";
 </script>
 
-<div class="container">
-    <div class="diamond diamond-top-left"></div>
-    <div class="diamond diamond-top-right"></div>
-    <div class="diamond diamond-bottom-left"></div>
-    <div class="diamond diamond-bottom-right"></div>
+<div class="wrapper">
+    <div class="container">
+        <div class="diamond diamond-top-left"></div>
+        <div class="diamond diamond-top-right"></div>
+        <div class="diamond diamond-bottom-left"></div>
+        <div class="diamond diamond-bottom-right"></div>
 
-    <div class="image-container">
-        <img src={imageUrl} alt="Scrollable content" />
+        <div class="image-container">
+            <img src={imageUrl} alt="Scrollable content" />
+        </div>
     </div>
 </div>
 
 <style>
+    .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
     .container {
         position: relative;
         width: 889px;
@@ -21,7 +33,6 @@
         flex-shrink: 0;
         border: 1px solid #574E49;
         background: #363636;
-        margin: 20px auto;
     }
 
     .diamond {
