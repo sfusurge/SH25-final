@@ -20,77 +20,6 @@ const UP = 1;
 const RIGHT = 2;
 const DOWN = 3;
 
-export class ProjectileEntity extends Entity {
-    direction: number;
-    speed: number = 450;
-    maxDistance: number = 250;
-    distanceTraveled: number = 0;
-
-    constructor(pos: Vector2, direction: number) {
-        super(pos, 8, 8); // small projectile
-        this.direction = direction;
-        this.metadata = { entityType: 'projectile' };
-    }
-
-    update(game: MazeGame, dt: number): void {
-        // Calculate movement vector based on direction
-        let moveVector = Vector2.ZERO;
-        switch (this.direction) {
-            case LEFT:
-                moveVector = new Vector2(-1, 0);
-                break;
-            case RIGHT:
-                moveVector = new Vector2(1, 0);
-                break;
-            case UP:
-                moveVector = new Vector2(0, -1);
-                break;
-            case DOWN:
-                moveVector = new Vector2(0, 1);
-                break;
-        }
-
-        // Move projectile
-        const movement = moveVector.mul(this.speed * dt);
-        this.pos.addi(movement);
-        this.distanceTraveled += movement.mag();
-
-        if (this.distanceTraveled >= this.maxDistance) {
-            this.metadata.destroyed = true;
-        }
-    }
-
-    onCollision(other: Entity, game?: MazeGame): void {
-        const entityType = other.metadata?.entityType;
-
-        // Destroy projectile on collision with solid objects
-        if (entityType === ENTITY_TYPE.rock || entityType === 'enemy') {
-            this.metadata.destroyed = true;
-        }
-
-        // Handle hitting enemies
-        if (entityType === 'enemy') {
-            // TODO: Add damage/destroy enemy logic/enemy HP 
-            other.metadata.destroyed = true;
-        }
-    }
-
-    resolveCollision(otherAABB: AABB): boolean {
-        // For projectiles, any wall collision destroys them
-        const isColliding = this.aabb.collidingWith(otherAABB);
-            this.metadata.destroyed = true;
-        if (isColliding) {
-        }
-        return isColliding;
-    }
-
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        ctx.fillStyle = "#FFD700"; // Gold color for projectile
-        ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
-        // TODO: Change to actual sprite
-
-    }
-}
 
 
 export class ProjectileEntity extends Entity {
@@ -180,10 +109,6 @@ export class Player extends Entity {
     shootCooldown = 0;
     shootCooldownTime = 0.2; // 200ms between shots
 
-
-    // Shooting cooldown
-    shootCooldown = 0;
-    shootCooldownTime = 0.2; // 200ms between shots
 
     constructor(pos: Vector2) {
         super(pos, 30, 25);
