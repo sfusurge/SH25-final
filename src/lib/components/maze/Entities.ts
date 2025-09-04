@@ -24,13 +24,21 @@ const DOWN = 3;
 
 export class ProjectileEntity extends Entity {
     direction: number;
-    speed: number = 450;
-    maxDistance: number = 250;
+    speed: number = 400;
+    distanceBeforeDrop: number = 150;
     distanceTraveled: number = 0;
+    initialVelocity: Vector2; // Velocity inherited from player
 
-    constructor(pos: Vector2, direction: number) {
-        super(pos, 8, 8); // small projectile
+    height: number = 15; // Height above ground
+    verticalVelocity: number = 0;
+    gravity: number = 250;
+    radius: number = 6;
+
+    constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO) {
+        super(pos, 8, 8);
         this.direction = direction;
+        this.initialVelocity = initialVelocity.clone();
+
         this.metadata = { entityType: 'projectile' };
     }
 
@@ -52,12 +60,25 @@ export class ProjectileEntity extends Entity {
                 break;
         }
 
-        // Move projectile
-        const movement = moveVector.mul(this.speed * dt);
-        this.pos.addi(movement);
-        this.distanceTraveled += movement.mag();
+        const baseMovement = moveVector.mul(this.speed * dt);
+        const inheritedMovement = this.initialVelocity.mul(dt);
+        const totalMovement = baseMovement.add(inheritedMovement);
 
-        if (this.distanceTraveled >= this.maxDistance) {
+        this.pos.addi(totalMovement);
+        this.distanceTraveled += baseMovement.mag(); // Only count base movement for max distance
+
+
+        if (this.distanceTraveled <  this.distanceBeforeDrop) {
+            this.height = 15;
+            this.verticalVelocity = 0;
+        } else {
+            this.verticalVelocity -= this.gravity * dt; // Apply gravity (becomes negative)
+            this.height += this.verticalVelocity * dt;
+        }
+
+        // Projectile hits the ground
+        if (this.height <= 0) {
+            this.height = 0;
             this.metadata.destroyed = true;
         }
     }
@@ -66,31 +87,45 @@ export class ProjectileEntity extends Entity {
         const entityType = other.metadata?.entityType;
 
         // Destroy projectile on collision with solid objects
-        if (entityType === ENTITY_TYPE.rock || entityType === 'enemy') {
+        if (entityType === ENTITY_TYPE.rock || entityType === ENTITY_TYPE.enemy1) {
             this.metadata.destroyed = true;
-        }
-
-        // Handle hitting enemies
-        if (entityType === 'enemy') {
-            // TODO: Add damage/destroy enemy logic/enemy HP
-            other.metadata.destroyed = true;
         }
     }
 
     resolveCollision(otherAABB: AABB): boolean {
         // For projectiles, any wall collision destroys them
         const isColliding = this.aabb.collidingWith(otherAABB);
-            this.metadata.destroyed = true;
         if (isColliding) {
+            this.metadata.destroyed = true;
         }
         return isColliding;
     }
 
     render(ctx: CanvasRenderingContext2D, time: number): void {
-        ctx.fillStyle = "#FFD700"; // Gold color for projectile
-        ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
-        // TODO: Change to actual sprite
+        // Calculate shadow based on height
+        const shadowSize = this.radius * 1.5;
+        const shadowOpacity = Math.max(0.1, 0.5 - this.height / 100);
 
+        // Draw shadow on the ground
+        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
+        ctx.beginPath();
+        ctx.ellipse(this.x, this.y + 2, shadowSize, shadowSize * 0.6, 0, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Calculate projectile position with height offset
+        const renderY = this.y - this.height;
+
+        // Draw circular projectile (tear-like)
+        ctx.fillStyle = "#FFD700"; // Gold color for projectile
+        ctx.beginPath();
+        ctx.arc(this.x, renderY, this.radius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Add a subtle highlight to make it look more 3D
+        ctx.fillStyle = "#FFFF99";
+        ctx.beginPath();
+        ctx.arc(this.x - 1, renderY - 1, this.radius * 0.4, 0, 2 * Math.PI);
+        ctx.fill();
     }
 }
 
@@ -107,7 +142,7 @@ export class Player extends Entity {
     immuneDuration = 0;
     // Shooting cooldown
     shootCooldown = 0;
-    shootCooldownTime = 0.2; // 200ms between shots
+    shootCooldownTime = 0.4; // 400ms
 
 
     constructor(pos: Vector2) {
@@ -216,7 +251,9 @@ export class Player extends Entity {
                 break;
         }
 
-        const projectile = new ProjectileEntity(projectilePos, direction);
+
+        const inheritedVelocity = this.vel.mul(0.6); 
+        const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
         game.addProjectile(projectile);
     }
 
@@ -345,17 +382,26 @@ export class WalkerEntity extends Entity {
     currentRoom?: RoomLayout;
     playerLoc?: Vector2;
     directTarget = false;
+    health: number = 3;
 
-    constructor(pos: Vector2) {
+    constructor(pos: Vector2, health?: number) {
         super(pos, 25, 25);
 
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
         this.metadata.entityType = ENTITY_TYPE.enemy1;
+        this.health = health ?? 3;
     }
 
     onCollision(other: Entity, game?: any): void {
         if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy1) {
             this.resolveCollision(other.aabb, other.vel);
+        }
+        if (other.metadata.entityType === 'projectile') {
+            this.health -= 1;
+            if (this.health <= 0) {
+                this.metadata.destroyed = true;
+            }
+
         }
     }
 

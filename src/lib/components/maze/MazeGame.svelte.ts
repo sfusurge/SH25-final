@@ -155,9 +155,27 @@ export class MazeGame {
     };
 
     init() {
+
+        this.canvas.focus();
+
         //keyboard input event
         this.canvas.addEventListener("keydown", (e) => {
-            if (e.key.toLowerCase() in this.keyMem) {
+            // Handle arrow keys 
+            if (e.key.startsWith('Arrow')) {
+                e.preventDefault();
+                if (e.key in this.keyMem) {
+                    // @ts-ignore
+                    this.keyMem[e.key] = true;
+                }
+            }
+            // Handle other keys
+            else if (e.key in this.keyMem) {
+                // @ts-ignore
+                this.keyMem[e.key] = true;
+                e.preventDefault();
+            }
+            // Handle WASD keys (convert to lowercase)
+            else if (e.key.toLowerCase() in this.keyMem) {
                 // @ts-ignore
                 this.keyMem[e.key.toLowerCase()] = true;
                 e.preventDefault();
@@ -168,7 +186,22 @@ export class MazeGame {
             }
         });
         this.canvas.addEventListener("keyup", (e) => {
-            if (e.key.toLowerCase() in this.keyMem) {
+            // Handle arrow keys
+            if (e.key.startsWith('Arrow')) {
+                e.preventDefault();
+                if (e.key in this.keyMem) {
+                    // @ts-ignore
+                    this.keyMem[e.key] = false;
+                }
+            }
+            // Handle other keys
+            else if (e.key in this.keyMem) {
+                e.preventDefault();
+                // @ts-ignore
+                this.keyMem[e.key] = false;
+            }
+            // Handle WASD keys (convert to lowercase)
+            else if (e.key.toLowerCase() in this.keyMem) {
                 e.preventDefault();
                 // @ts-ignore :^(
                 this.keyMem[e.key.toLowerCase()] = false;
@@ -177,7 +210,20 @@ export class MazeGame {
                 e.preventDefault();
                 this.keyMem["space"] = false;
             }
-        })
+        });
+
+        // Also prevent arrow key scrolling at the document level when canvas is focused
+        document.addEventListener("keydown", (e) => {
+            if (e.key.startsWith('Arrow') && document.activeElement === this.canvas) {
+                e.preventDefault();
+            }
+        });
+
+        // Ensure canvas stays focused when clicked
+        this.canvas.addEventListener("click", () => {
+            this.canvas.focus();
+        });
+
         // start update loop
         requestAnimationFrame(this.update.bind(this));
     }
