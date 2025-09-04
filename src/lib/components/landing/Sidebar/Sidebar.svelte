@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex lg:flex-col px-0 gap-10">
+        <div class="flex flex-col lg:flex lg:flex-col px-0 gap-5">
             <div>
                 <StormHacksLogo />
                 <MLH />

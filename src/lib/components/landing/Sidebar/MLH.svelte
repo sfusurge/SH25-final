@@ -1,4 +1,4 @@
-<div class="flex flex-row items-center justify-center w-full h-full pt-2">
+<div class="flex flex-row items-center justify-center w-full h-full pt-4">
     <a href="https://mlh.io" target="_blank" rel="noopener noreferrer"
        class="flex flex-row gap-2 items-center justify-center">
         <img src="/assets/mlh-logo-white.svg" alt="MLH 2026 Hackathon Season"
