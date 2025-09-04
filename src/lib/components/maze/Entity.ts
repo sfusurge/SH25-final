@@ -113,8 +113,10 @@ export class Entity {
 
 
         if (Math.abs(px) < Math.abs(py)) {
+            this.vel.x *= 0.5;
             this.pos.x += px * 1.01;
         } else {
+            this.vel.y *= 0.5;
             this.pos.y += py * 1.01;
         }
     }

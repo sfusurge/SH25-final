@@ -160,7 +160,7 @@ export class MazeGame {
 
         //keyboard input event
         this.canvas.addEventListener("keydown", (e) => {
-            // Handle arrow keys 
+            // Handle arrow keys
             if (e.key.startsWith('Arrow')) {
                 e.preventDefault();
                 if (e.key in this.keyMem) {
@@ -362,7 +362,7 @@ export class MazeGame {
 
     resolveEntityCollisions() {
         this.resolveWallCollisions(this.player);
-
+        this.updateEntityGrid();
         // Handle projectile wall collisions
         for (const projectile of this.projectiles) {
             this.resolveWallCollisions(projectile);
@@ -385,6 +385,8 @@ export class MazeGame {
             this.resolveWallCollisions(e);
         }
 
+
+        // TODO, only check for collisions in grid
         // Handle projectile vs entity collisions
         for (const projectile of this.projectiles) {
             // projectile vs player

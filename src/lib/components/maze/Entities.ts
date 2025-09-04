@@ -12,7 +12,8 @@ export const ENTITY_TYPE = Object.freeze({
     rock: 1,
     trap: 2,
     scroll: 3,
-    enemy1: 4,
+    enemy: 4,
+    projectile: 5,
 });
 
 const LEFT = 0;
@@ -39,7 +40,7 @@ export class ProjectileEntity extends Entity {
         this.direction = direction;
         this.initialVelocity = initialVelocity.clone();
 
-        this.metadata = { entityType: 'projectile' };
+        this.metadata = { entityType: ENTITY_TYPE.projectile };
     }
 
     update(game: MazeGame, dt: number): void {
@@ -68,7 +69,7 @@ export class ProjectileEntity extends Entity {
         this.distanceTraveled += baseMovement.mag(); // Only count base movement for max distance
 
 
-        if (this.distanceTraveled <  this.distanceBeforeDrop) {
+        if (this.distanceTraveled < this.distanceBeforeDrop) {
             this.height = 15;
             this.verticalVelocity = 0;
         } else {
@@ -87,7 +88,7 @@ export class ProjectileEntity extends Entity {
         const entityType = other.metadata?.entityType;
 
         // Destroy projectile on collision with solid objects
-        if (entityType === ENTITY_TYPE.rock || entityType === ENTITY_TYPE.enemy1) {
+        if (entityType === ENTITY_TYPE.rock || entityType === ENTITY_TYPE.enemy) {
             this.metadata.destroyed = true;
         }
     }
@@ -222,7 +223,7 @@ export class Player extends Entity {
 
     onCollision(other: Entity, game?: any): void {
 
-        if (other.metadata.entityType === ENTITY_TYPE.enemy1 && this.immuneDuration <= 0) {
+        if (other.metadata.entityType === ENTITY_TYPE.enemy && this.immuneDuration <= 0) {
             this.applyImpulse(this.pos.sub(other.pos).normalize().muli(500));
             this.immuneDuration = 1;
         }
@@ -252,7 +253,7 @@ export class Player extends Entity {
         }
 
 
-        const inheritedVelocity = this.vel.mul(0.6); 
+        const inheritedVelocity = this.vel.mul(0.6);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
         game.addProjectile(projectile);
     }
@@ -388,20 +389,20 @@ export class WalkerEntity extends Entity {
         super(pos, 25, 25);
 
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
-        this.metadata.entityType = ENTITY_TYPE.enemy1;
+        this.metadata.entityType = ENTITY_TYPE.enemy;
         this.health = health ?? 3;
     }
 
     onCollision(other: Entity, game?: any): void {
-        if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy1) {
+        if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy) {
             this.resolveCollision(other.aabb, other.vel);
         }
-        if (other.metadata.entityType === 'projectile') {
+        if (other.metadata.entityType === ENTITY_TYPE.projectile) {
             this.health -= 1;
             if (this.health <= 0) {
                 this.metadata.destroyed = true;
             }
-
+            this.applyImpulse(this.pos.sub(other.pos).normalize().mul(400));
         }
     }
 
