@@ -48,12 +48,15 @@
         }
 
         100% {
-            /* transform: translate(50%, 0); */
+            transform: translate(0, 0);
         }
     }
 
+
+
     .textContent.scroll {
         display: flex;
+        width: fit-content;
         animation: scroll infinite 5s;
         animation-timing-function: linear;
     }
