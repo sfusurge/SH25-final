@@ -1,15 +1,14 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
-    import Diamond from '$lib/components/landing/svgs/Diamond.svelte';
+    import Diamond from "$lib/components/landing/svgs/Diamond.svelte";
 
     let { currentBackground } = $props();
 
     let loading = $state(true);
-    let imageUrl = $state(undefined);
+    let imageUrl = $state("");
 
-
-    async function handleBackgroundChange(newBackground) {
+    async function handleBackgroundChange(newBackground: string) {
         loading = true;
         if (imageUrl) {
             setTimeout(() => {
@@ -33,14 +32,14 @@
 <div class="relative w-full h-[75dvh]">
     {#if imageUrl}
         <img
-                src={imageUrl}
-                alt="background banner"
-                height="1000"
-                width="1800"
-                class="object-cover w-full h-[75dvh]"
-                loading="lazy"
-                style="opacity: {loading ? 0 : 1}"
-                onload={handleImageLoad}
+            src={imageUrl}
+            alt="background banner"
+            height="1000"
+            width="1800"
+            class="object-cover w-full h-[75dvh]"
+            loading="lazy"
+            style="opacity: {loading ? 0 : 1}"
+            onload={handleImageLoad}
         />
     {/if}
 

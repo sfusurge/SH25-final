@@ -8,16 +8,11 @@
     import SwapBackground from '$lib/components/landing/background/SwapBackground.svelte';
     import HoverEffectButton from '$lib/components/landing/Audio/ScrollingText.svelte';
     import TimerDialog from '$lib/components/landing/Timer/TimerDialog.svelte';
-    import { currentBackgroundIndex, backgrounds } from '$lib/sharedStates/background.svelte.js';
+    import { currentBackground, backgrounds, toggleBackground } from '$lib/sharedStates/background.svelte.js';
 
     let showSettings = $state(false);
 
-    let currentBackground = $derived(backgrounds[$currentBackgroundIndex]);
 
-    function onChangeBackground() {
-        const nextIndex = ($currentBackgroundIndex + 1) % backgrounds.length;
-        currentBackgroundIndex.set(nextIndex);
-    }
 
     function toggleSettings() {
         showSettings = !showSettings;
@@ -34,12 +29,12 @@
         <div class="flex w-full px-5 py-5 italic justify-between leading-tight">
             <CurrentTrackInfo />
 
-            <div class="flex justify-center items-center gap-3">
+            <!-- <div class="flex justify-center items-center gap-3">
                 <TimerDisplay />
                 <TimerDialog
                         mobileTriggerButton={true}
                         mobileShow={showSettings}
-                        {onChangeBackground}
+                        
                         mobileMode={true}
                         onClose={closeSettings}
                 >
@@ -60,7 +55,7 @@
                         </HoverEffectButton>
                                     {/snippet}
                 </TimerDialog>
-            </div>
+            </div> -->
         </div>
         <div class="relative w-full h-full">
             <CurrentBackgroundMobile {currentBackground} />
@@ -71,11 +66,11 @@
     <div class="flex-1 sm:flex flex-col hidden h-full" style="max-height: 100dvh">
         <div class="flex justify-between items-start pt-8 px-8">
             <Timer />
-            <SwapBackground {onChangeBackground} />
+            <SwapBackground />
         </div>
 
         <div class="m-8 flex-1 flex items-center justify-center" style="min-height: 0">
-            <Frame {currentBackground} />
+            <Frame />
         </div>
 
         <div class="flex justify-center pb-4">

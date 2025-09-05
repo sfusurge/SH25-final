@@ -4,13 +4,9 @@
     import LockedTile from "$lib/components/landing/Sidebar/LockedTile.svelte";
     import WebtoonTile from "$lib/components/landing/Sidebar/WebtoonTile.svelte";
     import InformationTile from "$lib/components/landing/Sidebar/InformationTile.svelte";
-    import { currentView } from "$lib/sharedStates/currentView.js";
+    import { goto } from "$app/navigation";
 
     type TileType = "garden" | "lofi" | "webtoon-1" | "FAQ" | "partners";
-
-    function handleClick(option: TileType) {
-        currentView.set(option);
-    }
 </script>
 
 <div
@@ -29,8 +25,8 @@
         </div>
 
         <HoverEffectButton
-            class="flex h-[31px] px-[10px] py-[4px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
-            onClick={() => window.open("https://portal.sfusurge.com", "_blank")}
+            className="flex h-[31px] px-[10px] py-[4px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
+            onClick={() => window.open("https://portal.sfusurge.com/application", "_blank")}
         >
             Apply Now
         </HoverEffectButton>
@@ -45,7 +41,7 @@
             imageAlt="Stump's Community Garden"
             imageClass="w-full h-32 object-cover p-2"
             className="mt-4"
-            onClick={() => handleClick("garden")}
+            onClick={() => goto("/garden")}
             header="Stump's Community Garden"
             text="Tend to your garden and its visitors, expanding your plant shop's catalogue and handling challenges as they arise."
         />
@@ -54,7 +50,7 @@
             imageAlt="Lofi Player"
             imageClass="w-full h-32 object-cover p-2"
             className="mt-4"
-            onClick={() => handleClick("lofi")}
+            onClick={() => goto("/")}
             header="Lofi Player"
             text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
         />
@@ -69,7 +65,7 @@
             imageAlt="[Ch 1] Together"
             imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
             className="mt-4"
-            onClick={() => handleClick("webtoon-1")}
+            onClick={() => goto("/webtoon")}
             header="[Ch 1] Together"
             text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
         />
@@ -83,13 +79,13 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">Information</h1>
         <InformationTile
             className="p-2"
-            onClick={() => handleClick("FAQ")}
+            onClick={() => goto("/faq")}
             header="Frequently Asked Questions"
             text="Confused about anything related to StormHacks? Check out our curated list of questions and answers."
         />
         <InformationTile
             className="p-2"
-            onClick={() => handleClick("partners")}
+            onClick={() => goto("/partners")}
             header="Our Partners"
             text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
         />

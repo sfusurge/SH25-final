@@ -1,6 +1,6 @@
 <script>
     import ScrollingText from "$lib/components/landing/Audio/ScrollingText.svelte";
-    import { PlayerState } from "$lib/sharedStates/music.ts";
+    import { PlayerState } from "$lib/sharedStates/music.svelte";
 </script>
 
 <div class="flex flex-col flex-1 min-w-0 pr-3 w-[20px]">

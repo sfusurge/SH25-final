@@ -3,18 +3,17 @@
     import Diamond from "$lib/components/landing/svgs/Diamond.svelte";
 
     interface Props {
-        mobile:boolean;
+        mobile?: boolean;
     }
 
-    let { mobile }: Props = $props();
+    let { mobile = false }: Props = $props();
 
     let loading = $state(true);
     let imageUrl = $state("");
 
-
     $effect(() => {
         loading = true;
-        if (imageUrl) {
+        if (currentBackground.val) {
             setTimeout(() => {
                 imageUrl = currentBackground.val;
             }, 300);
@@ -75,7 +74,9 @@
 					position: relative;
 					z-index: 2;
 				"
-                onload={()=>{loading = false;}}
+                onload={() => {
+                    loading = false;
+                }}
             />
         {/if}
 
