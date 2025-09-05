@@ -1,8 +1,8 @@
 <script>
     import { onMount } from 'svelte';
-    import { masterVolume, ambianceVolumes } from '$lib/stores/ambiance.js';
+    import { masterVolume, ambianceVolumes } from '$lib/sharedStates/ambiance.svelte.js';
 
-    const options = [
+    const options = $state([
         {
             name: "Rain",
             file: "audio/Ambiance/light_rain.mp3",
@@ -23,7 +23,7 @@
             file: "audio/Ambiance/burning_fireplace_crackling_fire.mp3",
             element: null
         }
-    ];
+    ]);
 
     let masterVol = 0.5;
     let volumes = {
@@ -82,6 +82,6 @@
                 loop
                 data-ambiance={opt.name}
                 bind:this={opt.element}
-        />
+></audio>
     {/each}
 </div>

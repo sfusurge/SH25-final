@@ -1,16 +1,27 @@
-<script>
-    export let onClick = () => {};
-    export let className = '';
-    export let style = '';
-    export let active = false;
-    export let header = '';
-    export let text = '';
+<script lang="ts">
+    interface Props {
+        onClick?: any;
+        className?: string;
+        style?: string;
+        active?: boolean;
+        header?: string;
+        text?: string;
+    }
+
+    let {
+        onClick = () => {},
+        className = '',
+        style = '',
+        active = false,
+        header = '',
+        text = ''
+    }: Props = $props();
 </script>
 
 <button
         {style}
         class={`bg-[#231f1f] alt flex flex-row items-start gap-2.5 self-stretch cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
-        on:click={onClick}
+        onclick={onClick}
 >
     {#if header || text}
         <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] text-start">

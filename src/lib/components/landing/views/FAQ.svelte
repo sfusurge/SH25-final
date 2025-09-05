@@ -1,5 +1,5 @@
-<script>
-    export let faqData = [
+<script lang="ts">
+    let { faqData = [
         {
             question: "What is StormHacks?",
             answer: "StormHacks is one of Canada's largest student hackathons, where participants from different backgrounds and all skill levels come together to collaborate, innovate, and create unique design, software or hardware projects from the ground up."
@@ -24,9 +24,9 @@
             question: "When do hacker applications open?",
             answer: "We'll be opening hacker applications in the coming weeks. Sign up for our mailing list and follow our social media channels to be the first to hear about any exciting updates!"
         }
-    ];
+    ] } = $props();
 
-    let flippedCards = {};
+    let flippedCards = $state({});
 
     function toggleFlip(index) {
         flippedCards[index] = !flippedCards[index];
@@ -41,8 +41,8 @@
                 class="flip-card w-[270px] h-[338px] cursor-pointer"
                 role="button"
                 tabindex="0"
-                on:click={() => toggleFlip(index)}
-                on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFlip(index) : null}
+                onclick={() => toggleFlip(index)}
+                onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFlip(index) : null}
             >
                 <div class="flip-card-inner" class:flipped={flippedCards[index]}>
                     <div class="flip-card-front flex px-16 flex-col justify-center items-center gap-2.5 flex-shrink-0">

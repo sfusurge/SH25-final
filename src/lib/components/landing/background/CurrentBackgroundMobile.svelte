@@ -1,16 +1,13 @@
-<script>
+<script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import Diamond from '$lib/components/landing/svgs/Diamond.svelte';
 
-    export let currentBackground;
+    let { currentBackground } = $props();
 
-    let loading = true;
-    let imageUrl = undefined;
+    let loading = $state(true);
+    let imageUrl = $state(undefined);
 
-    $: {
-        if (currentBackground) {
-            handleBackgroundChange(currentBackground);
-        }
-    }
 
     async function handleBackgroundChange(newBackground) {
         loading = true;
@@ -26,6 +23,11 @@
     function handleImageLoad() {
         loading = false;
     }
+    run(() => {
+        if (currentBackground) {
+            handleBackgroundChange(currentBackground);
+        }
+    });
 </script>
 
 <div class="relative w-full h-[75dvh]">
@@ -38,7 +40,7 @@
                 class="object-cover w-full h-[75dvh]"
                 loading="lazy"
                 style="opacity: {loading ? 0 : 1}"
-                on:load={handleImageLoad}
+                onload={handleImageLoad}
         />
     {/if}
 

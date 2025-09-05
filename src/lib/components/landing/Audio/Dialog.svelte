@@ -1,13 +1,25 @@
-<script>
+<script lang="ts">
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import HorizontalDivider from "../HorizontalDivider.svelte";
 
-    export let title;
-    export let onClose = () => {};
-    export let mobileMode = false;
-    export let mobileTriggerButton = null;
-    export let mobileShow = false;
+    interface Props {
+        title: any;
+        onClose?: any;
+        mobileMode?: boolean;
+        mobileTriggerButton?: any;
+        mobileShow?: boolean;
+        children?: import('svelte').Snippet;
+    }
+
+    let {
+        title,
+        onClose = () => {},
+        mobileMode = false,
+        mobileTriggerButton = null,
+        mobileShow = false,
+        children
+    }: Props = $props();
 
     function handleBackdropClick(e) {
         if (e.target === e.currentTarget) {
@@ -92,9 +104,9 @@
 
 {#if mobileMode}
     {#if mobileShow}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div class="dialogBackdrop" on:click={handleBackdropClick} />
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="dialogBackdrop" onclick={handleBackdropClick}></div>
         <div class="w-full h-full fixed top-0 left-0 flex justify-center items-center z-[1002] pointer-events-none">
             <div class="dialog mobile">
                 <RockFilter />
@@ -109,7 +121,7 @@
                     </HoverEffectButton>
                 </div>
                 <HorizontalDivider />
-                <slot />
+                {@render children?.()}
             </div>
         </div>
     {/if}
@@ -133,6 +145,6 @@
             </HoverEffectButton>
         </div>
         <HorizontalDivider />
-        <slot />
+        {@render children?.()}
     </div>
 {/if}

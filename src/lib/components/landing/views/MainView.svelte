@@ -8,11 +8,11 @@
     import SwapBackground from '$lib/components/landing/background/SwapBackground.svelte';
     import HoverEffectButton from '$lib/components/landing/Audio/ScrollingText.svelte';
     import TimerDialog from '$lib/components/landing/Timer/TimerDialog.svelte';
-    import { currentBackgroundIndex, backgrounds } from '$lib/stores/background.js';
+    import { currentBackgroundIndex, backgrounds } from '$lib/sharedStates/background.svelte.js';
 
-    let showSettings = false;
+    let showSettings = $state(false);
 
-    $: currentBackground = backgrounds[$currentBackgroundIndex];
+    let currentBackground = $derived(backgrounds[$currentBackgroundIndex]);
 
     function onChangeBackground() {
         const nextIndex = ($currentBackgroundIndex + 1) % backgrounds.length;
@@ -43,20 +43,22 @@
                         mobileMode={true}
                         onClose={closeSettings}
                 >
-                    <HoverEffectButton
-                            slot="trigger"
-                            style="width: 40px; aspect-ratio: 1"
-                            onClick={toggleSettings}
-                    >
-                        <img
-                                data-demon="primary"
-                                src="/assets/gear.svg"
-                                height="40"
-                                width="40"
-                                alt="Open Settings Modal"
-                                style="width: 32px"
-                        />
-                    </HoverEffectButton>
+                    {#snippet trigger()}
+                                        <HoverEffectButton
+
+                                style="width: 40px; aspect-ratio: 1"
+                                onClick={toggleSettings}
+                        >
+                            <img
+                                    data-demon="primary"
+                                    src="/assets/gear.svg"
+                                    height="40"
+                                    width="40"
+                                    alt="Open Settings Modal"
+                                    style="width: 32px"
+                            />
+                        </HoverEffectButton>
+                                    {/snippet}
                 </TimerDialog>
             </div>
         </div>

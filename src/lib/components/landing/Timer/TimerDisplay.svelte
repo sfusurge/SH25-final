@@ -1,8 +1,12 @@
-<script>
-    import { paused, minutes, seconds } from '$lib/stores/timer.js';
+<script lang="ts">
+    import { paused, minutes, seconds } from '$lib/sharedStates/timer.js';
     import { derived } from 'svelte/store';
 
-    export let showWhenPaused = false;
+    interface Props {
+        showWhenPaused?: boolean;
+    }
+
+    let { showWhenPaused = false }: Props = $props();
 
     const formattedTime = derived(
         [minutes, seconds],

@@ -1,5 +1,9 @@
-<script>
-    export let imageUrl = "";
+<script lang="ts">
+    interface Props {
+        imageUrl?: string;
+    }
+
+    let { imageUrl = "" }: Props = $props();
 </script>
 
 <div class="wrapper">

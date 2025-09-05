@@ -1,6 +1,5 @@
-<script>
-    export let height;
-    export let width;
+<script lang="ts">
+    let { height, width } = $props();
 </script>
 
 <img

@@ -1,8 +1,12 @@
-<script>
+<script lang="ts">
     import HoverEffectButton from '$lib/components/landing/HoverEffectButton.svelte';
     import HorizontalDivider  from '$lib/components/landing/HorizontalDivider.svelte';
 
-    export let onChangeBackground = null;
+    interface Props {
+        onChangeBackground?: any;
+    }
+
+    let { onChangeBackground = null }: Props = $props();
 
 </script>
 

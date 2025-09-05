@@ -1,5 +1,9 @@
-<script>
-    export let val = 0;
+<script lang="ts">
+    interface Props {
+        val?: number;
+    }
+
+    let { val = 0 }: Props = $props();
 </script>
 
 <style>

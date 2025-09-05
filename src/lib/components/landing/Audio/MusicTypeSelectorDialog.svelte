@@ -1,13 +1,22 @@
-<script>
+<script lang="ts">
     import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
-    import {currentLibType, setMusicLibrary} from "$lib/stores/music.js";
+    import {currentLibType, setMusicLibrary} from "$lib/sharedStates/music.js";
 
-    export let onClose = () => {
-    };
-    export let mobileMode = false;
-    export let triggerButton = null;
-    export let show = false;
+    interface Props {
+        onClose?: any;
+        mobileMode?: boolean;
+        triggerButton?: any;
+        show?: boolean;
+    }
+
+    let {
+        onClose = () => {
+    },
+        mobileMode = false,
+        triggerButton = null,
+        show = false
+    }: Props = $props();
 </script>
 
 <Dialog

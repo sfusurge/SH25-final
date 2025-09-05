@@ -3,7 +3,7 @@
 	import Sidebar from '$lib/components/landing/Sidebar/Sidebar.svelte';
 	import AmbiancePlayer from '$lib/components/landing/Audio/AmbiancePlayer.svelte';
 	import MainView from "$lib/components/landing/views/MainView.svelte";
-	import { currentView } from '$lib/stores/currentView.js';
+	import { currentView } from '$lib/sharedStates/currentView.js';
 	import FAQ from "$lib/components/landing/views/FAQ.svelte";
 	import SponsorsView from "$lib/components/landing/views/SponsorsView.svelte";
 	import GardenGame from "$lib/components/landing/views/GardenGame.svelte";

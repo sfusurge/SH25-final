@@ -1,19 +1,33 @@
-<script>
-    export let onClick = () => {};
-    export let className = '';
-    export let style = '';
-    export let active = false;
-    export let imageSrc = '';
-    export let imageAlt = '';
-    export let imageClass = '';
-    export let header = '';
-    export let text = '';
+<script lang="ts">
+    interface Props {
+        onClick?: any;
+        className?: string;
+        style?: string;
+        active?: boolean;
+        imageSrc?: string;
+        imageAlt?: string;
+        imageClass?: string;
+        header?: string;
+        text?: string;
+    }
+
+    let {
+        onClick = () => {},
+        className = '',
+        style = '',
+        active = false,
+        imageSrc = '',
+        imageAlt = '',
+        imageClass = '',
+        header = '',
+        text = ''
+    }: Props = $props();
 </script>
 
 <button
         {style}
         class={`bg-[#231f1f] pt-2 pb-2 alt flex flex-row items-start gap-2.5 self-stretch cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
-        on:click={onClick}
+        onclick={onClick}
 >
     {#if imageSrc}
         <img
