@@ -9,6 +9,7 @@
     import { masterVolume } from "$lib/sharedStates/ambiance.svelte.js";
     import ScrollingText from "$lib/components/landing/Audio/ScrollingText.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
+    import { tick } from "svelte";
 
     let paused = $state(true);
     let audioRef = $state<HTMLAudioElement>();
@@ -22,7 +23,6 @@
     function handleProgressChange(val: string) {
         const newProgress = parseInt(val);
         const newTime = (newProgress / 100) * duration;
-        audioRef!.currentTime = newTime;
         currentTime = newTime;
     }
 
@@ -37,9 +37,16 @@
     let currentTitle = $derived(currentTrack.title || "");
     let currentArtist = $derived(currentTrack.artist || "");
 
-    function togglePlayPause() {
-        paused != paused;
+    async function togglePlayPause() {
         lock = false;
+        await tick();
+        paused = !paused;
+    }
+
+    async function play() {
+        lock = false;
+        await tick();
+        paused = false;
     }
 </script>
 
@@ -47,8 +54,8 @@
     src={!lock ? currentTrack.file : ""}
     bind:this={audioRef}
     bind:paused
-    bind:currentTime
     bind:duration
+    bind:currentTime
     volume={masterVolume.volume}
     onended={() => {
         // TODO play next
@@ -127,8 +134,7 @@
                 className="cursor-pointer w-[24px] h-[24px]"
                 onClick={() => {
                     PlayerState.trackIndex--;
-                    paused = false;
-                    lock = false;
+                    play();
                 }}
             >
                 <img
@@ -158,8 +164,7 @@
                 className="cursor-pointer w-[24px] h-[24px]"
                 onClick={() => {
                     PlayerState.trackIndex++;
-                    paused = false;
-                    lock = false;
+                    play();
                 }}
                 style="transform: scale(-1, 1)"
             >

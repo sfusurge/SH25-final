@@ -28,16 +28,20 @@
         },
     ]);
 
-    const paused = $derived(options.map((item) => ambianceVolumes[item.name] > 0));
+    $effect(() => {
+        for (const opt of options) {
+            if (ambianceVolumes[opt.name] > 0) {
+                opt.element?.play();
+            } else {
+                opt.element?.pause();
+            }
+        }
+    });
 </script>
 
 <div style="display: none;">
-    {#each options as opt, index}
-        <audio
-            loop
-            bind:this={opt.element}
-            volume={ambianceVolumes[opt.name] * masterVolume.volume}
-            bind:paused={paused[index]}
+    {#each options as opt}
+        <audio loop bind:this={opt.element} volume={ambianceVolumes[opt.name] * masterVolume.volume}
         ></audio>
     {/each}
 </div>
