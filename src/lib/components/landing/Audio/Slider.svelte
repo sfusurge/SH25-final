@@ -1,31 +1,23 @@
-<script>
-    import { onMount } from "svelte";
-    export let initialVal = 0;
-    export let onChange = (val) => {};
-
-    let val = initialVal;
-
-    // Sync external updates
-    $: val = initialVal;
-
-    function handleChange(e) {
-        const newVal = parseInt(e.target.value);
-        val = newVal;
-        onChange(newVal / 100);
+<script lang="ts">
+    interface Props {
+        val?: number;
+        onChange?: (newVal: number) => void;
     }
+
+    //
+    let { val = $bindable(0), onChange }: Props = $props();
 </script>
 
-<div
-        class="sliderWrapper"
-        style="--progress: {val / 100}"
->
+<div class="sliderWrapper" style="--progress: {val / 100}">
     <input
-            type="range"
-            min="0"
-            max="100"
-            class="slider"
-            value={val}
-            on:input={handleChange}
+        type="range"
+        min="0"
+        max="100"
+        class="slider"
+        value={val}
+        oninput={(e) => {
+            onChange?.(parseInt((e.target && (e.target as HTMLInputElement).value) ?? "0"));
+        }}
     />
 </div>
 

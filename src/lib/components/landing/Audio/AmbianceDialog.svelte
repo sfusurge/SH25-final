@@ -1,40 +1,38 @@
-<script>
+<script lang="ts">
     import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import Slider from "$lib/components/landing/Audio/Slider.svelte";
-    import ProgressBar from "$lib/components/landing/Audio/ProgressBar.svelte";
-    import { masterVolume, ambianceVolumes, setAmbianceVolume } from "$lib/stores/ambiance.js";
+    import { masterVolume, ambianceVolumes } from "$lib/sharedStates/ambiance.svelte.js";
 
-    export let onClose = () => {};
-    export let mobileMode = false;
-    export let mobileTriggerButton = null;
-    export let mobileShow = false;
-
-    const options = ["Rain", "Cafe", "Water", "Fire"];
-
-    function handleMasterVolumeChange(val) {
-        masterVolume.set(val);
+    interface Props {
+        onClose?: () => void;
+        mobileMode?: boolean;
+        mobileTriggerButton?: any;
+        mobileShow?: boolean;
     }
 
-    function handleAmbianceVolumeChange(name, val) {
-        setAmbianceVolume(name, val);
-    }
+    let {
+        onClose = () => {},
+        mobileMode = false,
+        mobileTriggerButton = null,
+        mobileShow = false,
+    }: Props = $props();
+
+    const options = Object.keys(ambianceVolumes) as (keyof typeof ambianceVolumes)[];
 </script>
 
-<Dialog
-        title="Sound Settings"
-        {onClose}
-        {mobileMode}
-        {mobileTriggerButton}
-        {mobileShow}
->
+<Dialog title="Sound Settings" {onClose} {mobileMode} {mobileTriggerButton} {mobileShow}>
     <div class="container">
         <div>
             <p class="header">Music Volume</p>
             <div class="row">
                 <img src="/assets/mute.svg" alt="" data-demon="primary" />
                 <Slider
-                        initialVal={$masterVolume * 100}
-                        onChange={handleMasterVolumeChange}
+                    bind:val={
+                        () => masterVolume.volume,
+                        (newVal) => {
+                            masterVolume.volume = newVal / 100;
+                        }
+                    }
                 />
                 <img src="/assets/fullSound.svg" alt="" data-demon="primary" />
             </div>
@@ -46,8 +44,12 @@
                 <div class="ambiance-row">
                     <span class="ambiance-label">{name}</span>
                     <Slider
-                            initialVal={$ambianceVolumes[name] * 100}
-                            onChange={(val) => handleAmbianceVolumeChange(name, val)}
+                        bind:val={
+                            () => ambianceVolumes[name],
+                            (newVal) => {
+                                ambianceVolumes[name] = newVal / 100;
+                            }
+                        }
                     />
                 </div>
             {/each}

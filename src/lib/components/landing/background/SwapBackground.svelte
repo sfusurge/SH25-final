@@ -1,14 +1,9 @@
 <script>
-    import HoverEffectButton from '$lib/components/landing/HoverEffectButton.svelte';
-    import BlockPatternVertical from '$lib/components/landing/svgs/BlockPatternVertical.svelte';
-    import RockFilter from '$lib/components/landing/svgs/RockFilter.svelte';
-    import {backgrounds, currentBackgroundIndex} from '$lib/stores/background.js';
+    import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
+    import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
+    import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
+    import { backgrounds,currentBackground } from "$lib/sharedStates/background.svelte";
 
-    function changeBackground() {
-        currentBackgroundIndex.update(index => {
-            return (index + 1) % $backgrounds.length;
-        });
-    }
 </script>
 
 <div class="mt-auto mb-8 relative border border-border bg-background h-11">
@@ -17,8 +12,14 @@
         <BlockPatternVertical className="h-11 mr-1.5" />
 
         <HoverEffectButton
-                className="cursor-pointer w-full h-[24px] text-sm bg-[#06060599]"
-                onClick={changeBackground}
+            className="cursor-pointer w-full h-[24px] text-sm bg-[#06060599]"
+            onClick={()=>{
+                if (currentBackground.val === backgrounds.FOUNTAIN){
+                    currentBackground.val = backgrounds.SPARKY_WRITE;
+                } else {
+                    currentBackground.val = backgrounds.FOUNTAIN;
+                }
+            }}
         >
             Swap Background
         </HoverEffectButton>

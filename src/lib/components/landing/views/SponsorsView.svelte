@@ -122,7 +122,9 @@
                 picture: "/assets/sponsors/In-Kind/Logos/Vancouver Water Games/VWA Logo (1).png",
                 link: "https://www.vancouverwatergames.com/",
             },
-            {   
+            {
+                name: "Old Spaghetti Factory",
+                picture: "/assets/sponsors/In-Kind/Logos/Old Spaghetti Factory/osf-logo.svg",
                 link: "https://oldspaghettifactory.ca/",
             },
             {

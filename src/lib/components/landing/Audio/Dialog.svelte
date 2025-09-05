@@ -1,20 +1,44 @@
-<script>
+<script lang="ts">
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
+    import { fade } from "svelte/transition";
     import HorizontalDivider from "../HorizontalDivider.svelte";
 
-    export let title;
-    export let onClose = () => {};
-    export let mobileMode = false;
-    export let mobileTriggerButton = null;
-    export let mobileShow = false;
+    interface Props {
+        title: string;
+        onClose?: () => void;
+        mobile?: boolean;
+        show?: boolean;
+        children?: import("svelte").Snippet;
+    }
 
-    function handleBackdropClick(e) {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
+    let { title, onClose, show = false, children, mobile }: Props = $props();
+
+    function handleBackdropClick(e: PointerEvent | MouseEvent) {
+        onClose?.();
     }
 </script>
+
+{#if show}
+    <div class="dialog bg-background" class:mobile transition:fade={{ duration: 200 }}>
+        {#if mobile}
+            <div class="dialogBackdrop" onclick={handleBackdropClick}></div>
+        {/if}
+        <RockFilter />
+
+        <div data-demon="border" class="decorBar"></div>
+        <div data-demon="border" class="decorBar" style="top: unset; bottom: 0;"></div>
+
+        <div class="titleBar">
+            <p class="title">{title}</p>
+            <HoverEffectButton onClick={onClose} style="width: 24px; height: 24px;">
+                X
+            </HoverEffectButton>
+        </div>
+        <HorizontalDivider />
+        {@render children?.()}
+    </div>
+{/if}
 
 <style>
     .dialog {
@@ -43,9 +67,10 @@
 
     .dialog.mobile {
         z-index: 1004;
-        top: unset;
-        left: unset;
-        transform: none;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
         min-width: 275px;
         justify-content: center;
         align-items: center;
@@ -89,50 +114,3 @@
         font-weight: 700;
     }
 </style>
-
-{#if mobileMode}
-    {#if mobileShow}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div class="dialogBackdrop" on:click={handleBackdropClick} />
-        <div class="w-full h-full fixed top-0 left-0 flex justify-center items-center z-[1002] pointer-events-none">
-            <div class="dialog mobile">
-                <RockFilter />
-
-                <div data-demon='border' class="decorBar"></div>
-                <div data-demon='border' class="decorBar" style="top: unset; bottom: 0;"></div>
-
-                <div class="titleBar">
-                    <p class="title">{title}</p>
-                    <HoverEffectButton onClick={onClose} style="width: 24px; height: 24px;">
-                        X
-                    </HoverEffectButton>
-                </div>
-                <HorizontalDivider />
-                <slot />
-            </div>
-        </div>
-    {/if}
-
-    {#if mobileTriggerButton}
-        <div class={mobileShow ? "z-[1001]" : "flex"}>
-<!--            <svelte:component this={mobileTriggerButton} />-->
-        </div>
-    {/if}
-{:else}
-    <div class="dialog bg-background">
-        <RockFilter />
-
-        <div data-demon='border' class="decorBar"></div>
-        <div data-demon='border' class="decorBar" style="top: unset; bottom: 0;"></div>
-
-        <div class="titleBar">
-            <p class="title">{title}</p>
-            <HoverEffectButton onClick={onClose} style="width: 24px; height: 24px;">
-                X
-            </HoverEffectButton>
-        </div>
-        <HorizontalDivider />
-        <slot />
-    </div>
-{/if}

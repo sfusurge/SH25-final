@@ -1,7 +1,11 @@
-<script>
-    export let height;
-    export let width;
-    export let className = '';
+<script lang="ts">
+    interface Props {
+        height: any;
+        width: any;
+        className?: string;
+    }
+
+    let { height, width, className = '' }: Props = $props();
 
 </script>
 

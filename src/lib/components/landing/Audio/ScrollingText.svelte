@@ -1,122 +1,64 @@
-<script>
-    export let text = '';
-    export let className = '';
-
-    const speed = 40;
-    const pauseDuration = 1500;
-
-    let containerRef;
-    let textRef;
-    let shouldScroll = false;
-    let translateX = 0;
-    let animationRef = null;
-    let isAnimating = false;
-
-    function setupScrolling() {
-        if (!containerRef || !textRef) {
-            console.log('Refs not ready');
-            return;
-        }
-
-        // Stop any existing animation
-        if (animationRef) {
-            cancelAnimationFrame(animationRef);
-            animationRef = null;
-            isAnimating = false;
-        }
-        const containerWidth = containerRef.offsetWidth;
-        const textWidth = textRef.scrollWidth;
-
-        const needsScrolling = textWidth > containerWidth;
-        shouldScroll = needsScrolling;
-
-        if (!needsScrolling) {
-            translateX = 0;
-            return;
-        }
-
-        const maxScroll = textWidth - containerWidth;
-        let currentPosition = 0;
-        let direction = 1;
-        let lastTime = Date.now();
-        let pauseEndTime = Date.now() + pauseDuration;
-        isAnimating = true;
-
-        const animate = () => {
-            if (!isAnimating) return;
-
-            const now = Date.now();
-            const deltaTime = now - lastTime;
-            lastTime = now;
-
-            if (pauseEndTime > now) {
-                animationRef = requestAnimationFrame(animate);
-                return;
-            }
-
-            const moveDistance = (speed * deltaTime) / 1000;
-            currentPosition += moveDistance * direction;
-
-            if (currentPosition >= maxScroll) {
-                currentPosition = maxScroll;
-                direction = -1;
-                pauseEndTime = now + pauseDuration;
-            } else if (currentPosition <= 0) {
-                currentPosition = 0;
-                direction = 1;
-                pauseEndTime = now + pauseDuration;
-            }
-
-            translateX = -currentPosition;
-            animationRef = requestAnimationFrame(animate);
-        };
-
-        // Start animation after initial pause
-        animationRef = requestAnimationFrame(animate);
+<script lang="ts">
+    interface Props {
+        text: string;
+        className?: string;
+        style?: string;
     }
+    let { text, className, style }: Props = $props();
 
-    // Use afterUpdate to ensure DOM is ready
-    import { afterUpdate, onDestroy, onMount } from 'svelte';
-
-    let mounted = false;
-
-    onMount(() => {
-        mounted = true;
-    });
-
-    afterUpdate(() => {
-        if (mounted && text && containerRef && textRef) {
-            // Use setTimeout to ensure layout is complete
-            setTimeout(setupScrolling, 0);
-        }
-    });
-
-    // Handle component cleanup
-    onDestroy(() => {
-        isAnimating = false;
-        if (animationRef) {
-            cancelAnimationFrame(animationRef);
-        }
-    });
-
-    // Reactive statement for text changes
-    $: if (mounted && text) {
-        // Reset position when text changes
-        translateX = 0;
-        setTimeout(setupScrolling, 100);
-    }
+    let outerWidth = $state(0);
+    let innerWidth = $state(0);
 </script>
 
+<span class="hidden" bind:clientWidth={innerWidth}>
+    {text}
+</span>
+
 <div
-        bind:this={containerRef}
-        class="overflow-hidden {className}"
-        style="width: 100%; position: relative;"
+    class="overflow-hidden {className} textContainer"
+    style="width: 100%; position: relative; {style}"
+    bind:clientWidth={outerWidth}
 >
-    <div
-            bind:this={textRef}
-            class="whitespace-nowrap"
-            style="transform: translateX({translateX}px); transition: none; display: inline-block;"
-    >
-        {text}
+    <div class="whitespace-nowrap textContent" class:scroll={innerWidth > outerWidth}>
+        <span class="whitespace-nowrap">{text}</span>
+        {#if innerWidth > outerWidth}
+            <span class="whitespace-nowrap">{text}</span>
+        {/if}
     </div>
 </div>
+
+<style>
+    span {
+        display: inline-block;
+    }
+    .textContainer {
+        overflow: hidden;
+    }
+
+    .hidden {
+        position: fixed;
+        left: 0;
+        top: 0;
+        opacity: 0;
+    }
+
+    @keyframes scroll {
+        0% {
+            transform: translate(-50%, 0);
+        }
+
+        100% {
+            /* transform: translate(50%, 0); */
+        }
+    }
+
+    .textContent.scroll {
+        display: flex;
+        animation: scroll infinite 5s;
+        animation-timing-function: linear;
+    }
+    .textContent.scroll > span {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+    }
+</style>

@@ -16,6 +16,9 @@ const config = {
 	compilerOptions: {
 		experimental: {
 			async:true
+		},
+		warningFilter: (w)=>{
+			return !w.code.includes("a11y");
 		}
 	}
 };

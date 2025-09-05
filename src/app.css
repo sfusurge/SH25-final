@@ -57,6 +57,7 @@ body {
 	background: var(--bg);
 	font-family: Catriel, sans-serif;
 	color: var(--primary);
+	font-family: 'Catriel', sans-serif;
 }
 
 img {
