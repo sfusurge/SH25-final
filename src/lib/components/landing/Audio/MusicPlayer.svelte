@@ -22,12 +22,6 @@
     $: currentTitle = $currentTrack?.title || '';
     $: currentArtist = $currentTrack?.artist || '';
 
-    $: {
-        console.log('Music lib updated:', $musicLib?.length || 0, 'tracks');
-        console.log('Current track:', $currentTrack?.title || 'None');
-        console.log('Track index:', $trackIndex);
-    }
-
     $: if (audioRef && $masterVolume !== undefined) {
         audioRef.volume = $masterVolume;
     }
@@ -37,11 +31,30 @@
     $: if ($currentTrack && audioRef) {
         handleTrackChange();
     }
+    $: if ($currentTrack && audioRef) {
+        attemptAutoplay();
+    }
+
+    async function attemptAutoplay() {
+        if (!audioRef || !$currentTrack) return;
+
+        try {
+            if (audioRef.src !== $currentTrack.file) {
+                audioRef.src = $currentTrack.file;
+                audioRef.load();
+            }
+
+            await audioRef.play();
+            isPlaying = true;
+            initialPlay = false;
+        } catch (error) {
+            console.log('Autoplay failed:', error);
+            isPlaying = false;
+        }
+    }
 
     async function handleTrackChange() {
         if (!audioRef || !$currentTrack) return;
-
-        console.log('Handling track change to:', $currentTrack.title);
 
         if (audioRef.src !== $currentTrack.file) {
             audioRef.src = $currentTrack.file;
