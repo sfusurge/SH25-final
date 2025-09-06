@@ -32,7 +32,7 @@
                 </h1>
             {/if}
             {#if text}
-                <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
+                <h3 class="text-textalt text-[12px] italic font-normal leading-normal px-2">
                     {text}
                 </h3>
             {/if}
