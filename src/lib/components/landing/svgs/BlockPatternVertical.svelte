@@ -1,13 +1,13 @@
 <script lang="ts">
     interface Props {
         className?: string;
+        style?: string;
     }
 
-    let { className = '' }: Props = $props();
+    let { className = "", style = "" }: Props = $props();
 </script>
 
 <div
-        class={`w-[11px] bg-repeat-x ${className}`}
-        style="background: url('/assets/block-pattern-vertical.svg');"
-        data-demon="border"
->   </div>
+    class={`w-[11px] bg-repeat-x ${className}`}
+    style="background: url('/assets/block-pattern-vertical.svg'); {style}"
+></div>

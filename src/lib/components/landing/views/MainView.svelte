@@ -1,18 +1,20 @@
 <script>
-    import Frame from '$lib/components/landing/Frame.svelte';
-    import CurrentBackgroundMobile from '$lib/components/landing/background/CurrentBackgroundMobile.svelte';
-    import Controls from '$lib/components/landing/Audio/MusicPlayer.svelte';
-    import CurrentTrackInfo from '$lib/components/landing/CurrentTrackInfo.svelte';
-    import Timer from '$lib/components/landing/Timer/Timer.svelte';
-    import TimerDisplay from '$lib/components/landing/Timer/TimerDisplay.svelte';
-    import SwapBackground from '$lib/components/landing/background/SwapBackground.svelte';
-    import HoverEffectButton from '$lib/components/landing/Audio/ScrollingText.svelte';
-    import TimerDialog from '$lib/components/landing/Timer/TimerDialog.svelte';
-    import { currentBackground, backgrounds, toggleBackground } from '$lib/sharedStates/background.svelte.js';
+    import Frame from "$lib/components/landing/Frame.svelte";
+    import CurrentBackgroundMobile from "$lib/components/landing/background/CurrentBackgroundMobile.svelte";
+    import Controls from "$lib/components/landing/Audio/MusicPlayer.svelte";
+    import CurrentTrackInfo from "$lib/components/landing/CurrentTrackInfo.svelte";
+    import Timer from "$lib/components/landing/Timer/Timer.svelte";
+    import TimerDisplay from "$lib/components/landing/Timer/TimerDisplay.svelte";
+    import SwapBackground from "$lib/components/landing/background/SwapBackground.svelte";
+    import HoverEffectButton from "$lib/components/landing/Audio/ScrollingText.svelte";
+    import TimerDialog from "$lib/components/landing/Timer/TimerDialog.svelte";
+    import {
+        currentBackground,
+        backgrounds,
+        toggleBackground,
+    } from "$lib/sharedStates/background.svelte.js";
 
     let showSettings = $state(false);
-
-
 
     function toggleSettings() {
         showSettings = !showSettings;
@@ -21,10 +23,9 @@
     function closeSettings() {
         showSettings = false;
     }
-
 </script>
 
-<div >
+<div>
     <div class="sm:hidden w-full">
         <div class="flex w-full px-5 py-5 italic justify-between leading-tight">
             <CurrentTrackInfo />
@@ -34,7 +35,7 @@
                 <TimerDialog
                         mobileTriggerButton={true}
                         mobileShow={showSettings}
-                        
+
                         mobileMode={true}
                         onClose={closeSettings}
                 >

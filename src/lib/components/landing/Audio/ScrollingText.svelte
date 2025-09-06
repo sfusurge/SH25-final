@@ -19,9 +19,9 @@
     style="width: 100%; position: relative; {style}"
     bind:clientWidth={outerWidth}
 >
-    <div class="whitespace-nowrap textContent" class:scroll={innerWidth > outerWidth}>
+    <div class="whitespace-nowrap textContent" class:scroll={innerWidth > outerWidth + 20}>
         <span class="whitespace-nowrap">{text}</span>
-        {#if innerWidth > outerWidth}
+        {#if innerWidth > outerWidth + 20}
             <span class="whitespace-nowrap">{text}</span>
         {/if}
     </div>
@@ -51,8 +51,6 @@
             transform: translate(0, 0);
         }
     }
-
-
 
     .textContent.scroll {
         display: flex;

@@ -10,6 +10,7 @@
     import ScrollingText from "$lib/components/landing/Audio/ScrollingText.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import { tick } from "svelte";
+    import Slider from "$lib/components/landing/Audio/Slider.svelte";
 
     let paused = $state(true);
     let audioRef = $state<HTMLAudioElement>();
@@ -20,14 +21,13 @@
     let duration = $state(1);
     let progressPercent = $derived((currentTime / duration) * 100);
 
-    function handleProgressChange(val: string) {
-        const newProgress = parseInt(val);
-        const newTime = (newProgress / 100) * duration;
+    function handleProgressChange(val: number) {
+        const newTime = (val / 100) * duration;
         currentTime = newTime;
     }
 
     function formatTime(seconds: number) {
-        if (!seconds || isNaN(seconds)) return "0:00";
+        if (!seconds || isNaN(seconds)) return "-:--";
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -62,37 +62,48 @@
     }}
 ></audio>
 
-<div class="mt-auto mb-4 relative border border-border bg-background">
+<div
+    class="mt-auto mb-4 relative border border-border bg-background hor root"
+    style="gap:0.75rem; justify-content: space-between;"
+>
     <RockFilter />
-    <BlockPatternVertical />
+    <BlockPatternVertical style={"align-self: stretch;"} />
 
-    <div>
-        <HoverEffectButton
-            square
-            onClick={() => {
-                showMusicSelector = !showMusicSelector;
-            }}
-        >
-            <img src="/assets/music.svg" alt="Select Music Type" />
-        </HoverEffectButton>
-
-        {#if showMusicSelector}
-            <MusicTypeSelectorDialog
-                onClose={() => {
-                    showMusicSelector = false;
+    <div class="hor" style="gap:0.25rem; flex:1;">
+        <div class="relative">
+            <HoverEffectButton
+                square
+                onClick={() => {
+                    showMusicSelector = !showMusicSelector;
                 }}
+            >
+                <img src="/assets/music.svg" alt="Select Music Type" />
+            </HoverEffectButton>
+
+            {#if showMusicSelector}
+                <MusicTypeSelectorDialog
+                    onClose={() => {
+                        showMusicSelector = false;
+                    }}
+                />
+            {/if}
+        </div>
+
+        <div class="ver titleGroup">
+            <ScrollingText
+                text={currentTitle}
+                style="color: var(--header); font-style: italic; line-height: 1rem; font-size: 13px;"
             />
-        {/if}
+            <ScrollingText
+                text={currentArtist}
+                style="font-style:italic; line-height: 1rem; font-size:12px;"
+            />
+        </div>
     </div>
 
-    <div class="ver">
-        <ScrollingText text={currentTitle} style="color: var(--header); font-style: italic;" />
-        <ScrollingText text={currentArtist} style="font-style:italic;" />
-    </div>
-
-    <div class="hor">
+    <!-- center group -->
+    <div class="hor" style="gap:0.5rem; flex:1; justify-content: center;">
         <Diamond width="8" height="14" />
-
         <!-- prev -->
         <HoverEffectButton
             square
@@ -106,7 +117,11 @@
         <!-- play -->
 
         <HoverEffectButton square onClick={togglePlayPause}>
-            <img class="icon" src="/assets/play.svg" alt="Play Song" />
+            <img
+                class="icon"
+                src={paused ? "/assets/play.svg" : "/assets/pause.svg"}
+                alt="Play Song"
+            />
         </HoverEffectButton>
 
         <!-- next -->
@@ -125,17 +140,56 @@
             />
         </HoverEffectButton>
 
+        <div class="hor" style="gap:0.25rem;">
+            <span>
+                {formatTime(currentTime)}
+            </span>
+            <Slider
+                value={progressPercent}
+                onChange={(newVal) => {
+                    handleProgressChange(newVal);
+                }}
+            />
+            <span>
+                {formatTime(duration)}
+            </span>
+        </div>
+
         <Diamond width="8" height="14" />
     </div>
-    o
-    <BlockPatternVertical />
+
+    <div class="relative" style="display:flex; flex:1; justify-content: flex-end;">
+        <HoverEffectButton
+            square
+            onClick={() => {
+                showAmbianceMenu = !showAmbianceMenu;
+            }}
+        >
+            <img class="icon" src="/assets/sound.svg" alt="Ambiance Sound Menu" />
+        </HoverEffectButton>
+
+        {#if showAmbianceMenu}
+            <AmbianceDialog
+                onClose={() => {
+                    showAmbianceMenu = false;
+                }}
+            ></AmbianceDialog>
+        {/if}
+    </div>
+
+    <BlockPatternVertical style={"align-self: stretch;"} />
 </div>
 
 <style>
+    .root {
+        height: 3rem;
+        width: 100%;
+
+        margin: 0 2rem;
+    }
     .hor {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
         align-items: center;
     }
 
@@ -152,5 +206,15 @@
     img.icon {
         width: 12px;
         height: 12px;
+    }
+
+    .titleGroup {
+        max-width: 150px;
+        margin: 0 0.25rem;
+    }
+
+    span {
+        white-space: nowrap;
+        font-size: 12px;
     }
 </style>
