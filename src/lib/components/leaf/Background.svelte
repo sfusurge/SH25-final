@@ -26,6 +26,8 @@
 		gamePhase,
 		gameEndsAt,
 		scoreStore,
+		shopOpen,
+		closeShop,
 	} from "$lib/components/leaf/gameData/LeafGame";
 	import { derived } from "svelte/store";
 	import { Stock } from "$lib/components/leaf/gameData/LeafGame";
@@ -33,12 +35,8 @@
 	import InstructionsModal from "./InstructionsModal.svelte";
 	import EndingModal from "./EndingModal.svelte";
 
-	let shopOpen: boolean = false;
 	function onOpenModal() {
-		shopOpen = true;
-	}
-	function onCloseModal() {
-		shopOpen = false;
+		shopOpen.set(true);
 	}
 
 	// Use active sessions directly with derived store for better stability
@@ -49,7 +47,7 @@
 
 	function onRestockFromShop(e: CustomEvent<{ plantKey: string }>) {
 		const { plantKey } = e.detail;
-		onCloseModal();
+		closeShop();
 		queueMicrotask(() => {
 			if (ENABLE_QTE) {
 				// Try to start a new QTE session (limited to 2 concurrent)
@@ -239,20 +237,20 @@
 		onOpenModal={$gamePhase === "running" ? onOpenModal : undefined}
 		timerText={fmt(sessionTimeLeftMs)}
 		onStartGame={() => {
-			shopOpen = false;
+			closeShop();
 			game.startGame();
 		}}
 		onRestartGame={() => {
-			shopOpen = false;
+			closeShop();
 			game.startGame();
 		}}
 	/>
 
-	{#if shopOpen}
+	{#if $shopOpen}
 		<ShopModal
 			{plantsStore}
 			{game}
-			on:close={onCloseModal}
+			on:close={closeShop}
 			on:restock={onRestockFromShop}
 		/>
 	{/if}
@@ -260,7 +258,7 @@
 	{#if $gamePhase === "pre"}
 		<InstructionsModal
 			onStart={() => {
-				shopOpen = false;
+				closeShop();
 				game.startGame();
 			}}
 		/>
@@ -270,7 +268,7 @@
 		<EndingModal
 			score={$scoreStore}
 			onRestart={() => {
-				shopOpen = false;
+				closeShop();
 				game.startGame();
 			}}
 		/>

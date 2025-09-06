@@ -1,11 +1,13 @@
 <script lang="ts">
+    import DesktopShop from "$lib/components/leaf/DesktopShop.svelte";
     import Frame from "$lib/components/leaf/Frame.svelte";
-    import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
+    import Pause from "$lib/components/leaf/Pause.svelte";
 </script>
 
 <div class="flex-1 sm:flex flex-col hidden h-full" style="max-height: 100dvh">
     <div class="flex justify-between items-start pt-8 px-8">
-        
+        <Pause />
+        <DesktopShop />
     </div>
 
     <div

@@ -16,26 +16,15 @@
     <div
         style="
 			position: absolute;
-			left: 12%;
-			top: 12%;
-			right: 12%;
-			bottom: 12%;
+			left: 4%;
+			top: 4%;
+			right: 4%;
+			bottom: 4%;
 			z-index: 3;
 			overflow: hidden;
 		"
     >
-        <div
-            style="
-			height: 100%;
-			width: auto;
-			max-width: 100%;
-			object-fit: contain;
-			display: flex;
-			aspect-ratio: calc(872/511);
-		"
-        >
-            <LeafGame />
-        </div>
+        <LeafGame />
     </div>
 
     <img

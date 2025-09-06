@@ -14,6 +14,17 @@ export type GamePhase = 'pre' | 'running' | 'ended';
 export const gamePhase = writable<GamePhase>('pre');
 export const gameEndsAt = writable<number | null>(null);
 
+// Shop modal state
+export const shopOpen = writable<boolean>(false);
+
+export function openShop() {
+    shopOpen.set(true);
+}
+
+export function closeShop() {
+    shopOpen.set(false);
+}
+
 export enum Stock {
     Default = 'default',
     Available = 'available',
