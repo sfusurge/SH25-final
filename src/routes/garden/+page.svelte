@@ -1,5 +1,5 @@
 <script lang="ts">
-    import GardenGame from "$lib/components/landing/views/GardenGame.svelte";
+    import LeafGame from "$lib/components/leaf/LeafGame.svelte";
 </script>
 
-<GardenGame />
+<LeafGame />

@@ -78,6 +78,7 @@ export class MazeGame {
     camera = Vector2.ZERO;
     zoom = $state(1);
     joystickInput = Vector2.ZERO;
+    shootingJoystickInput = Vector2.ZERO;
 
     // Entity grid for collision detection
     entityGrid: EntityGrid | null = null;
@@ -232,8 +233,25 @@ export class MazeGame {
         this.mobileMode = 'ontouchstart' in window || window.innerWidth <= 768;
     }
 
+    handleCanvasResize(width: number, height: number) {
+        // Update canvas internal resolution to match display size
+        this.canvas.width = width;
+        this.canvas.height = height;
+
+        // Scale the rendering context to account for device pixel ratio
+        const dpr = window.devicePixelRatio || 1;
+        this.ctx.scale(dpr, dpr);
+
+        // Re-detect mobile mode in case window size changed
+        this.detectMobileMode();
+    }
+
     setJoystickInput(input: Vector2) {
         this.joystickInput = input;
+    }
+
+    setShootingJoystickInput(input: Vector2) {
+        this.shootingJoystickInput = input;
     }
 
     getPlayerInput() {
@@ -278,10 +296,35 @@ export class MazeGame {
     }
 
     getShootingInput() {
+        // Handle joystick shooting input first (mobile)
+        if (this.mobileMode && (this.shootingJoystickInput.x !== 0 || this.shootingJoystickInput.y !== 0)) {
+            const magnitude = this.shootingJoystickInput.mag();
+
+            // Only shoot if the joystick is moved significantly (dead zone)
+            if (magnitude > 0.3) {
+                // Convert joystick direction to discrete direction
+                const angle = Math.atan2(this.shootingJoystickInput.y, this.shootingJoystickInput.x);
+                const normalizedAngle = ((angle * 180 / Math.PI + 360) % 360);
+
+                // Map angle to direction (with 45-degree ranges)
+                if (normalizedAngle >= 315 || normalizedAngle < 45) {
+                    return RIGHT;
+                } else if (normalizedAngle >= 45 && normalizedAngle < 135) {
+                    return DOWN;
+                } else if (normalizedAngle >= 135 && normalizedAngle < 225) {
+                    return LEFT;
+                } else {
+                    return UP;
+                }
+            }
+        }
+
+        // Handle keyboard shooting input (desktop)
         if (this.keyMem.ArrowUp) return UP;
         if (this.keyMem.ArrowDown) return DOWN;
         if (this.keyMem.ArrowLeft) return LEFT;
         if (this.keyMem.ArrowRight) return RIGHT;
+
         return -1; // no shooting input
     }
 
@@ -475,7 +518,15 @@ export class MazeGame {
         const playerCol = Math.floor(this.player.x / CELL_SIZE);
         const playerRow = Math.floor(this.player.y / CELL_SIZE);
 
-        const roomId = ((this.maze.map[playerRow * this.maze.width + playerCol] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111; // mask to only select room range.
+        // Ensure player position is within maze bounds before accessing maze.map
+        let roomId = 0;
+        if (playerRow >= 0 && playerRow < this.maze.height &&
+            playerCol >= 0 && playerCol < this.maze.width) {
+            const cellIndex = playerRow * this.maze.width + playerCol;
+            if (cellIndex >= 0 && cellIndex < this.maze.map.length) {
+                roomId = ((this.maze.map[cellIndex] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
+            }
+        }
         debug.roomId = roomId;
         this.currentRoomId = roomId;
         if (this.currentRoomId > 0) {
@@ -560,10 +611,14 @@ export class MazeGame {
     }
 
     getCellRenderRange() {
-        const lowX = Math.max(0, Math.floor(((this.camera.x - (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) - 1);
-        const hightX = Math.min(this.maze.width, Math.floor(((this.camera.x + (this.canvas.width / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) + 2);
-        const lowY = Math.max(0, Math.floor(((this.camera.y - (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) - 1);
-        const hightY = Math.min(this.maze.height, Math.floor(((this.camera.y + (this.canvas.height / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) + 2);
+        const dpr = window.devicePixelRatio || 1;
+        const canvasWidth = this.canvas.width / dpr;
+        const canvasHeight = this.canvas.height / dpr;
+
+        const lowX = Math.max(0, Math.floor(((this.camera.x - (canvasWidth / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) - 1);
+        const hightX = Math.min(this.maze.width, Math.floor(((this.camera.x + (canvasWidth / (2 * this.zoom))) / (this.maze.width * CELL_SIZE)) * this.maze.width) + 2);
+        const lowY = Math.max(0, Math.floor(((this.camera.y - (canvasHeight / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) - 1);
+        const hightY = Math.min(this.maze.height, Math.floor(((this.camera.y + (canvasHeight / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) + 2);
 
         debug.renderRange = [lowX, hightX, lowY, hightY];
         return [lowX, hightX, lowY, hightY];
@@ -617,11 +672,17 @@ export class MazeGame {
     ]; // make horizontal walls longer to compensate shift towards neighbor walls
     render() {
         const ctx = this.ctx;
+        const dpr = window.devicePixelRatio || 1;
+
         ctx.resetTransform();
+
+        // Apply device pixel ratio scaling
+        ctx.scale(dpr, dpr);
+
         ctx.fillStyle = "#161414";
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        ctx.clearRect(0, 0, this.canvas.width / dpr, this.canvas.height / dpr);
         ctx.scale(this.zoom, this.zoom);
-        ctx.translate(Math.floor(-this.camera.x + this.canvas.width / (2 * this.zoom)), Math.floor(-this.camera.y + this.canvas.height / (2 * this.zoom)));
+        ctx.translate(Math.floor(-this.camera.x + (this.canvas.width / dpr) / (2 * this.zoom)), Math.floor(-this.camera.y + (this.canvas.height / dpr) / (2 * this.zoom)));
 
 
         const playerDepth = Math.floor((this.player.y / (this.maze.height * CELL_SIZE)) * this.maze.height);

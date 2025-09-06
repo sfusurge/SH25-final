@@ -12,7 +12,7 @@
         <BlockPatternVertical className="h-11 mr-1.5" />
 
         <HoverEffectButton
-            className="cursor-pointer w-full h-[24px] text-sm bg-[#06060599]"
+                className="cursor-pointer w-full h-[24px] px-1 bg-[#06060599] text-[#8A6F6A] text-[12px]"
             onClick={()=>{
                 if (currentBackground.val === backgrounds.FOUNTAIN){
                     currentBackground.val = backgrounds.SPARKY_WRITE;

@@ -158,7 +158,7 @@
         <div
             class="flex justify-between px-2 items-center w-[153px] gap-2 h-[33px] p-[6.427px] flex-shrink-0 border-[0.643px] border-borderalt bg-[#06060599] alt"
         >
-            <div class="flex flex-row gap-0 justify-between items-center">
+            <div class="flex flex-row gap-0 justify-between items-center text-[#8A6F6A]">
                 <img
                     src="/assets/clock.svg"
                     height="15"
@@ -196,7 +196,7 @@
             </div>
             <HoverEffectButton
                 onClick={toggleTimer}
-                class="bg-[#06060599] px-2 py-1 text-xs border-[0.643px] h-[20px] w-[45px] flex items-center justify-center cursor-pointer text-decor border-decor hover:border-main"
+                className="bg-[#06060599] text-[#8A6F6A] px-2 py-1 text-[12px] border-[0.643px] h-[20px] w-[45px] flex items-center justify-center cursor-pointer text-decor border-decor hover:border-main"
             >
                 {$paused ? "Start" : "Stop"}
             </HoverEffectButton>
@@ -209,7 +209,7 @@
     .timeInputContainer {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
+        font-size: 12px;
     }
 
     .timeInputField {

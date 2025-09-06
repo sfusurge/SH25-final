@@ -3,9 +3,11 @@
 
     interface Props {
         onmove?: (input: Vector2) => void;
+        position?: "left" | "right";
+        style?: string;
     }
 
-    let { onmove }: Props = $props();
+    let { onmove, position = "left", style = "" }: Props = $props();
 
     let joystickContainer: HTMLDivElement;
     let joystickKnob: HTMLDivElement;
@@ -61,7 +63,7 @@
         // Calculate input vector: [-1, 1]
         currentInput = new Vector2(
             clampedDistance > 0 ? normalizedX / maxDistance : 0,
-            clampedDistance > 0 ? normalizedY / maxDistance : 0,
+            clampedDistance > 0 ? normalizedY / maxDistance : 0
         );
 
         onmove?.(currentInput);
@@ -134,10 +136,10 @@
     bind:this={joystickContainer}
     onmousedown={onMouseDown}
     ontouchstart={onTouchStart}
-    style="--joystick-size: {joystickRadius * 2}px; --knob-size: {knobRadius * 2}px;"
+    style="--joystick-size: {joystickRadius * 2}px; --knob-size: {knobRadius * 2}px; {style}"
     role="button"
     tabindex="0"
-    aria-label="joystick for player movement"
+    aria-label="joystick for player {position === 'left' ? 'movement' : 'shooting'}"
 >
     <div class="joystick-base">
         <div class="joystick-knob" bind:this={joystickKnob}></div>
