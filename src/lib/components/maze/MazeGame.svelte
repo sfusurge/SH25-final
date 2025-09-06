@@ -2,7 +2,7 @@
 https://svelte.dev/e/bind_invalid_expression -->
 <script lang="ts">
     import { debug, MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
-    import MobileJoystick from "$lib/components/maze/MobileJoystick.svelte";
+    import DualTouchController from "$lib/components/maze/DualTouchController.svelte";
     import type { Vector2 } from "$lib/Vector2";
     import { onDestroy, onMount } from "svelte";
 
@@ -76,13 +76,13 @@ https://svelte.dev/e/bind_invalid_expression -->
         }
     }
 
-    function handleJoystickMove(input: Vector2) {
+    function handleMoveInput(input: Vector2) {
         if (gameController) {
             gameController.setJoystickInput(input);
         }
     }
 
-    function handleShootingJoystick(input: Vector2) {
+    function handleShootInput(input: Vector2) {
         if (gameController) {
             gameController.setShootingJoystickInput(input);
         }
@@ -92,12 +92,11 @@ https://svelte.dev/e/bind_invalid_expression -->
 <div class="canvasContainer" bind:this={canvasContainer}>
     <canvas bind:this={canvas} tabindex="0"></canvas>
     {#if gameController && gameController.mobileMode}
-        <div class="mobile-controls-left">
-            <MobileJoystick onmove={handleJoystickMove} position="left" />
-        </div>
-        <div class="mobile-controls-right">
-            <MobileJoystick onmove={handleShootingJoystick} position="right" />
-        </div>
+        <DualTouchController
+            onMoveInput={handleMoveInput}
+            onShootInput={handleShootInput}
+            canvasElement={canvasContainer}
+        />
     {/if}
 </div>
 
@@ -105,7 +104,6 @@ https://svelte.dev/e/bind_invalid_expression -->
     {#if gameController}
         <input type="range" step="any" min="0.2" max="2" bind:value={gameController!.zoom} />
     {/if}
-
 
     <pre>
             <code>
@@ -134,22 +132,6 @@ https://svelte.dev/e/bind_invalid_expression -->
 
     canvas:focus {
         outline: none;
-    }
-
-    .mobile-controls-left {
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
-        z-index: 1000;
-        pointer-events: auto;
-    }
-
-    .mobile-controls-right {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        z-index: 1000;
-        pointer-events: auto;
     }
 
     .debug-section {
