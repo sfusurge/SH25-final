@@ -42,7 +42,7 @@ importers:
         specifier: ^4.0.0
         version: 4.1.11
       typescript:
-        specifier: ^5.0.0
+        specifier: ^5.5.0
         version: 5.9.2
       vite:
         specifier: ^7.0.4
