@@ -101,17 +101,17 @@ https://svelte.dev/e/bind_invalid_expression -->
     {/if}
 </div>
 
-{#if gameController}
-    <input type="range" step="any" min="0.2" max="2" bind:value={gameController!.zoom} />
-{/if}
+<div class="debug-section">
+    {#if gameController}
+        <input type="range" step="any" min="0.2" max="2" bind:value={gameController!.zoom} />
+    {/if}
 
-<div>
-    Debug:
+
     <pre>
-        <code>
-{JSON.stringify(debug, undefined, 4)}
-        </code>
-    </pre>
+            <code>
+    {JSON.stringify(debug, undefined, 4)}
+            </code>
+        </pre>
 </div>
 
 <style>
@@ -150,5 +150,22 @@ https://svelte.dev/e/bind_invalid_expression -->
         right: 10px;
         z-index: 1000;
         pointer-events: auto;
+    }
+
+    .debug-section {
+        padding-top: 4em;
+        width: 500px;
+        max-width: 500px;
+        overflow: hidden;
+    }
+
+    .debug-section pre {
+        margin: 0;
+        overflow-x: hidden;
+        max-width: 100%;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-size: 0.75rem;
+        line-height: 1.2;
     }
 </style>
