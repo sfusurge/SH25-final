@@ -10,17 +10,28 @@
 				<div class="header">
 					<h2 class="title">Game Over!</h2>
 					<div class="score-display">
-						<img src="/ending_modal/final_leaf.png" alt="Leaf" class="leaf-icon" />
+						<img
+							src="/assets/experiences/leaf/ending_modal/final_leaf.png"
+							alt="Leaf"
+							class="leaf-icon"
+						/>
 						<span class="score-text">{score}</span>
 					</div>
 				</div>
 				<div class="image-container">
-					<img src="/ending_modal/image.png" alt="Success" class="success-image" />
+					<img
+						src="/assets/experiences/leaf/ending_modal/image.png"
+						alt="Success"
+						class="success-image"
+					/>
 				</div>
 				<div class="message">
-					What a beautiful garden you have created! Your visitors thank you.
+					What a beautiful garden you have created! Your visitors
+					thank you.
 				</div>
-				<button class="restart-btn" type="button" on:click={onRestart}>Play Again</button>
+				<button class="restart-btn" type="button" on:click={onRestart}
+					>Play Again</button
+				>
 			</div>
 		</div>
 	</div>
@@ -32,7 +43,7 @@
 		inset: 0;
 		background: rgba(0, 0, 0, 0.5);
 		display: block;
-		z-index: 999;
+		z-index: 10000; /* Highest priority - above all game elements */
 	}
 	.modal {
 		position: absolute;
@@ -41,7 +52,8 @@
 		transform: translate(-50%, -50%);
 		width: 35%;
 		height: 72%;
-		background: url('/assets/experiences/leaf/modal_bg.png') center / 100% 100% no-repeat;
+		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
+			100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Order from '$lib/components/leaf/Order.svelte';
-	import { OrderStatus } from '$lib/components/leaf/gameData/LeafGame';
-	import { createEventDispatcher } from 'svelte';
+	import Order from "$lib/components/leaf/Order.svelte";
+	import { OrderStatus } from "$lib/components/leaf/gameData/LeafGame";
+	import { createEventDispatcher } from "svelte";
 	const dispatch = createEventDispatcher();
 
-	export let alt: string = 'Customer';
+	export let alt: string = "Customer";
 	export let left: string;
 	export let top: string;
 	export let imageWidth: string;
@@ -14,7 +14,7 @@
 	export let timerRatio: number | undefined = undefined;
 	export let hurry: boolean | undefined = undefined;
 
-	export let orderText: string = '';
+	export let orderText: string = "";
 	export let orderItems: Record<string, number> | undefined = undefined;
 	export let thanksAmount: number | null = null;
 
@@ -22,21 +22,24 @@
 	export let orderTransform: string | undefined = undefined;
 
 	const customerImages: Record<OrderStatus, string> = {
-		[OrderStatus.InProgress]: '/assets/experiences/leaf/customer/default.png',
-		[OrderStatus.Success]: '/assets/experiences/leaf/customer/success.png',
-		[OrderStatus.Fail]: '/assets/experiences/leaf/customer/failure.png'
+		[OrderStatus.InProgress]:
+			"/assets/experiences/leaf/customer/default.png",
+		[OrderStatus.Success]: "/assets/experiences/leaf/customer/success.png",
+		[OrderStatus.Fail]: "/assets/experiences/leaf/customer/failure.png",
 	};
 
 	$: customerSrc =
-		state === OrderStatus.InProgress && hurry ? '/assets/experiences/leaf/customer/failure.png' : customerImages[state];
+		state === OrderStatus.InProgress && hurry
+			? "/assets/experiences/leaf/customer/failure.png"
+			: customerImages[state];
 
 	const plantIcons: Record<string, string> = {
-		plant1: '/assets/experiences/leaf/icons/monstera.png',
-		plant2: '/assets/experiences/leaf/icons/vine.png',
-		plant3: '/assets/experiences/leaf/icons/tomato.png',
-		plant4: '/assets/experiences/leaf/icons/stick.png',
-		plant5: '/assets/experiences/leaf/icons/carrot.png',
-		plant6: '/assets/experiences/leaf/icons/dandelion.png'
+		plant1: "/assets/experiences/leaf/icons/monstera.png",
+		plant2: "/assets/experiences/leaf/icons/vine.png",
+		plant3: "/assets/experiences/leaf/icons/tomato.png",
+		plant4: "/assets/experiences/leaf/icons/stick.png",
+		plant5: "/assets/experiences/leaf/icons/carrot.png",
+		plant6: "/assets/experiences/leaf/icons/dandelion.png",
 	};
 
 	$: plantOrders = orderItems ? Object.keys(orderItems).length : 1;
@@ -47,14 +50,18 @@
 	<Order
 		left={`calc(${left} + (${imageWidth}) / 2)`}
 		{top}
-		translate={orderTransform ?? 'translate(-50%, calc(-100% - 5%))'}
+		translate={orderTransform ?? "translate(-50%, calc(-100% - 5%))"}
 		progress={undefined}
 		style={orderWidth ? `--orderW:${orderWidth}` : undefined}
 	>
 		<div class="thanks-wrap">
 			<div class="thanks-title">Thanks!</div>
 			<div class="thanks-amount">
-				<img src="/assets/experiences/leaf/leafIcon.png" alt="" class="thanks-icon" />
+				<img
+					src="/assets/experiences/leaf/leafIcon.png"
+					alt=""
+					class="thanks-icon"
+				/>
 				{thanksAmount}
 			</div>
 		</div>
@@ -63,7 +70,7 @@
 	<Order
 		left={`calc(${left} + (${imageWidth}) / 2)`}
 		{top}
-		translate={orderTransform ?? 'translate(-50%, calc(-100% - 5%))'}
+		translate={orderTransform ?? "translate(-50%, calc(-100% - 5%))"}
 		progress={timerRatio}
 		style={orderWidth ? `--orderW:${orderWidth}` : undefined}
 	>
@@ -71,7 +78,12 @@
 			<div class="order-icons" style="--content-scale: {scale};">
 				{#each Object.entries(orderItems) as [k, qty]}
 					<div class="order-icon-item">
-						<img src={plantIcons[k]} alt={k} class="order-icon" draggable="false" />
+						<img
+							src={plantIcons[k]}
+							alt={k}
+							class="order-icon"
+							draggable="false"
+						/>
 						<span class="order-qty">x{qty}</span>
 					</div>
 				{/each}
@@ -89,8 +101,7 @@
 	style:left
 	style:top
 	style:width={imageWidth}
-	style:height={imageWidth}
-	on:click={() => dispatch('click')}
+	on:click={() => dispatch("click")}
 ></div>
 
 <div
@@ -98,7 +109,7 @@
 	style:left
 	style:top
 	style:width={imageWidth}
-	on:click={() => dispatch('click')}
+	on:click={() => dispatch("click")}
 >
 	<img
 		src={customerSrc}
@@ -118,8 +129,10 @@
 	}
 	.customer-hit {
 		position: absolute;
-		z-index: 5; /* above plants */
+		z-index: 30; /* above plants to prioritize customer clicks */
 		background: transparent;
+		cursor: pointer;
+		aspect-ratio: 1; /* Customer images are square, so height will match width */
 	}
 	.customer-img {
 		display: block;
@@ -132,7 +145,8 @@
 	.order-icons {
 		display: flex;
 		flex-wrap: wrap;
-		gap: calc(6px * var(--content-scale, 1)) calc(8px * var(--content-scale, 1));
+		gap: calc(6px * var(--content-scale, 1))
+			calc(8px * var(--content-scale, 1));
 		align-items: center;
 		justify-content: center;
 		--iconSize: calc(3vh * var(--content-scale, 1));

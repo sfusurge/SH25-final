@@ -1,14 +1,14 @@
 <script lang="ts">
 	export let onStart: (() => void) | undefined;
 	let pictures: string[] = [
-		'/assets/experiences/leaf/starting_modal/start_1.png',
-		'/assets/experiences/leaf/starting_modal/start_2.png',
-		'/assets/experiences/leaf/starting_modal/start_3.png'
+		"/assets/experiences/leaf/starting_modal/start_1.png",
+		"/assets/experiences/leaf/starting_modal/start_2.png",
+		"/assets/experiences/leaf/starting_modal/start_3.png",
 	];
 	let descriptions: string[] = [
-		'Provide plants to your visitors as they make requests, using the Seed Shop to Restock a plant or Unlock more valuable options. <strong>Click on the plant, then click on the visitor to deliver their request!</strong>',
+		"Provide plants to your visitors as they make requests, using the Seed Shop to Restock a plant or Unlock more valuable options. <strong>Click on the plant, then click on the visitor to deliver their request!</strong>",
 		"To grow a worthy plant, Click/Tap when the white line is in the target range. The more successes, the more valuable the plant! Don't forget to restock for the next visitor.",
-		'Careful! Visitors have limited patience.'
+		"Careful! Visitors have limited patience.",
 	];
 	let picIdx: number = 0;
 	function nextPicture() {
@@ -22,7 +22,9 @@
 			<div class="inner">
 				<div class="header">
 					<h2 class="title">Community garden</h2>
-					<button class="start-btn" type="button" on:click={onStart}>Start Game</button>
+					<button class="start-btn" type="button" on:click={onStart}
+						>Start Game</button
+					>
 				</div>
 				<div class="picture">
 					<img src={pictures[picIdx]} alt="Instruction" />
@@ -34,17 +36,32 @@
 					<button
 						class="nav-btn"
 						type="button"
-						on:click={() => (picIdx = picIdx > 0 ? picIdx - 1 : pictures.length - 1)}
+						on:click={() =>
+							(picIdx =
+								picIdx > 0 ? picIdx - 1 : pictures.length - 1)}
 					>
-						<img src="/assets/experiences/leaf/back_button.png" alt="Previous" />
+						<img
+							src="/assets/experiences/leaf/back_button.png"
+							alt="Previous"
+						/>
 					</button>
-					<button class="nav-btn" type="button" on:click={nextPicture}>
-						<img src="/assets/experiences/leaf/next_button.png" alt="Next" />
+					<button
+						class="nav-btn"
+						type="button"
+						on:click={nextPicture}
+					>
+						<img
+							src="/assets/experiences/leaf/next_button.png"
+							alt="Next"
+						/>
 					</button>
 				</div>
 				<div class="pagination">
 					{#each pictures as _, index}
-						<div class="pagination-dot" class:active={index === picIdx}></div>
+						<div
+							class="pagination-dot"
+							class:active={index === picIdx}
+						></div>
 					{/each}
 				</div>
 			</div>
@@ -58,7 +75,7 @@
 		inset: 0;
 		background: rgba(0, 0, 0, 0.5);
 		display: block;
-		z-index: 999;
+		z-index: 10000; /* Highest priority - above all game elements */
 	}
 	.modal {
 		position: absolute;
@@ -67,7 +84,8 @@
 		transform: translate(-50%, -50%);
 		width: 35%;
 		height: 72%;
-		background: url('/assets/experiences/leaf/modal_bg.png') center / 100% 100% no-repeat;
+		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
+			100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
