@@ -1,20 +1,20 @@
 <script lang="ts">
     interface Props {
-        val?: number;
+        value?: number;
         onChange?: (newVal: number) => void;
     }
 
-    //
-    let { val = $bindable(0), onChange }: Props = $props();
+    let { value = $bindable(0), onChange }: Props = $props();
 </script>
 
-<div class="sliderWrapper" style="--progress: {val / 100}">
+<div class="sliderWrapper" style="--progress: {value / 100}">
     <input
         type="range"
         min="0"
         max="100"
+        step="any"
         class="slider"
-        value={val}
+        bind:value
         oninput={(e) => {
             onChange?.(parseInt((e.target && (e.target as HTMLInputElement).value) ?? "0"));
         }}

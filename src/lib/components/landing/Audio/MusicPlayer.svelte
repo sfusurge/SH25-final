@@ -18,7 +18,7 @@
     let showAmbianceMenu = $state(false);
     let currentTime = $state(0);
     let duration = $state(1);
-    let progressPercent = $derived(currentTime / duration);
+    let progressPercent = $derived((currentTime / duration) * 100);
 
     function handleProgressChange(val: string) {
         const newProgress = parseInt(val);
@@ -62,189 +62,95 @@
     }}
 ></audio>
 
-<!-- DESKTOP -->
-<div
-    class="hidden sm:block mt-auto mb-4 relative border border-border bg-background sm:w-[80%] xl:w-[70%] h-[43px]"
->
+<div class="mt-auto mb-4 relative border border-border bg-background">
     <RockFilter />
-    <div class="flex justify-between h-full">
-        <div class="flex flex-row gap-2">
-            <BlockPatternVertical />
-            <div class="flex items-center justify-center gap-4">
-                <div class="flex flex-row gap-2">
-                    <div class="self-center relative flex">
-                        <HoverEffectButton
-                            className="w-[24px] h-[24px]"
-                            onClick={() => (showMusicSelector = !showMusicSelector)}
-                        >
-                            <img
-                                data-demon="primary"
-                                src="/assets/music.svg"
-                                height="16"
-                                width="16"
-                                alt="Play"
-                                style="height: 16px"
-                            />
-                        </HoverEffectButton>
-                        {#if showMusicSelector}
-                            <MusicTypeSelectorDialog onClose={() => (showMusicSelector = false)} />
-                        {/if}
-                    </div>
+    <BlockPatternVertical />
 
-                    <div class="flex flex-col w-32">
-                        <ScrollingText
-                            text={currentTitle}
-                            className="text-[12px] text-main font-bold"
-                        />
-                        <ScrollingText text={currentArtist} className="text-[10px] text-primary" />
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div>
+        <HoverEffectButton
+            square
+            onClick={() => {
+                showMusicSelector = !showMusicSelector;
+            }}
+        >
+            <img src="/assets/music.svg" alt="Select Music Type" />
+        </HoverEffectButton>
 
-        <div class="flex flex-row gap-2">
-            <div class="self-center relative flex">
-                {#if showAmbianceMenu}
-                    <AmbianceDialog onClose={() => (showAmbianceMenu = !showAmbianceMenu)} />
-                {/if}
-                <HoverEffectButton
-                    onClick={() => (showAmbianceMenu = !showAmbianceMenu)}
-                    className="self-center w-[24px] h-[24px]"
-                >
-                    <img
-                        data-demon="primary"
-                        src="/assets/sound.svg"
-                        height="16"
-                        width="16"
-                        alt="Sound"
-                        style="height: 16px"
-                    />
-                </HoverEffectButton>
-            </div>
-            <BlockPatternVertical className="h-[43px] w-[11px] bg-repeat-y rotate-180" />
-        </div>
+        {#if showMusicSelector}
+            <MusicTypeSelectorDialog
+                onClose={() => {
+                    showMusicSelector = false;
+                }}
+            />
+        {/if}
     </div>
 
-    <div
-        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-4"
-    >
-        <Diamond width={8} height={14} />
-        <div class="flex items-center justify-center gap-4">
-            <HoverEffectButton
-                className="cursor-pointer w-[24px] h-[24px]"
-                onClick={() => {
-                    PlayerState.trackIndex--;
-                    play();
-                }}
-            >
-                <img
-                    data-demon="primary"
-                    src="/assets/prev.svg"
-                    height="12"
-                    width="12"
-                    alt="Previous"
-                />
-            </HoverEffectButton>
-
-            <HoverEffectButton
-                className="cursor-pointer w-[24px] h-[24px]"
-                onClick={togglePlayPause}
-            >
-                <img
-                    data-demon="primary"
-                    src={paused ? "/assets/play.svg" : "/assets/pause.svg"}
-                    height="12"
-                    width="12"
-                    alt={paused ? "Play" : "Pause"}
-                    style="height: 16px"
-                />
-            </HoverEffectButton>
-
-            <HoverEffectButton
-                className="cursor-pointer w-[24px] h-[24px]"
-                onClick={() => {
-                    PlayerState.trackIndex++;
-                    play();
-                }}
-                style="transform: scale(-1, 1)"
-            >
-                <img
-                    data-demon="primary"
-                    src="/assets/prev.svg"
-                    height="12"
-                    width="12"
-                    alt="Next"
-                />
-            </HoverEffectButton>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="flex items-center gap-2">
-            <span class="text-xs text-primary font-mono">{formatTime(currentTime)}</span>
-            <div class="sliderWrapper w-53" style="--progress: {progressPercent / 100}">
-                <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    class="slider"
-                    value={progressPercent}
-                    oninput={(e) => {
-                        handleProgressChange(e.currentTarget.value);
-                    }}
-                />
-            </div>
-            <span class="text-xs text-primary font-mono">{formatTime(duration)}</span>
-        </div>
-
-        <Diamond width={8} height={14} />
+    <div class="ver">
+        <ScrollingText text={currentTitle} style="color: var(--header); font-style: italic;" />
+        <ScrollingText text={currentArtist} style="font-style:italic;" />
     </div>
+
+    <div class="hor">
+        <Diamond width="8" height="14" />
+
+        <!-- prev -->
+        <HoverEffectButton
+            square
+            onClick={() => {
+                PlayerState.trackIndex--;
+                play();
+            }}
+        >
+            <img class="icon" src="/assets/prev.svg" alt="Previous Song" />
+        </HoverEffectButton>
+        <!-- play -->
+
+        <HoverEffectButton square onClick={togglePlayPause}>
+            <img class="icon" src="/assets/play.svg" alt="Play Song" />
+        </HoverEffectButton>
+
+        <!-- next -->
+        <HoverEffectButton
+            square
+            onClick={() => {
+                PlayerState.trackIndex++;
+                play();
+            }}
+        >
+            <img
+                class="icon"
+                src="/assets/prev.svg"
+                alt="Next Sng"
+                style="transform: scale(-1, 1);"
+            />
+        </HoverEffectButton>
+
+        <Diamond width="8" height="14" />
+    </div>
+    o
+    <BlockPatternVertical />
 </div>
 
 <style>
-    .sliderWrapper {
-        position: relative;
-        height: 0.5rem;
+    .hor {
         display: flex;
-        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .slider {
-        width: 100%;
-        height: 0.5rem;
-        position: relative;
-        border: 1px solid var(--color-primary);
-        box-sizing: border-box;
-        -webkit-appearance: none;
-        z-index: 2;
-        cursor: pointer;
-        background: transparent;
+    .ver {
+        display: flex;
+        flex-direction: column;
     }
 
-    .sliderWrapper::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: calc(100% * var(--progress));
-        background-color: var(--color-primary);
-        pointer-events: none;
-        z-index: 0;
+    img {
+        width: 16px;
+        height: 16px;
     }
 
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 1rem;
-        height: 1rem;
-        background: transparent;
-        cursor: pointer;
-    }
-
-    .slider::-moz-range-thumb {
-        width: 1rem;
-        height: 1rem;
-        background: transparent;
-        border: none;
-        cursor: pointer;
+    img.icon {
+        width: 12px;
+        height: 12px;
     }
 </style>
