@@ -421,16 +421,29 @@ export class WalkerEntity extends Entity {
         const playerRow = (Math.floor(player.y / halfCell) - (room.top * 2));
         const playerCol = (Math.floor(player.x / halfCell) - (room.left * 2));
 
-        this.lineOfSight = lineOfSight(col, row, playerCol, playerRow);
+        // Only calculate line of sight if both entities are within room bounds
+        if (staticEntities && staticEntities.length > 0 &&
+            row >= 0 && row < staticEntities.length &&
+            col >= 0 && col < staticEntities[0].length &&
+            playerRow >= 0 && playerRow < staticEntities.length &&
+            playerCol >= 0 && playerCol < staticEntities[0].length) {
+            this.lineOfSight = lineOfSight(col, row, playerCol, playerRow);
+        } else {
+            this.lineOfSight = []; // Clear line of sight if out of bounds
+        }
         this.currentRoom = room;
 
         if (player.pos.distTo(this.pos) < 2 * CELL_SIZE) {
             let clear = true;
             // check if this ent has clear los
             for (const los of this.lineOfSight) {
-                if (staticEntities[los.y][los.x]?.solid) {
-                    clear = false;
-                    break;
+                // Add bounds checking to prevent accessing undefined array elements
+                if (los.y >= 0 && los.y < staticEntities.length &&
+                    los.x >= 0 && los.x < staticEntities[los.y].length) {
+                    if (staticEntities[los.y][los.x]?.solid) {
+                        clear = false;
+                        break;
+                    }
                 }
             }
 
@@ -446,14 +459,27 @@ export class WalkerEntity extends Entity {
             this.directTarget = false;
         }
 
-        const pathFinds = AStar(staticEntities, col, row, playerCol, playerRow);
-        if (pathFinds) {
-            this.pathFinds = pathFinds.map((item) => {
-                return {
-                    x: item.x * halfCell + room.left * CELL_SIZE + halfCell / 2,
-                    y: halfCell * item.y + room.top * CELL_SIZE + halfCell / 2
-                }
-            });
+        // Only calculate pathfinding if both entities are within room bounds
+        let pathFinds = null;
+        if (staticEntities && staticEntities.length > 0 &&
+            row >= 0 && row < staticEntities.length &&
+            col >= 0 && col < staticEntities[0].length &&
+            playerRow >= 0 && playerRow < staticEntities.length &&
+            playerCol >= 0 && playerCol < staticEntities[0].length) {
+
+            pathFinds = AStar(staticEntities, col, row, playerCol, playerRow);
+            if (pathFinds) {
+                this.pathFinds = pathFinds.map((item) => {
+                    return {
+                        x: item.x * halfCell + room.left * CELL_SIZE + halfCell / 2,
+                        y: halfCell * item.y + room.top * CELL_SIZE + halfCell / 2
+                    }
+                });
+            } else {
+                this.pathFinds = [];
+            }
+        } else {
+            this.pathFinds = []; // Clear pathfinding if out of bounds
         }
         const pathFind = pathFinds?.at(-1);
         if (pathFind) {

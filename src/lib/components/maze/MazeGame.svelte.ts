@@ -518,7 +518,15 @@ export class MazeGame {
         const playerCol = Math.floor(this.player.x / CELL_SIZE);
         const playerRow = Math.floor(this.player.y / CELL_SIZE);
 
-        const roomId = ((this.maze.map[playerRow * this.maze.width + playerCol] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111; // mask to only select room range.
+        // Ensure player position is within maze bounds before accessing maze.map
+        let roomId = 0;
+        if (playerRow >= 0 && playerRow < this.maze.height &&
+            playerCol >= 0 && playerCol < this.maze.width) {
+            const cellIndex = playerRow * this.maze.width + playerCol;
+            if (cellIndex >= 0 && cellIndex < this.maze.map.length) {
+                roomId = ((this.maze.map[cellIndex] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
+            }
+        }
         debug.roomId = roomId;
         this.currentRoomId = roomId;
         if (this.currentRoomId > 0) {
