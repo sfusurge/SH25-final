@@ -6,8 +6,8 @@
 	import { currentView } from '$lib/stores/currentView.js';
 	import FAQ from "$lib/components/landing/views/FAQ.svelte";
 	import SponsorsView from "$lib/components/landing/views/SponsorsView.svelte";
-	import GardenGame from "$lib/components/landing/views/GardenGame.svelte";
 	import WebtoonView from "$lib/components/landing/views/WebtoonView.svelte";
+	import LeafGame from "$lib/components/leaf/LeafGame.svelte";
 
 </script>
 
@@ -34,7 +34,7 @@
 		{#if $currentView === 'home'}
 			<MainView/>
 		{:else if $currentView === 'garden'}
-			<GardenGame/>
+			<LeafGame />
 		{:else if $currentView === 'partners'}
 			<SponsorsView/>
 		{:else if $currentView === 'FAQ'}
