@@ -110,7 +110,7 @@
     .timeInputContainer {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
+        font-size: 12px;
     }
 
     .timeInputField {
@@ -212,7 +212,7 @@
                         data-demon="primary"
                         alt="clock"
                 />
-                <span class="timeInputContainer">
+                <span class="timeInputContainer text-[#8A6F6A]">
                     <input
                             bind:this={minRef}
                             bind:value={$minutes}
@@ -242,7 +242,7 @@
             </div>
             <HoverEffectButton
                     onClick={toggleTimer}
-                    className="bg-[#06060599] px-2 py-1 text-xs border-[0.643px] h-[20px] w-[45px] flex items-center justify-center cursor-pointer text-decor border-decor hover:border-main"
+                    className="bg-[#06060599] text-[#8A6F6A] px-2 py-1 text-[12px] border-[0.643px] h-[20px] w-[45px] flex items-center justify-center cursor-pointer text-decor border-decor hover:border-main"
             >
                 {$paused ? 'Start' : 'Stop'}
             </HoverEffectButton>
