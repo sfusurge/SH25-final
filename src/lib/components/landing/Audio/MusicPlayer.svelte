@@ -184,8 +184,9 @@
     .root {
         height: 3rem;
         width: 100%;
-
+        max-width: 1000px;
         margin: 0 2rem;
+        margin-bottom: 2rem;
     }
     .hor {
         display: flex;

@@ -10,7 +10,7 @@
     let innerWidth = $state(0);
 </script>
 
-<span class="hidden" bind:clientWidth={innerWidth}>
+<span class="hidden {className}" {style} bind:clientWidth={innerWidth}>
     {text}
 </span>
 
