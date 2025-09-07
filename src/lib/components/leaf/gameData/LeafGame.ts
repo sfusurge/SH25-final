@@ -25,6 +25,50 @@ export function closeShop() {
     shopOpen.set(false);
 }
 
+// Game pause state
+export const gamePaused = writable<boolean>(false);
+export const pauseStartTime = writable<number | null>(null);
+export const totalPauseTime = writable<number>(0);
+
+export function pauseGame() {
+    gamePaused.set(true);
+    pauseStartTime.set(Date.now());
+    if (game) {
+        game.stopTimers();
+    }
+}
+
+export function resumeGame() {
+    const startTime = get(pauseStartTime);
+    if (startTime) {
+        const pauseDuration = Date.now() - startTime;
+        totalPauseTime.update(total => total + pauseDuration);
+        pauseStartTime.set(null);
+
+        // Extend all active order expiration times and game session
+        if (game) {
+            game.extendOrderTimers(pauseDuration);
+        }
+
+        // Extend game session end time
+        gameEndsAt.update(endsAt => endsAt ? endsAt + pauseDuration : null);
+    }
+
+    gamePaused.set(false);
+    if (game) {
+        game.startTimers();
+    }
+}
+
+export function toggleGamePause() {
+    const currentlyPaused = get(gamePaused);
+    if (currentlyPaused) {
+        resumeGame();
+    } else {
+        pauseGame();
+    }
+}
+
 export enum Stock {
     Default = 'default',
     Available = 'available',
@@ -87,12 +131,12 @@ export type plantInfo = {
 
 
 const INITIAL_STATES: Record<string, Stock> = {
-    bucket1: Stock.Default,
-    bucket2: Stock.Default,
-    bucket3: Stock.Default,
+    bucket1: Stock.Available,
+    bucket2: Stock.Available,
+    bucket3: Stock.Available,
     bucket4: Stock.Available,
-    bucket5: Stock.Default,
-    bucket6: Stock.Default,
+    bucket5: Stock.Available,
+    bucket6: Stock.Available,
 };
 
 export const plantArray = writable<Record<string, plantInfo>>(
@@ -124,7 +168,7 @@ export const ORDER_DEFAULT_DURATION_MS = 15_000;
 // Threshold ratio at which a customer begins showing an unhappy face (e.g. 0.25 = last 25%)
 export const ORDER_HURRY_THRESHOLD_RATIO = 0.25;
 // How long a customer (success or failure) should remain before being removed
-export const CUSTOMER_REMAIN_IN_SCREEN = 5_000;
+export const CUSTOMER_REMAIN_IN_SCREEN = 3_000;
 // How long the mascot should celebrate success before returning to idle
 export const MASCOT_SUCCESS_MS = 3_000;
 // How long the mascot should show failure after an order fails
@@ -151,20 +195,24 @@ export class LeafGame {
     private mascotTimerId: number | undefined = undefined;
     private mascotSuccessTimeoutId: number | undefined = undefined;
     private nowTimerId: number | undefined = undefined;
+    private orderTimerId: number | undefined = undefined;
+    private lastOrderTime: number = Date.now();
 
     constructor() {
         const plants = Object.values(get(plantArray));
         this.unlockedKeys = plants.filter((p) => p.state === Stock.Available).map((p) => p.key);
 
-        setInterval(() => {
+        this.orderTimerId = setInterval(() => {
             this.addOrder();
-        }, 2000);
+        }, 2000) as unknown as number;
 
         if (!this.nowTimerId) {
             this.nowTimerId = (setInterval(() => {
-                nowStore.set(Date.now());
-                this.updateTimers();
-                this.checkGameSessionEnd();
+                if (!get(gamePaused)) {
+                    nowStore.set(Date.now());
+                    this.updateTimers();
+                    this.checkGameSessionEnd();
+                }
             }, NOW_TICK_MS) as unknown) as number;
         }
 
@@ -173,6 +221,9 @@ export class LeafGame {
 
     addOrder(): void {
         if (get(gamePhase) !== 'running') return;
+        if (get(gamePaused)) return;
+
+        this.lastOrderTime = Date.now();
 
         const slots = get(displaySlots);
         const freeIdx = slots.indexOf(null);
@@ -236,6 +287,7 @@ export class LeafGame {
 
 
     private updateTimers(): void {
+        if (get(gamePaused)) return;
 
         const now = get(nowStore);
         const toScheduleRemoval: number[] = [];
@@ -258,7 +310,7 @@ export class LeafGame {
                     continue;
                 }
 
-                // Enter hurry state near the end
+                // Enter hurry state near the end (using adjusted time)
                 const threshold = order.totalDurationMs * ORDER_HURRY_THRESHOLD_RATIO;
                 if (!order.hurry && msLeft <= threshold) {
                     next[id] = { ...order, hurry: true } as OrderEntity;
@@ -295,7 +347,6 @@ export class LeafGame {
             this.mascotSuccessTimeoutId = undefined;
         }
         mascotFrame.set('success');
-        // After a short celebration, return to default and idle continues
         this.mascotSuccessTimeoutId = (setTimeout(() => {
             mascotFrame.set('default1');
             this.mascotSuccessTimeoutId = undefined;
@@ -492,9 +543,8 @@ export class LeafGame {
                         thanksToasts.update((arr) => arr.filter((t) => t.id !== id));
                     }, CUSTOMER_REMAIN_IN_SCREEN);
                 }
-                // schedule removal and clear slot
+
                 setTimeout(() => {
-                    // remove from entities
                     orderEntities.update((inner) => {
                         const copy = { ...inner } as OrderEntities;
                         delete copy[orderId];
@@ -554,24 +604,84 @@ export class LeafGame {
         scoreStore.set(0);
         orderEntities.set({});
         displaySlots.set([null, null, null]);
+        shopOpen.set(false);
+        gamePaused.set(false);
+        pauseStartTime.set(null);
+        totalPauseTime.set(0);
         // Reset all plants to default state, except plant4 which stays available
-        const initial = get(plantArray);
-        const reset = Object.fromEntries(Object.values(initial).map((p) => {
-            const isPlant4 = p.key === 'plant4';
-            return [p.key, {
-                ...p,
-                state: isPlant4 ? Stock.Available : Stock.Default,
-                count: isPlant4 ? 10 : 0,
-                multiplier: 1
-            }];
-        }));
-        plantArray.set(reset as Record<string, plantInfo>);
+        // const initial = get(plantArray);
+        // const reset = Object.fromEntries(Object.values(initial).map((p) => {
+        //     const isPlant4 = p.key === 'plant4';
+        //     return [p.key, {
+        //         ...p,
+        //         state: isPlant4 ? Stock.Available : Stock.Default,
+        //         count: isPlant4 ? 10 : 0,
+        //         multiplier: 1
+        //     }];
+        // }));
+        // plantArray.set(reset as Record<string, plantInfo>);
 
-        this.unlockedKeys = ['plant4'];
+        // this.unlockedKeys = ['plant4'];
 
         gamePhase.set('running');
         const ends = Date.now() + GAME_DURATION_MS;
         gameEndsAt.set(ends);
+    }
+
+    stopTimers(): void {
+        if (this.orderTimerId) {
+            clearInterval(this.orderTimerId);
+            this.orderTimerId = undefined;
+        }
+        if (this.nowTimerId) {
+            clearInterval(this.nowTimerId);
+            this.nowTimerId = undefined;
+        }
+        if (this.mascotTimerId) {
+            clearInterval(this.mascotTimerId);
+            this.mascotTimerId = undefined;
+        }
+    }
+
+    startTimers(): void {
+        // Restart order timer
+        if (!this.orderTimerId) {
+            this.orderTimerId = setInterval(() => {
+                this.addOrder();
+            }, 2000) as unknown as number;
+        }
+
+        // Restart now timer
+        if (!this.nowTimerId) {
+            this.nowTimerId = setInterval(() => {
+                if (!get(gamePaused)) {
+                    nowStore.set(Date.now());
+                    this.updateTimers();
+                    this.checkGameSessionEnd();
+                }
+            }, NOW_TICK_MS) as unknown as number;
+        }
+
+        // Restart mascot timer
+        this.startMascotIdle();
+    }
+
+    extendOrderTimers(pauseDuration: number): void {
+        orderEntities.update((all) => {
+            const extended: OrderEntities = {};
+            for (const [idStr, order] of Object.entries(all)) {
+                const id = Number(idStr);
+                if (order && order.expiresAtMs) {
+                    extended[id] = {
+                        ...order,
+                        expiresAtMs: order.expiresAtMs + pauseDuration
+                    };
+                } else {
+                    extended[id] = order;
+                }
+            }
+            return extended;
+        });
     }
 
     private checkGameSessionEnd(): void {
@@ -583,6 +693,7 @@ export class LeafGame {
             gamePhase.set('ended');
         }
     }
+
 }
 
 export const game = new LeafGame();

@@ -2,6 +2,14 @@
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "../landing/svgs/RockFilter.svelte";
+    import {
+        gamePaused,
+        toggleGamePause,
+    } from "$lib/components/leaf/gameData/LeafGame";
+
+    function togglePlayPause() {
+        toggleGamePause();
+    }
 </script>
 
 <!-- Mobile -->
@@ -14,7 +22,30 @@
 >
     <RockFilter />
     <div class="flex justify-between items-center h-full">
-        <BlockPatternVertical className="h-[44px] mr-1.5" />
+        <BlockPatternVertical className="h-11 mr-1.5" />
+        <HoverEffectButton
+            className="cursor-pointer w-[24px] h-[24px] m-1"
+            onClick={togglePlayPause}
+        >
+            <img
+                data-demon="primary"
+                src={$gamePaused ? "/assets/play.svg" : "/assets/pause.svg"}
+                height="12"
+                width="12"
+                alt={$gamePaused ? "Play" : "Pause"}
+                style="height: 16px"
+            />
+        </HoverEffectButton>
+
+        <HoverEffectButton
+            className="h-6 w-15 m-3 px-1 bg-[#06060599] text-[#8A6F6A] text-[12px] inline-flex items-center leading-none"
+            onClick={() => {
+                /* do something */
+            }}
+        >
+            Rules
+        </HoverEffectButton>
+        <BlockPatternVertical className="h-11 rotate-180 ml-1.5" />
     </div>
 </div>
 

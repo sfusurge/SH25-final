@@ -28,6 +28,7 @@
 		scoreStore,
 		shopOpen,
 		closeShop,
+		gamePaused,
 	} from "$lib/components/leaf/gameData/LeafGame";
 	import { derived } from "svelte/store";
 	import { Stock } from "$lib/components/leaf/gameData/LeafGame";
@@ -85,6 +86,7 @@
 	}) => {
 		const total = ent.totalDurationMs ?? ORDER_DEFAULT_DURATION_MS;
 		if (!ent.expiresAtMs || !total) return undefined;
+
 		const msLeft = Math.max(0, ent.expiresAtMs - $nowStore);
 		return msLeft / total;
 	};
@@ -233,18 +235,20 @@
 		/>
 	{/if}
 
-	<CenterStrip
-		onOpenModal={$gamePhase === "running" ? onOpenModal : undefined}
-		timerText={fmt(sessionTimeLeftMs)}
-		onStartGame={() => {
-			closeShop();
-			game.startGame();
-		}}
-		onRestartGame={() => {
-			closeShop();
-			game.startGame();
-		}}
-	/>
+	{#if $isMobile}
+		<CenterStrip
+			onOpenModal={$gamePhase === "running" ? onOpenModal : undefined}
+			timerText={fmt(sessionTimeLeftMs)}
+			onStartGame={() => {
+				closeShop();
+				game.startGame();
+			}}
+			onRestartGame={() => {
+				closeShop();
+				game.startGame();
+			}}
+		/>
+	{/if}
 
 	{#if $shopOpen}
 		<ShopModal
@@ -253,6 +257,10 @@
 			on:close={closeShop}
 			on:restock={onRestockFromShop}
 		/>
+	{/if}
+
+	{#if $gamePaused}
+		<div class="pause-overlay"></div>
 	{/if}
 
 	{#if $gamePhase === "pre"}
@@ -453,5 +461,13 @@
 			top: 43%;
 			z-index: 100;
 		}
+	}
+
+	.pause-overlay {
+		position: absolute;
+		inset: 0;
+		background: rgba(128, 128, 128, 0.5);
+		z-index: 200;
+		pointer-events: all;
 	}
 </style>

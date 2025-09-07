@@ -1,24 +1,26 @@
 <script lang="ts">
-	import Background from "./Background.svelte";
+	import Pause from "./Pause.svelte";
+	import DesktopShop from "$lib/components/leaf/DesktopShop.svelte";
+	import Frame from "$lib/components/leaf/Frame.svelte";
+	import DesktopTimer from "./DesktopTimer.svelte";
+	import DesktopScore from "./DesktopScore.svelte";
 </script>
 
-<!-- LeafGame focuses purely on game content - all sizing handled by Frame container -->
-<div id="leafGame">
-	<Background />
+<div class="flex-1 sm:flex flex-col hidden h-full" style="max-height: 100dvh">
+	<div class="flex justify-between items-start pt-8 px-8">
+		<Pause />
+		<DesktopShop />
+	</div>
+
+	<div
+		class="m-8 flex-1 flex items-center justify-center"
+		style="min-height: 0"
+	>
+		<Frame />
+	</div>
+
+	<div class="flex justify-center items-start pb-4 gap-8">
+		<DesktopTimer />
+		<DesktopScore />
+	</div>
 </div>
-
-<style>
-	#leafGame {
-		/* Fill the container provided by Frame */
-		width: 100%;
-		height: 100%;
-
-		/* Game content styling */
-		overflow: hidden;
-		background: #1b3534;
-		border: 1px solid;
-
-		/* Ensure proper stacking context */
-		position: relative;
-	}
-</style>
