@@ -28,31 +28,6 @@
 	--color-background2: #151311;
 }
 
-[data-mode='demon'] {
-
-	--color-header: #c11326;
-	--color-special-text: #c11326;
-	--color-primary: #c11326;
-	--color-border: #c11326;
-	--color-border2: #c11326;
-
-	[data-demon='border']{
-		filter: hue-rotate(-20deg) saturate(18) brightness(.8);
-	}
-
-	[data-demon='primary']{
-		filter: hue-rotate(-15deg) brightness(0.8) saturate(10) ;
-	}
-
-	[data-demon='background']{
-		filter: saturate(25) brightness(0.7);
-	}
-
-	[data-demon='title']{
-		filter: brightness(0.35) saturate(100) ;
-	}
-}
-
 body {
 	background: var(--bg);
 	font-family: Catriel, sans-serif;

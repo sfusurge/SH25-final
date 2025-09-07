@@ -13,7 +13,7 @@
     let { onClose = () => {}, mobile = false, show = false }: Props = $props();
 </script>
 
-<Dialog title="Music Type" {onClose} {mobile} {show}>
+<Dialog title="Music Type" {onClose} {mobile} {show} offsetDirection={"left"}>
     <div class="flex gap-2">
         {#each ["calm", "special", "epic"] as MusicLib[] as item}
             <HoverEffectButton

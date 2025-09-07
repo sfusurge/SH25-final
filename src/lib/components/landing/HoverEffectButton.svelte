@@ -7,15 +7,24 @@
         className?: string;
         style?: string;
         active?: boolean;
+        square?: boolean;
     }
 
-    let { onClick, className = "", style = "", active = false, children }: Props = $props();
+    let {
+        onClick,
+        className = "",
+        style = "",
+        active = false,
+        children,
+        square = false,
+    }: Props = $props();
 </script>
 
 <button
     {style}
     class={`bg-[#231f1f] alt flex justify-center items-center cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
     onclick={onClick}
+    class:square
 >
     <div
         class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg]"
@@ -36,3 +45,11 @@
         class="absolute -bottom-0.5 -right-0.5 w-2 h-2 border-r-1 border-b-1 border-main opacity-0 group-hover:opacity-100 transition-opacity duration-300"
     ></span>
 </button>
+
+<style>
+    .square {
+        min-width: 24px;
+        width: 24px;
+        height: 24px;
+    }
+</style>

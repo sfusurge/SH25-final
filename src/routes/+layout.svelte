@@ -1,7 +1,19 @@
 <script module>
 	let width = $state(0);
+	let medium = $derived(600 <= width && width < 800);
+	let mobile = $derived(width < 600);
+	let desktop = $derived(width >= 800);
 	export const global = {
 		get mobile() {
+			return mobile;
+		},
+		get medium() {
+			return medium;
+		},
+		get desktop() {
+			return desktop;
+		},
+		get width() {
 			return width;
 		},
 	};
@@ -40,7 +52,7 @@
 		></div>
 	</div>
 
-	<div class="relative z-30 flex flex-col lg:flex-row h-full">
+	<div class="relative z-30 flex flex-row h-full">
 		<Sidebar />
 		{@render children()}
 	</div>
