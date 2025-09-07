@@ -7,36 +7,37 @@
     let { mobile = false }: Props = $props();
 </script>
 
-<div
-    class="inset-0 relative"
-    style="
-        height: 100%;
-        width: auto;
-        max-width: 100%;
-        object-fit: contain;
-        display: flex;
-        aspect-ratio: calc(872/511);
-    "
->
-    <div
-        style="
-            width: calc(100% - (2 * 2.87%));
-            max-width: 100%;
-            object-fit: contain;
-            margin: 2.87%;
-            position: relative;
-            z-index: 2;
-            overflow: hidden;
-            "
-    >
-        <Background />
-    </div>
+<div class="relative w-full h-full grid place-items-center">
+    <!-- The sizing box: fits by height, clamps by width, keeps aspect -->
+    <div class="relative h-full w-auto max-w-full aspect-[872/511]">
+        <!-- Inner opening (use per-side insets if needed) -->
+        <div
+            class="absolute z-10 overflow-hidden"
+            style="
+          top: var(--inset-top, 2.87%);
+          right: var(--inset-right, 2.87%);
+          bottom: var(--inset-bottom, 2.87%);
+          left: var(--inset-left, 2.87%);
+        "
+        >
+            <Background />
+        </div>
 
-    <img
-        src="/assets/frame.svg"
-        alt="frame"
-        class="object-contain absolute inset-0 pointer-events-none z-10 w-full h-full"
-        loading="eager"
-        data-demon="border"
-    />
+        <!-- Decorative frame -->
+        <img
+            src="/assets/frame.svg"
+            alt=""
+            class="absolute inset-0 z-20 w-full h-full"
+            loading="eager"
+        />
+    </div>
 </div>
+
+<style>
+    .frame-wrap {
+        --inset-top: 2.9%;
+        --inset-right: 2.7%;
+        --inset-bottom: 3.4%; /* a touch more if the bottom leaks */
+        --inset-left: 2.8%;
+    }
+</style>

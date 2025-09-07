@@ -318,20 +318,18 @@
 	}
 
 	.background {
-		position: relative;
+		position: absolute; /* fill the parent area */
+		inset: 0;
 		container-type: size;
 		overflow: hidden;
-		width: 100%;
-		height: 100%;
 	}
 
 	.background-image {
+		position: absolute;
+		inset: 0;
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
-		position: absolute;
-		top: 0;
-		left: 0;
+		object-fit: cover; /* scales nicely in both directions */
 		z-index: 0;
 	}
 
@@ -418,23 +416,6 @@
 
 		100% {
 			background-position: calc(-100% + 99vw) 0;
-		}
-	}
-
-	@container (max-width: 640px) {
-		.mascot {
-			width: 30%;
-			left: 33%;
-			top: 43%;
-			z-index: 100;
-		}
-	}
-	@container (max-width: 400px) {
-		.mascot {
-			width: 43%;
-			left: 27%;
-			top: 43%;
-			z-index: 100;
 		}
 	}
 
