@@ -27,6 +27,7 @@
         height: 0.5rem;
         display: flex;
         width: 100%;
+        min-width: 150px;
     }
 
     .slider {

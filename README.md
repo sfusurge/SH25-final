@@ -36,3 +36,8 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+
+```
+ffmpeg -i ".\Scummious Background.mov" -vf "scale=-2:1080,fps=12" -an -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -g 24 -keyint_min 24 -sc_threshold 0 -movflags +faststart fontain_dark-12fps.mp4
+```

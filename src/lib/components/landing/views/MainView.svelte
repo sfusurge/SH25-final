@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Frame from "$lib/components/landing/Frame.svelte";
     import CurrentBackgroundMobile from "$lib/components/landing/background/CurrentBackgroundMobile.svelte";
     import MusicPlayer from "$lib/components/landing/Audio/MusicPlayer.svelte";
@@ -26,7 +26,6 @@
     }
 </script>
 
-
 <!-- Desktop layout -->
 <div class="flex flex-1 flex-col h-full" style="max-height: 100dvh">
     <div class="flex justify-between items-start pt-8 px-8">
@@ -34,14 +33,11 @@
         <SwapBackground />
     </div>
 
-    <div class="m-8 flex-1 items-center justify-center" style="min-height: 0">
-        <Frame />
+    <div class="flex m-8 flex-1 items-center justify-center" style="min-height: 0">
+        <Frame src={currentBackground.val} />
     </div>
 
     <div class="flex justify-center pb-4">
         <MusicPlayer />
     </div>
 </div>
-
-
-

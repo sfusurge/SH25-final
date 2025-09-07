@@ -15,7 +15,7 @@
     const options = Object.keys(ambianceVolumes) as (keyof typeof ambianceVolumes)[];
 </script>
 
-<Dialog title="Sound Settings" {onClose} {mobile} {show}>
+<Dialog title="Sound Settings" {onClose} {mobile} {show} offsetDirection={"right"}>
     <div class="container">
         <div>
             <p class="header">Music Volume</p>
@@ -23,7 +23,7 @@
                 <img src="/assets/mute.svg" alt="" data-demon="primary" />
                 <Slider
                     bind:value={
-                        () => masterVolume.volume,
+                        () => masterVolume.volume * 100,
                         (newVal) => {
                             masterVolume.volume = newVal / 100;
                         }
@@ -40,7 +40,7 @@
                     <span class="ambiance-label">{name}</span>
                     <Slider
                         bind:value={
-                            () => ambianceVolumes[name],
+                            () => ambianceVolumes[name] * 100,
                             (newVal) => {
                                 ambianceVolumes[name] = newVal / 100;
                             }

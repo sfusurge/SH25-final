@@ -58,7 +58,8 @@
     bind:currentTime
     volume={masterVolume.volume}
     onended={() => {
-        // TODO play next
+        PlayerState.trackIndex++;
+        play();
     }}
 ></audio>
 
@@ -80,13 +81,12 @@
                 <img src="/assets/music.svg" alt="Select Music Type" />
             </HoverEffectButton>
 
-            {#if showMusicSelector}
-                <MusicTypeSelectorDialog
-                    onClose={() => {
-                        showMusicSelector = false;
-                    }}
-                />
-            {/if}
+            <MusicTypeSelectorDialog
+                show={showMusicSelector}
+                onClose={() => {
+                    showMusicSelector = false;
+                }}
+            />
         </div>
 
         <div class="ver titleGroup">
@@ -102,7 +102,7 @@
     </div>
 
     <!-- center group -->
-    <div class="hor" style="gap:0.5rem; flex:1; justify-content: center;">
+    <div class="hor" style="gap:0.5rem; flex:2; justify-content: center;">
         <Diamond width="8" height="14" />
         <!-- prev -->
         <HoverEffectButton
@@ -168,19 +168,23 @@
             <img class="icon" src="/assets/sound.svg" alt="Ambiance Sound Menu" />
         </HoverEffectButton>
 
-        {#if showAmbianceMenu}
-            <AmbianceDialog
-                onClose={() => {
-                    showAmbianceMenu = false;
-                }}
-            ></AmbianceDialog>
-        {/if}
+        <AmbianceDialog
+            show={showAmbianceMenu}
+            onClose={() => {
+                showAmbianceMenu = false;
+            }}
+        ></AmbianceDialog>
     </div>
 
     <BlockPatternVertical style={"align-self: stretch;"} />
 </div>
 
 <style>
+    span {
+        font-family: "Fira Mono", monospace;
+        font-size: 12px;
+    }
+
     .root {
         height: 3rem;
         width: 100%;
