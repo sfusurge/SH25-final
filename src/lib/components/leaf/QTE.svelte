@@ -3,7 +3,6 @@
 		onQTE: (val: number) => void;
 		onDone?: (successes: number) => void;
 		attempts?: number;
-		sizeCqw?: number;
 		config: {
 			duration: number;
 			count: number;
@@ -16,7 +15,7 @@
 </script>
 
 <script lang="ts">
-	let { onQTE, onDone, attempts = 3, sizeCqw, config }: QTEProps = $props();
+	let { onQTE, onDone, attempts = 3, config }: QTEProps = $props();
 
 	// -------- geometry constants (single source of truth) ----------
 	const RADIUS_INSET_FRAC = 0.01875; // 1.5px on an 80px button
@@ -196,10 +195,7 @@
 	}
 </script>
 
-<div
-	class="qteContainer"
-	style={sizeCqw != null ? `--container-size:${sizeCqw}cqw;` : ""}
->
+<div class="qteContainer">
 	<button
 		bind:this={btnRef}
 		class="qteBtn"
@@ -242,7 +238,7 @@
 
 	.qteContainer {
 		position: relative;
-		--container-size: 5.5cqw;
+		--container-size: 7cqw;
 		--btn-size: calc(var(--container-size) * 0.8888889);
 		width: var(--container-size);
 		height: var(--container-size);

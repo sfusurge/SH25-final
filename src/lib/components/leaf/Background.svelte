@@ -29,6 +29,8 @@
 		shopOpen,
 		closeShop,
 		gamePaused,
+		showInstructionsDuringGame,
+		resumeGame,
 	} from "$lib/components/leaf/gameData/LeafGame";
 	import { derived } from "svelte/store";
 	import { Stock } from "$lib/components/leaf/gameData/LeafGame";
@@ -105,18 +107,6 @@
 		return `${mm}:${ss}`;
 	}
 
-	$: orderWidthFor = (i: number) => {
-		const slot = customerSlots[i];
-		if ($isNarrow)
-			return (
-				slot.mobileNarrowOrderWidth ??
-				slot.mobileOrderWidth ??
-				slot.orderWidth
-			);
-		if ($isMobile) return slot.mobileOrderWidth ?? slot.orderWidth;
-		return slot.orderWidth;
-	};
-
 	$: orderTransformFor = (i: number, baseTranslate: string) => {
 		const slot = customerSlots[i];
 		const t = $isNarrow
@@ -189,7 +179,6 @@
 					left={leftFor(i)}
 					top={topFor(i)}
 					imageWidth={widthFor(i)}
-					orderWidth={orderWidthFor(i)}
 					orderTransform={orderTransformFor(i, "")}
 					mirror={i === 0}
 					thanksAmount={$thanksToasts.find((t) => t.slotIdx === i)
@@ -254,11 +243,19 @@
 		<div class="pause-overlay"></div>
 	{/if}
 
-	{#if $gamePhase === "pre"}
+	{#if $gamePhase === "pre" || $showInstructionsDuringGame}
 		<InstructionsModal
+			isRunning={$gamePhase === "running"}
 			onStart={() => {
-				closeShop();
-				game.startGame();
+				if ($gamePhase === "running") {
+					// Continue game
+					showInstructionsDuringGame.set(false);
+					resumeGame();
+				} else {
+					// Start new game
+					closeShop();
+					game.startGame();
+				}
 			}}
 		/>
 	{/if}

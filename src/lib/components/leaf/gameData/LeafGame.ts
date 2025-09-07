@@ -69,6 +69,15 @@ export function toggleGamePause() {
     }
 }
 
+// Instructions modal state and functions
+export const showInstructionsDuringGame = writable<boolean>(false);
+
+export function openInstructions() {
+    showInstructionsDuringGame.set(true);
+    pauseGame();
+}
+
+
 export enum Stock {
     Default = 'default',
     Available = 'available',
@@ -106,7 +115,6 @@ export const tempSelectedPlant = writable<string | null>(null); // pending plant
 export type ActiveQTESession = {
     id: string; // unique identifier for this session
     plantKey: string;
-    sizeCqw: number;
     leftPct: string; // percent string e.g. '63%'
     topPct: string;  // percent string e.g. '79%'
     transformCss?: string; // carried-through transform to match plant centering
@@ -131,12 +139,12 @@ export type plantInfo = {
 
 
 const INITIAL_STATES: Record<string, Stock> = {
-    bucket1: Stock.Available,
-    bucket2: Stock.Available,
-    bucket3: Stock.Available,
-    bucket4: Stock.Available,
-    bucket5: Stock.Available,
-    bucket6: Stock.Available,
+    bucket1: Stock.OutOfStock,
+    bucket2: Stock.OutOfStock,
+    bucket3: Stock.OutOfStock,
+    bucket4: Stock.OutOfStock,
+    bucket5: Stock.OutOfStock,
+    bucket6: Stock.OutOfStock,
 };
 
 export const plantArray = writable<Record<string, plantInfo>>(
@@ -423,7 +431,6 @@ export class LeafGame {
         return {
             id: `qte-${plantKey}-${Date.now()}`, // unique identifier
             plantKey,
-            sizeCqw: widthNum,
             leftPct,
             topPct,
             transformCss,
@@ -437,8 +444,6 @@ export class LeafGame {
         const sessions = get(activeQTESessions);
 
         if (sessions.some(s => s.plantKey === plantKey)) return false;
-
-        if (sessions.length >= 2) return false;
 
         const newSession = this.deriveQTESessionFor(plantKey);
         if (newSession) {
@@ -621,7 +626,7 @@ export class LeafGame {
         // }));
         // plantArray.set(reset as Record<string, plantInfo>);
 
-        // this.unlockedKeys = ['plant4'];
+        this.unlockedKeys = ['plant4'];
 
         gamePhase.set('running');
         const ends = Date.now() + GAME_DURATION_MS;

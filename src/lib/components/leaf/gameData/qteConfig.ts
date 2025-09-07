@@ -15,11 +15,11 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
     plant1: {
         duration: 2.5,
         count: 3,
-        major: 0.20,
-        minor: 0.35,
+        major: 0.15,
+        minor: 0.20,
         majorMod: 1.0,
         minorMod: 1.0,
-        offsetYcqh: -14,
+        offsetYcqh: -8,
         offsetYcqh640: -10,
         offsetYcqh400: -4
     },
@@ -27,11 +27,11 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
     plant2: {
         duration: 3.0,
         count: 3,
-        major: 0.18,
-        minor: 0.30,
+        major: 0.15,
+        minor: 0.25,
         majorMod: 1.0,
         minorMod: 1.0,
-        offsetYcqh: 8,
+        offsetYcqh: 18,
         offsetYcqh640: 14,
         offsetYcqh400: 18
     },
@@ -39,11 +39,11 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
     plant3: {
         duration: 2.2,
         count: 3,
-        major: 0.22,
-        minor: 0.32,
+        major: 0.15,
+        minor: 0.20,
         majorMod: 1.0,
         minorMod: 1.0,
-        offsetYcqh: -25,
+        offsetYcqh: -20,
         offsetYcqh640: -15,
         offsetYcqh400: -12
     },
@@ -51,8 +51,8 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
     plant4: {
         duration: 2.0,
         count: 3,
-        major: 0.25,
-        minor: 0.35,
+        major: 0.15,
+        minor: 0.20,
         majorMod: 1.0,
         minorMod: 1.0,
         offsetYcqh: -15,
@@ -63,11 +63,11 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
     plant5: {
         duration: 1.5,
         count: 3,
-        major: 0.18,
-        minor: 0.28,
+        major: 0.12,
+        minor: 0.18,
         majorMod: 1.0,
         minorMod: 1.0,
-        offsetYcqh: -15,
+        offsetYcqh: -12,
         offsetYcqh640: -12,
         offsetYcqh400: -8
     },
@@ -75,11 +75,11 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
     plant6: {
         duration: 2,
         count: 3,
-        major: 0.20,
-        minor: 0.30,
+        major: 0.15,
+        minor: 0.20,
         majorMod: 1.0,
         minorMod: 1.0,
-        offsetYcqh: -20,
+        offsetYcqh: -18,
         offsetYcqh640: -12,
         offsetYcqh400: -8
     },
