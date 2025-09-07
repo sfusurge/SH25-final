@@ -1,36 +1,20 @@
 <script lang="ts">
     import LeafGame from "./LeafGame.svelte";
+    interface Props {
+        mobile?: boolean;
+    }
+    let { mobile = false }: Props = $props();
 </script>
 
-<div
-    class="inset-0 relative"
-    style="
-			height: 100%;
-			width: auto;
-			max-width: 100%;
-			object-fit: contain;
-			display: flex;
-			aspect-ratio: calc(872/511);
-		"
->
-    <div
-        style="
-			position: absolute;
-			left: 4%;
-			top: 4%;
-			right: 4%;
-			bottom: 4%;
-			z-index: 3;
-			overflow: hidden;
-		"
-    >
+<div class="relative w-full h-full">
+    <div class="absolute inset-[2.87%] z-20 overflow-hidden">
         <LeafGame />
     </div>
 
     <img
         src="/assets/frame.svg"
         alt="frame"
-        class="object-contain absolute inset-0 pointer-events-none z-10 w-full h-full"
+        class="absolute inset-0 w-full h-full object-contain pointer-events-none z-30"
         loading="eager"
         data-demon="border"
     />
