@@ -132,7 +132,7 @@
 		z-index: 30; /* above plants to prioritize customer clicks */
 		background: transparent;
 		cursor: pointer;
-		aspect-ratio: 1; /* Customer images are square, so height will match width */
+		aspect-ratio: 1;
 	}
 	.customer-img {
 		display: block;

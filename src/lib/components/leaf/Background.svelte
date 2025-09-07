@@ -168,16 +168,7 @@
 
 	<!-- Corner overlays -->
 	{#if !$isMobile}
-		<img
-			src="/assets/experiences/leaf/left.png"
-			alt=""
-			class="edge edge-left"
-		/>
-		<img
-			src="/assets/experiences/leaf/right.png"
-			alt=""
-			class="edge edge-right"
-		/>
+		<img src="/assets/experiences/leaf/tree.png" alt="" class="edge" />
 	{/if}
 
 	{#each bucketData as bucket (bucket.id)}
@@ -330,11 +321,10 @@
 	}
 
 	.background {
-		height: 100%;
-		width: 100%;
 		position: relative;
 		container-type: size;
 		overflow: hidden;
+		aspect-ratio: 872/511;
 	}
 
 	.background-image {
@@ -369,47 +359,42 @@
 			radial-gradient(
 				ellipse at top left,
 				rgba(0, 0, 0, 0.5),
-				rgba(0, 0, 0, 0) 50%
+				rgba(0, 0, 0, 0) 40%
 			),
 			radial-gradient(
 				ellipse at top right,
 				rgba(0, 0, 0, 0.5),
-				rgba(0, 0, 0, 0) 50%
+				rgba(0, 0, 0, 0) 40%
 			),
 			radial-gradient(
 				ellipse at bottom left,
 				rgba(0, 0, 0, 0.15),
-				rgba(0, 0, 0, 0) 60%
+				rgba(0, 0, 0, 0) 40%
 			),
 			radial-gradient(
 				ellipse at bottom right,
 				rgba(0, 0, 0, 0.15),
-				rgba(0, 0, 0, 0) 60%
+				rgba(0, 0, 0, 0) 40%
 			);
 	}
 
 	.edge {
 		position: absolute;
 		bottom: 0;
-	}
-
-	.edge-left {
+		width: 30%;
+		height: 100%;
 		left: 0;
-		width: 28%;
-		transform: translate(-15%, 0);
-	}
-	.edge-right {
-		right: 0;
-		width: 20%;
+		transform: translate(-48%, 0);
 	}
 
 	.mascot {
 		position: absolute;
-		left: 44%;
-		top: 40%;
-		width: 12%;
+		left: 50%;
+		top: 60%;
+		width: 18%;
 		height: auto;
 		z-index: 1;
+		transform: translate(-50%, -60%);
 	}
 
 	/* removed unused toast styles; thanks now renders inside Customer's Order bubble */

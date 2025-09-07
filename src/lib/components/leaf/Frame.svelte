@@ -7,21 +7,36 @@
     let { mobile = false }: Props = $props();
 </script>
 
-<div class="relative w-full h-full">
+<div
+    class="inset-0 relative"
+    style="
+        height: 100%;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
+        display: flex;
+        aspect-ratio: calc(872/511);
+    "
+>
     <div
-        class="absolute inset-0 w-full h-full scale-x-[1.0] scale-y-[1.0] origin-center"
+        style="
+            width: calc(100% - (2 * 2.87%));
+            max-width: 100%;
+            object-fit: contain;
+            margin: 2.87%;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            "
     >
-        <div
-            class="absolute top-[4.5%] left-[11%] right-[11%] bottom-[4.9%] z-20 overflow-hidden"
-        >
-            <Background />
-        </div>
-
-        <img
-            src="/assets/frame.svg"
-            alt="frame"
-            class="absolute inset-0 w-full h-full object-contain pointer-events-none z-30"
-            loading="eager"
-        />
+        <Background />
     </div>
+
+    <img
+        src="/assets/frame.svg"
+        alt="frame"
+        class="object-contain absolute inset-0 pointer-events-none z-10 w-full h-full"
+        loading="eager"
+        data-demon="border"
+    />
 </div>
