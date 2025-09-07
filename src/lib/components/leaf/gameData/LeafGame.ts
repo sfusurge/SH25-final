@@ -698,7 +698,6 @@ export class LeafGame {
             gamePhase.set('ended');
         }
     }
-
 }
 
 export const game = new LeafGame();

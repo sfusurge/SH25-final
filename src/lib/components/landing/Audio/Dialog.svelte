@@ -3,6 +3,7 @@
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import { fade } from "svelte/transition";
     import HorizontalDivider from "../HorizontalDivider.svelte";
+    import LeafGame from "$lib/components/leaf/LeafGame.svelte";
 
     interface Props {
         title: string;
@@ -10,20 +11,48 @@
         mobile?: boolean;
         show?: boolean;
         children?: import("svelte").Snippet;
+        offsetDirection?: "center" | "left" | "right";
     }
 
-    let { title, onClose, show = false, children, mobile }: Props = $props();
+    let {
+        title,
+        onClose,
+        show = false,
+        children,
+        mobile,
+        offsetDirection = "center",
+    }: Props = $props();
 
     function handleBackdropClick(e: PointerEvent | MouseEvent) {
         onClose?.();
     }
+
+    function clickedOutside(node: Node) {
+        const handleClick = (event: Event) => {
+            if (node && !node.contains(event.target as Node) && !event.defaultPrevented) {
+                onClose?.();
+            }
+        };
+        document.addEventListener("pointerdown", handleClick);
+
+        return {
+            destroy() {
+                document.removeEventListener("pointerdown", handleClick);
+            },
+        };
+    }
 </script>
 
 {#if show}
-    <div class="dialog bg-background" class:mobile transition:fade={{ duration: 200 }}>
-        {#if mobile}
-            <div class="dialogBackdrop" onclick={handleBackdropClick}></div>
-        {/if}
+    <div
+        class:center={offsetDirection === "center"}
+        class:left={offsetDirection === "left"}
+        class:right={offsetDirection === "right"}
+        class="dialog bg-background"
+        class:mobile
+        transition:fade={{ duration: 200 }}
+        use:clickedOutside
+    >
         <RockFilter />
 
         <div data-demon="border" class="decorBar"></div>
@@ -31,22 +60,24 @@
 
         <div class="titleBar">
             <p class="title">{title}</p>
-            <HoverEffectButton onClick={onClose} style="width: 24px; height: 24px;">
-                X
-            </HoverEffectButton>
+            <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
         </div>
         <HorizontalDivider />
         {@render children?.()}
     </div>
+    {#if mobile}
+        <div
+            transition:fade={{ duration: 200 }}
+            class="dialogBackdrop"
+            onclick={handleBackdropClick}
+        ></div>
+    {/if}
 {/if}
 
 <style>
     .dialog {
         position: absolute;
-        left: 50%;
         top: 0;
-        transform: translate(-50%, calc(-100% - 1rem));
-
         border: 1px solid var(--color-border);
 
         padding: 2rem 1.5rem;
@@ -63,6 +94,21 @@
 
         background-color: var(--color-background);
         z-index: 1002;
+    }
+
+    :not(.mobile).left {
+        left: 0;
+        transform: translate(0, calc(-100% - 1rem));
+    }
+
+    :not(.mobile).right {
+        right: 0;
+        transform: translate(0, calc(-100% - 1rem));
+    }
+
+    :not(.mobile).center {
+        left: 50%;
+        transform: translate(-50%, calc(-100% - 1rem));
     }
 
     .dialog.mobile {

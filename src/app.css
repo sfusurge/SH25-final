@@ -5,19 +5,19 @@
 
 :root {
 	--header: #F1ECEB;
-    --special: #A7928E;
-    --primary: #d0a79d;
-    --border: #91837c;
-    --border2: #5d4e4b;
-    --bg: #231f1f;
-    --bg2: #151311;
+	--special: #A7928E;
+	--primary: #d0a79d;
+	--border: #91837c;
+	--border2: #5d4e4b;
+	--bg: #231f1f;
+	--bg2: #151311;
 
 	--red: #ea6962;
-    --orange: #e78a4e;
-    --yellow: #d8a657;
-    --green: #a9b665;
-    --aqua: #7daea3;
-    --purple: #d3869b;
+	--orange: #e78a4e;
+	--yellow: #d8a657;
+	--green: #a9b665;
+	--aqua: #7daea3;
+	--purple: #d3869b;
 	--color-header: #F1ECEB;
 	--color-special-text: #A7928E;
 	--color-primary: #d0a79d;
@@ -28,31 +28,6 @@
 	--color-background2: #151311;
 }
 
-[data-mode='demon'] {
-
-	--color-header: #c11326;
-	--color-special-text: #c11326;
-	--color-primary: #c11326;
-	--color-border: #c11326;
-	--color-border2: #c11326;
-
-	[data-demon='border']{
-		filter: hue-rotate(-20deg) saturate(18) brightness(.8);
-	}
-
-	[data-demon='primary']{
-		filter: hue-rotate(-15deg) brightness(0.8) saturate(10) ;
-	}
-
-	[data-demon='background']{
-		filter: saturate(25) brightness(0.7);
-	}
-
-	[data-demon='title']{
-		filter: brightness(0.35) saturate(100) ;
-	}
-}
-
 body {
 	background: var(--bg);
 	font-family: Catriel, sans-serif;
@@ -61,17 +36,18 @@ body {
 }
 
 img {
-    pointer-events: none;
-    opacity: 1;
-    transition: opacity 300ms ease-out;
-    user-select: none;
+	pointer-events: none;
+	opacity: 1;
+	transition: opacity 300ms ease-out;
+	user-select: none;
 }
 
 button {
 	cursor: pointer;
 }
 
-p, span {
+p,
+span {
 	transition: color 300ms ease-out;
 }
 
@@ -85,4 +61,39 @@ p, span {
 	position: absolute;
 	width: 1px;
 	white-space: nowrap;
+}
+
+
+.hor {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.ver {
+	display: flex;
+	flex-direction: column;
+}
+
+body::-webkit-scrollbar {
+	width: 1px;
+}
+
+body::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+	background-color: #5c4b48;
+	border-radius: 1px;
+	height: 5px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+	background-color: #6b5855;
+}
+
+body {
+	scrollbar-width: thin;
+	scrollbar-color: #5c4b48 transparent;
 }

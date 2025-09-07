@@ -93,7 +93,6 @@
 		text-align: left;
 		overflow: hidden;
 	}
-
 	.content {
 		padding: 5cqh 3cqw;
 		box-sizing: border-box;
@@ -157,6 +156,10 @@
 		font-weight: 400;
 		line-height: normal;
 		text-align: left;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/fix_optimize
 		overflow: hidden;
 	}
 	.start-btn {

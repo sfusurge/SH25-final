@@ -5,30 +5,25 @@
 
     interface Props {
         onClose?: () => void;
-        mobileMode?: boolean;
+        mobile?: boolean;
         mobileTriggerButton?: any;
-        mobileShow?: boolean;
+        show?: boolean;
     }
 
-    let {
-        onClose = () => {},
-        mobileMode = false,
-        mobileTriggerButton = null,
-        mobileShow = false,
-    }: Props = $props();
+    let { onClose = () => {}, mobile = false, show = false }: Props = $props();
 
     const options = Object.keys(ambianceVolumes) as (keyof typeof ambianceVolumes)[];
 </script>
 
-<Dialog title="Sound Settings" {onClose} {mobileMode} {mobileTriggerButton} {mobileShow}>
+<Dialog title="Sound Settings" {onClose} {mobile} {show} offsetDirection={"right"}>
     <div class="container">
         <div>
             <p class="header">Music Volume</p>
             <div class="row">
                 <img src="/assets/mute.svg" alt="" data-demon="primary" />
                 <Slider
-                    bind:val={
-                        () => masterVolume.volume,
+                    bind:value={
+                        () => masterVolume.volume * 100,
                         (newVal) => {
                             masterVolume.volume = newVal / 100;
                         }
@@ -44,8 +39,8 @@
                 <div class="ambiance-row">
                     <span class="ambiance-label">{name}</span>
                     <Slider
-                        bind:val={
-                            () => ambianceVolumes[name],
+                        bind:value={
+                            () => ambianceVolumes[name] * 100,
                             (newVal) => {
                                 ambianceVolumes[name] = newVal / 100;
                             }
