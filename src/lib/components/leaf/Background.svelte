@@ -428,14 +428,6 @@
 		pointer-events: all; /* block interactions behind */
 	}
 
-	/* .tempqte {
-		position: absolute;
-		left: 50%;
-		top: 50%;
-		transform: translate(-50%, -50%);
-		z-index: 150;
-	} */
-
 	@keyframes -global-scroll {
 		0% {
 			background-position: 0 0;
