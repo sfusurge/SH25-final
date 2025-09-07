@@ -321,7 +321,8 @@
 		position: relative;
 		container-type: size;
 		overflow: hidden;
-		aspect-ratio: 872/511;
+		width: 100%;
+		height: 100%;
 	}
 
 	.background-image {
