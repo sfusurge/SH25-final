@@ -60,15 +60,16 @@
 
     <div class="flex flex-col justify-center pt-5 pr-3 pl-6 pb-10 gap-5">
         <h1 class="text-header italic self-stretch leading-normal font-bold">WebToon Series</h1>
-        <WebtoonTile
-            imageSrc="/assets/ig.svg"
-            imageAlt="[Ch 1] Together"
-            imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
-            className="mt-4"
-            onClick={() => goto("/webtoon")}
-            header="[Ch 1] Together"
-            text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
-        />
+<!--        <WebtoonTile-->
+<!--            imageSrc="/assets/ig.svg"-->
+<!--            imageAlt="[Ch 1] Together"-->
+<!--            imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"-->
+<!--            className="mt-4"-->
+<!--            onClick={() => goto("/webtoon")}-->
+<!--            header="[Ch 1] Together"-->
+<!--            text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."-->
+<!--        />-->
+        <LockedTile release="Releases [09/09/2025]" />
         <LockedTile release="Releases [09/15/2025]" />
         <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [09/29/2025]" />

@@ -53,7 +53,7 @@
                 {
                     name: "Kardium",
                     tier: "Bronze",
-                    picture: "/assets/sponsors/Monetary/Logo/Kardium/Bronze Kardium.png",
+                    picture: "/assets/sponsors/Monetary/Logo/Kardium/Kardium.svg",
                     link: "https://kardium.com/"
                 },
                 {
@@ -197,7 +197,6 @@
             <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
         </div>
 
-        <!-- Bronze -->
         <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden">
             <BlockPatternVertical className="h-full flex-shrink-0" />
             <div class="flex flex-col flex-1 items-center p-4 overflow-y-auto hidden-scrollbar">
@@ -228,7 +227,6 @@
         </div>
     </div>
 
-    <!-- In-Kind -->
     <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414] backdrop-blur-[5px] overflow-hidden my-4 overflow-y-auto overflow-x-hidden h-full hidden-scrollbar">
         <div class="flex flex-row items-stretch min-h-[300px] h-full">
             <BlockPatternVertical className="h-full flex-shrink-0" />
@@ -238,7 +236,7 @@
                             In-Kind Sponsors
                         </h1>
                     </div>
-                    <div class="flex flex-row gap-10 justify-center items-center flex-wrap p-8 w-full">
+                    <div class="flex flex-row gap-10 justify-center items-center flex-wrap p-8 w-full justify-center">
                         {#each companies.inKind as company}
                             <a
                                     href={company.link}
