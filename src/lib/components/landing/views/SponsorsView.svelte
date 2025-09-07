@@ -136,124 +136,126 @@
     };
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen gap-2 p-4 w-screen">
-
-    <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414] backdrop-blur-[5px] overflow-hidden overflow-y-auto overflow-x-hidden h-full hidden-scrollbar">
-        <div class="flex flex-row items-center justify-between">
+<div class="flex flex-col items-center justify-center w-full min-h-screen gap-6 p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 w-full max-w-6xl gap-4 h-80">
+        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden h-full">
             <BlockPatternVertical className="h-full flex-shrink-0" />
+            <div class="flex flex-col flex-1 p-4 overflow-y-auto hidden-scrollbar">
+                <div class="w-full mb-4">
+                    <h1 class="text-[#F1ECEB] text-[12px] italic font-bold leading-normal text-left">
+                        Platinum Sponsors
+                    </h1>
+                </div>
 
-            <div class="flex flex-col flex-1 items-center">
-                <h1 class="text-xl font-semibold pt-2 mb-4 text-balance">
-                    Monetary Sponsors
-                </h1>
-
-                {#if companies.monetary.platinum.length > 0}
-                    <div class="mb-4 w-full">
-                        <h2 class="text-gray-400 italic self-stretch leading-normal font-bold text-center py-2">
-                            Platinum
-                        </h2>
-                        <div class="flex flex-row gap-8 justify-center items-center flex-wrap px-4">
-                            {#each companies.monetary.platinum as company}
-                                <a
-                                        href={company.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="hover:scale-110 transition-transform duration-200 bg-white/10 p-6 backdrop-blur-sm hover:bg-white/20 rounded-lg"
-                                        title={company.name}
-                                >
-                                    <img
-                                            src={company.picture}
-                                            alt={company.name}
-                                            class="object-contain w-20 h-20"
-                                    />
-                                </a>
-                            {/each}
-                        </div>
-                    </div>
-                {/if}
-
-                {#if companies.monetary.gold.length > 0}
-                    <div class="mb-4 w-full">
-                        <h2 class="text-yellow-400 italic self-stretch leading-normal font-bold text-center py-2">
-                            Gold
-                        </h2>
-                        <div class="flex flex-row gap-6 justify-center items-center flex-wrap px-4">
-                            {#each companies.monetary.gold as company}
-                                <a
-                                        href={company.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="hover:scale-110 transition-transform duration-200 bg-white/10 p-5 backdrop-blur-sm hover:bg-white/20 rounded-lg"
-                                        title={company.name}
-                                >
-                                    <img
-                                            src={company.picture}
-                                            alt={company.name}
-                                            class="object-contain w-20 h-20"
-                                    />
-                                </a>
-                            {/each}
-                        </div>
-                    </div>
-                {/if}
-
-                {#if companies.monetary.bronze.length > 0}
-                    <div class="w-full mb-8">
-                        <h2 class="text-amber-600 italic self-stretch leading-normal font-bold text-center py-2">
-                            Bronze
-                        </h2>
-                        <div class="flex flex-row gap-4 justify-center items-center flex-wrap px-4">
-                            {#each companies.monetary.bronze as company}
-                                <a
-                                        href={company.link}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="hover:scale-110 transition-transform duration-200 bg-white/10 p-4 backdrop-blur-sm hover:bg-white/20 rounded-lg"
-                                        title={company.name}
-                                >
-                                    <img
-                                            src={company.picture}
-                                            alt={company.name}
-                                            class="object-contain w-20 h-20"
-                                    />
-                                </a>
-                            {/each}
-                        </div>
-                    </div>
-                {/if}
-            </div>
-
-            <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
-        </div>
-    </div>
-
-    <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414] backdrop-blur-[5px] overflow-hidden my-4 overflow-y-auto overflow-x-hidden h-full hidden-scrollbar">
-        <div class="flex flex-row items-stretch min-h-[300px]">
-            <BlockPatternVertical className="h-full flex-shrink-0" />
-
-            <div class="flex flex-col flex-1 items-center">
-                <h1 class="text-xl font-semibold pt-2 mb-4 text-balance">
-                    In-Kind Sponsors
-                </h1>
-                <div class="flex flex-row gap-6 justify-center items-center flex-wrap p-8 w-full">
-                    {#each companies.inKind as company}
+                <div class="flex flex-col items-center gap-4 w-full flex-1">
+                    {#each companies.monetary.platinum as company}
                         <a
                                 href={company.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="hover:scale-110 transition-transform duration-200 bg-white/10 p-4 backdrop-blur-sm hover:bg-white/20 rounded-lg"
+                                class="hover:scale-105 transition-transform duration-200"
                                 title={company.name}
                         >
                             <img
                                     src={company.picture}
                                     alt={company.name}
-                                    class="w-20 h-20 object-contain filter brightness-110"
+                                    class="max-h-20 max-w-[120px] object-contain"
                             />
                         </a>
                     {/each}
                 </div>
             </div>
+            <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
+        </div>
 
+        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden h-80">
+            <BlockPatternVertical className="h-full flex-shrink-0" />
+            <div class="flex flex-col flex-1 items-center p-4 overflow-y-auto hidden-scrollbar">
+                <div class="w-full mb-4">
+                    <h1 class="text-[#F1ECEB] text-[12px] italic font-bold leading-normal text-left">
+                        Gold Sponsors
+                    </h1>
+                </div>
+                <div class="flex flex-col items-center gap-4 w-full">
+                    {#each companies.monetary.gold as company}
+                        <a
+                                href={company.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="hover:scale-105 transition-transform duration-200"
+                                title={company.name}
+                        >
+                            <img
+                                    src={company.picture}
+                                    alt={company.name}
+                                    class="max-h-20 max-w-[120px] object-contain"
+                            />
+                        </a>
+                    {/each}
+                </div>
+            </div>
+            <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
+        </div>
+
+        <!-- Bronze -->
+        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden">
+            <BlockPatternVertical className="h-full flex-shrink-0" />
+            <div class="flex flex-col flex-1 items-center p-4 overflow-y-auto hidden-scrollbar">
+                <div class="w-full mb-4">
+                    <h1 class="text-[#F1ECEB] text-[12px] italic font-bold leading-normal text-left">
+                        Bronze Sponsors
+                    </h1>
+                </div>
+                <div class="flex flex-col items-center gap-4 w-full">
+                    {#each companies.monetary.bronze as company}
+                        <a
+                                href={company.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="hover:scale-105 transition-transform duration-200"
+                                title={company.name}
+                        >
+                            <img
+                                    src={company.picture}
+                                    alt={company.name}
+                                    class="max-h-20 max-w-[120px] object-contain"
+                            />
+                        </a>
+                    {/each}
+                </div>
+            </div>
+            <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
+        </div>
+    </div>
+
+    <!-- In-Kind -->
+    <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414] backdrop-blur-[5px] overflow-hidden my-4 overflow-y-auto overflow-x-hidden h-full hidden-scrollbar">
+        <div class="flex flex-row items-stretch min-h-[300px] h-full">
+            <BlockPatternVertical className="h-full flex-shrink-0" />
+                <div class="flex flex-col flex-1 items-center">
+                    <div class="w-full pt-6 px-6">
+                        <h1 class="text-[#F1ECEB] text-[12px] italic font-bold leading-normal text-left">
+                            In-Kind Sponsors
+                        </h1>
+                    </div>
+                    <div class="flex flex-row gap-10 justify-center items-center flex-wrap p-8 w-full">
+                        {#each companies.inKind as company}
+                            <a
+                                    href={company.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="hover:scale-105 transition-transform duration-200"
+                                    title={company.name}
+                            >
+                                <img
+                                        src={company.picture}
+                                        alt={company.name}
+                                        class="max-h-20 max-w-[120px] object-contain"
+                                />
+                            </a>
+                        {/each}
+                    </div>
+            </div>
             <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
         </div>
     </div>
@@ -261,12 +263,10 @@
 
 <style>
     .hidden-scrollbar {
-        -webkit-scrollbar: none;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+        -ms-overflow-style: none; /* IE/Edge */
+        scrollbar-width: none; /* Firefox */
     }
-
     .hidden-scrollbar::-webkit-scrollbar {
-        display: none;
+        display: none; /* Chrome/Safari */
     }
 </style>
