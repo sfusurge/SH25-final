@@ -1,5 +1,9 @@
 <script lang="ts">
-	import MainView from "$lib/components/landing/views/MainView.svelte";
+	import MainView from "$lib/components/landing/views/MusicView.svelte";
+    import { global } from "./+layout.svelte";
 </script>
 
-<MainView />
+{#if !global.mobile}
+	<!-- content -->
+	<MainView />
+{/if}

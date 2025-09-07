@@ -20,7 +20,7 @@ queue: List[str] = []
 nameToSize = dict()
 print("Process the following files:")
 
-for file in glob.glob(f"{relativePath}/**/*.webp", recursive=True) + glob.glob(
+for file in glob.glob(f"{relativePath}/**/*.png", recursive=True) + glob.glob(
     f"{relativePath}/**/*.jpg", recursive=True
 ):
     queue.append(file)
@@ -41,7 +41,7 @@ for file in queue:
         iccBytes = io.BytesIO(iccProfile)
         colorProfile = ImageCms.ImageCmsProfile(iccBytes)
 
-    newPath = file.rstrip(".jpg").rstrip(".webp") + ".webp"
+    newPath = file.rstrip(".jpg").rstrip(".png") + ".webp"
     if resize > 0:
         print(img.width, img.height, (resize, int((resize / img.width) * img.height)))
         img = img.resize(

@@ -53,9 +53,6 @@
         transition:fade={{ duration: 200 }}
         use:clickedOutside
     >
-        {#if mobile}
-            <div class="dialogBackdrop" onclick={handleBackdropClick}></div>
-        {/if}
         <RockFilter />
 
         <div data-demon="border" class="decorBar"></div>
@@ -68,6 +65,13 @@
         <HorizontalDivider />
         {@render children?.()}
     </div>
+    {#if mobile}
+        <div
+            transition:fade={{ duration: 200 }}
+            class="dialogBackdrop"
+            onclick={handleBackdropClick}
+        ></div>
+    {/if}
 {/if}
 
 <style>
