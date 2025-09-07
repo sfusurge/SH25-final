@@ -7,7 +7,7 @@
                 {
                     name: "Transoft",
                     tier: "Platinum",
-                    picture: "/assets/sponsors/Monetary/Logo/Transoft/Transoft_logo_stacked_version_CLR.png",
+                    picture: "/assets/sponsors/Monetary/Logo/Transoft/transoft_white.svg",
                     link: "https://www.transoftsolutions.com/"
                 },
                 {
@@ -19,7 +19,7 @@
                 {
                     name: "Safe Software",
                     tier: "Platinum",
-                    picture: "/assets/sponsors/Monetary/Logo/Safe Software/Platinum Safe Software.png",
+                    picture: "/assets/sponsors/Monetary/Logo/Safe Software/Alternative Platinum Safe Software.png",
                     link: "https://www.safe.com/"
                 },
                 {
