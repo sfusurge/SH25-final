@@ -55,8 +55,8 @@
 		position: absolute;
 		z-index: 1000;
 		pointer-events: none;
-		width: 0.8%;
-		transform: translateY(-110%);
+		width: 8%;
+		transform: translateY(-20%);
 		top: 100%;
 	}
 
