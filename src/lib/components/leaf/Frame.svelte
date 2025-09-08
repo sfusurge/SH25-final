@@ -2,10 +2,15 @@
     import Background from "./Background.svelte";
     import LeafGame from "./LeafGame.svelte";
     import { global } from "../../../routes/+layout.svelte";
+    import Pause from "./Pause.svelte";
+    import DesktopShop from "./DesktopShop.svelte";
+    import DesktopTimer from "./DesktopTimer.svelte";
+
+    import DesktopScore from "./DesktopScore.svelte";
 </script>
 
 {#if !global.mobile}
-    <div class="relative w-full h-full grid place-items-center">
+    <div class="relative w-screen h-screen grid place-items-center">
         <div class="frame-container">
             <div
                 class="absolute z-10 overflow-hidden"
@@ -24,6 +29,23 @@
                 class="absolute inset-0 z-30 w-full h-full pointer-events-none"
                 loading="eager"
             />
+            <!-- Overlays above the frame image -->
+            {#if !global.mobile}
+                <div
+                    class="absolute top-0 left-0 right-0 z-40 flex justify-between items-start pt-8 px-8 m-5"
+                >
+                    <Pause />
+                    <DesktopShop />
+                </div>
+            {/if}
+            {#if !global.mobile}
+                <div
+                    class="absolute bottom-0 left-1/2 -translate-x-1/2 z-0 flex justify-center items-start pb-4 gap-8"
+                >
+                    <DesktopTimer />
+                    <DesktopScore />
+                </div>
+            {/if}
         </div>
     </div>
 {:else}
@@ -36,12 +58,10 @@
     .frame-container {
         /* Match MainView Frame sizing exactly for desktop */
         position: relative;
-        height: 100%;
+        height: 80%;
         width: auto;
         max-width: 100%;
         aspect-ratio: 872 / 511;
-        min-height: 400px;
-        min-width: 700px; /* 400 * (872/511) */
     }
 
     .frame-wrap {

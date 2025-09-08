@@ -24,12 +24,12 @@
 	{/if}
 
 	<!-- Desktop layout -->
-	{#if !global.mobile}
+	<!-- {#if !global.mobile}
 		<div class="flex justify-between items-start pt-8 px-8">
 			<Pause />
 			<DesktopShop />
 		</div>
-	{/if}
+	{/if} -->
 
 	<div
 		class="flex-1 flex items-center justify-center"
@@ -40,12 +40,12 @@
 		<Frame />
 	</div>
 
-	{#if !global.mobile}
+	<!-- {#if !global.mobile}
 		<div class="flex justify-center items-start pb-4 gap-8">
 			<DesktopTimer />
 			<DesktopScore />
 		</div>
-	{/if}
+	{/if} -->
 </div>
 
 <style>
