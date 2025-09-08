@@ -1,17 +1,18 @@
 <script lang="ts">
-	import type { BucketData } from '$lib/components/leaf/gameData/bucketData';
-	import { Stock } from '$lib/components/leaf/gameData/LeafGame';
-	import Plant from './Plant.svelte';
-	import { plantData } from '$lib/components/leaf/gameData/plantData';
-	import { game, plantsStore } from '$lib/components/leaf/gameData/LeafGame';
-	import { isMobile } from '$lib/components/leaf/gameData/layout';
+	import type { BucketData } from "$lib/components/leaf/gameData/bucketData";
+	import { Stock } from "$lib/components/leaf/gameData/LeafGame";
+	import Plant from "./Plant.svelte";
+	import { plantData } from "$lib/components/leaf/gameData/plantData";
+	import { game, plantsStore } from "$lib/components/leaf/gameData/LeafGame";
+	import { isMobile } from "$lib/components/leaf/gameData/layout";
 
 	export let bucket: BucketData;
 
-
-	$: bucketNum = Number(bucket.key.replace('bucket', ''));
+	$: bucketNum = Number(bucket.key.replace("bucket", ""));
 	$: matchingPlant = plantData.find((p) => p.id === bucketNum);
-	$: plantState = matchingPlant ? $plantsStore[matchingPlant.key]?.state : undefined;
+	$: plantState = matchingPlant
+		? $plantsStore[matchingPlant.key]?.state
+		: undefined;
 	$: isDefault = plantState === Stock.Default;
 	$: isAvailable = plantState === Stock.Available;
 	$: isOut = plantState === Stock.OutOfStock;
@@ -22,7 +23,6 @@
 			: bucket.images.outOfStock;
 </script>
 
-
 <img
 	src={imgSrc}
 	alt={bucket.altText}
@@ -30,7 +30,8 @@
 	class:available={isAvailable}
 	class:default={isDefault}
 	class:out={isOut}
-	class:topBucket={bucket.key === 'bucket5' || bucket.id === 5}
+	class:topBucket={bucket.key === "bucket5" || bucket.id === 5}
+	class:bucket1={bucket.key === "bucket1"}
 	style="left: {$isMobile && bucket.mobilePosition
 		? bucket.mobilePosition.left
 		: bucket.position.left}; top: {$isMobile && bucket.mobilePosition
@@ -41,14 +42,19 @@
 	draggable="false"
 />
 
-<!-- Render plant on top when not Default (Available or OutOfStock) -->
 {#if !isDefault && matchingPlant}
 	<Plant
 		plant={matchingPlant}
 		bucketState={plantState ?? Stock.Default}
 		basePosition={{
-			left: $isMobile && bucket.mobilePosition ? bucket.mobilePosition.left : bucket.position.left,
-			top: $isMobile && bucket.mobilePosition ? bucket.mobilePosition.top : bucket.position.top
+			left:
+				$isMobile && bucket.mobilePosition
+					? bucket.mobilePosition.left
+					: bucket.position.left,
+			top:
+				$isMobile && bucket.mobilePosition
+					? bucket.mobilePosition.top
+					: bucket.position.top,
 		}}
 		on:click={() => game.plantClick(matchingPlant.key)}
 	/>
@@ -59,11 +65,15 @@
 		display: block;
 		position: absolute;
 		height: auto;
-		z-index: 2; /* base bucket above most plants */
+		z-index: 20;
 		cursor: default;
 	}
 
 	.bucket.topBucket {
 		z-index: 7;
+	}
+
+	.bucket.bucket1 {
+		z-index: 15;
 	}
 </style>

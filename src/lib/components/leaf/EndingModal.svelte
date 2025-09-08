@@ -10,17 +10,28 @@
 				<div class="header">
 					<h2 class="title">Game Over!</h2>
 					<div class="score-display">
-						<img src="/ending_modal/final_leaf.png" alt="Leaf" class="leaf-icon" />
+						<img
+							src="/assets/experiences/leaf/ending_modal/final_leaf.png"
+							alt="Leaf"
+							class="leaf-icon"
+						/>
 						<span class="score-text">{score}</span>
 					</div>
 				</div>
 				<div class="image-container">
-					<img src="/ending_modal/image.png" alt="Success" class="success-image" />
+					<img
+						src="/assets/experiences/leaf/ending_modal/image.png"
+						alt="Success"
+						class="success-image"
+					/>
 				</div>
 				<div class="message">
-					What a beautiful garden you have created! Your visitors thank you.
+					What a beautiful garden you have created! Your visitors
+					thank you.
 				</div>
-				<button class="restart-btn" type="button" on:click={onRestart}>Play Again</button>
+				<button class="restart-btn" type="button" on:click={onRestart}
+					>Play Again</button
+				>
 			</div>
 		</div>
 	</div>
@@ -32,16 +43,17 @@
 		inset: 0;
 		background: rgba(0, 0, 0, 0.5);
 		display: block;
-		z-index: 999;
+		z-index: 10000; /* Highest priority - above all game elements */
 	}
 	.modal {
 		position: absolute;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 35%;
-		height: 72%;
-		background: url('/assets/experiences/leaf/modal_bg.png') center / 100% 100% no-repeat;
+		width: 53%;
+		height: 84%;
+		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
+			100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -55,11 +67,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		--mediaW: 28cqw;
 	}
 	.inner {
-		width: var(--mediaW);
-		padding: 0.5cqh 0.5cqw;
+		width: 100%;
+		padding: 0cqh 0cqw;
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
@@ -79,10 +90,10 @@
 		margin: 0;
 		color: #f1eceb;
 		text-align: center;
-		font-family: Catriel, sans-serif;
-		font-size: 1.5cqw;
+		font-family: var(--font-catriel);
+		font-size: 2cqw;
 		font-style: italic;
-		font-weight: 600;
+		font-weight: 5900;
 		line-height: normal;
 	}
 	.score-display {
@@ -91,15 +102,15 @@
 		gap: 0.5cqw;
 	}
 	.leaf-icon {
-		width: 1.5cqw;
-		height: 1.5cqw;
+		width: 2cqw;
+		height: 2cqw;
 		object-fit: contain;
 	}
 	.score-text {
 		color: #f1eceb;
 		text-align: center;
-		font-family: Catriel, sans-serif;
-		font-size: 1.5cqw;
+		font-family: var(--font-catriel);
+		font-size: 2cqw;
 		font-style: normal;
 		font-weight: 400;
 		line-height: normal;
@@ -111,7 +122,7 @@
 		align-items: center;
 	}
 	.success-image {
-		width: 25cqw;
+		width: 100%;
 		height: auto;
 		aspect-ratio: 497 / 267;
 		object-fit: contain;
@@ -119,8 +130,8 @@
 	.message {
 		width: 100%;
 		color: #8a6f6a;
-		font-family: Catriel, sans-serif;
-		font-size: 0.8cqw;
+		font-family: var(--font-catriel);
+		font-size: 1.2cqw;
 		font-style: normal;
 		font-weight: 400;
 		line-height: 1.4;
@@ -128,8 +139,8 @@
 	}
 	.restart-btn {
 		display: flex;
-		width: 8cqw;
-		height: 1.5cqw;
+		width: 12cqw;
+		height: 2.5cqw;
 		padding: 0.2cqw 0.6cqw;
 		justify-content: center;
 		align-items: center;
@@ -139,11 +150,11 @@
 		color: #f1eceb;
 		border: 0.643px solid #f1eceb;
 		border-radius: 0;
-		font-size: 0.8cqw;
+		font-size: 1cqw;
 		cursor: pointer;
 	}
 
-	@container (max-width: 640px) {
+	/* @container (max-width: 640px) {
 		.modal {
 			width: 90%;
 			height: 60%;
@@ -235,5 +246,5 @@
 		.message {
 			margin-bottom: -1cqh;
 		}
-	}
+	} */
 </style>

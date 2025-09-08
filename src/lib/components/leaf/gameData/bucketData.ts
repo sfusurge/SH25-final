@@ -31,9 +31,9 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 1',
         position: {
-            left: '30%',
+            left: '20%',
             top: '61.13%',
-            width: '7%'
+            width: '8%'
         },
         mobilePosition: {
             left: '12%',
@@ -51,9 +51,9 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 2',
         position: {
-            left: '38%',
-            top: '75%',
-            width: '5%'
+            left: '30%',
+            top: '72%',
+            width: '5.5%'
         },
         mobilePosition: {
             left: '25%',
@@ -71,9 +71,9 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 3',
         position: {
-            left: '42%',
-            top: '55%',
-            width: '6.5%'
+            left: '38%',
+            top: '56%',
+            width: '7%'
         },
         mobilePosition: {
             left: '34%',
@@ -91,9 +91,9 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 4',
         position: {
-            left: '58%',
-            top: '63%',
-            width: '4.2%'
+            left: '61%',
+            top: '60%',
+            width: '5%'
         },
         mobilePosition: {
             left: '65%',
@@ -111,9 +111,9 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 5',
         position: {
-            left: '63%',
-            top: '79.28%',
-            width: '9%'
+            left: '68%',
+            top: '78%',
+            width: '14%'
         },
         mobilePosition: {
             left: '72%',
@@ -131,9 +131,9 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 6',
         position: {
-            left: '70%',
-            top: '68%',
-            width: '6.5%'
+            left: '78%',
+            top: '67%',
+            width: '8%'
         },
         mobilePosition: {
             left: '88%',

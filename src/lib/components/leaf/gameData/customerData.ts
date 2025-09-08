@@ -14,53 +14,56 @@ export interface CustomerSlot {
     orderWidth?: string;
     mobileOrderWidth?: string;
     mobileNarrowOrderWidth?: string;
-    orderTransform?: string;           
+    orderTransform?: string;
     mobileOrderTransform?: string;
     mobileNarrowOrderTransform?: string;
 }
 
-// Customer manual positioning
-export const customerSlots: CustomerSlot[] = [
-    {
-        position: { left: '32%', top: '25%', width: '8%' },
-        mobilePosition: { left: '10%', top: '23%', width: '14%' },
-        mobileNarrowPosition: { left: '8%', top: '27%', width: '16%' },
-        orderGapY: '5%',
-        mobileOrderGapY: '6%',
-        mobileNarrowOrderGapY: '7%',
-        // Order bubble overrides (optional)
-        orderWidth: '5%',
-        orderTransform: 'translate(-50%, -110%)',
-        mobileOrderWidth: '7cqw',
-        mobileNarrowOrderWidth: '7cqw',
-        mobileOrderTransform: 'translate(-30%, -120%)'
-    },
-    {
-        position: { left: '47%', top: '22%', width: '8%' },
-        mobilePosition: { left: '42%', top: '20%', width: '14%' },
-        mobileNarrowPosition: { left: '42%', top: '25%', width: '16%' },
-        orderGapY: '5%',
-        mobileOrderGapY: '6%',
-        mobileNarrowOrderGapY: '7%',
-        orderWidth: '5%',
-        orderTransform: 'translate(-50%, -110%)',
-        mobileOrderWidth: '7cqw',
-        mobileNarrowOrderWidth: '7cqw',
-        mobileOrderTransform: 'translate(-30%, -110%)'
-    },
-    {
-        position: { left: '60%', top: '25%', width: '8%' },
-        mobilePosition: { left: '68%', top: '22%', width: '14%' },
-        mobileNarrowPosition: { left: '70%', top: '27%', width: '16%' },
-        orderGapY: '5%',
-        mobileOrderGapY: '6%',
-        mobileNarrowOrderGapY: '7%',
-        orderWidth: '5%',
-        orderTransform: 'translate(-50%, -110%)',
-        mobileOrderWidth: '7cqw',
-        mobileNarrowOrderWidth: '7cqw',
-        mobileOrderTransform: 'translate(-30%, -120%)'
+// Default values for common properties
+const defaultCustomerSlot: Partial<CustomerSlot> = {
+    orderGapY: '5%',
+    mobileOrderGapY: '6%',
+    mobileNarrowOrderGapY: '7%',
+    orderWidth: '5%',
+    orderTransform: 'translate(-50%, -110%)',
+    mobileOrderWidth: '7cqw',
+    mobileNarrowOrderWidth: '7cqw',
+};
+
+// Common widths
+const widths = {
+    desktop: '10%',
+    mobile: {
+        normal: '14%',
+        narrow: '16%'
     }
+};
+
+// Helper function to create customer slot with defaults
+function createCustomerSlot(overrides: Partial<CustomerSlot>): CustomerSlot {
+    return { ...defaultCustomerSlot, ...overrides } as CustomerSlot;
+}
+
+// Customer manual positioning - only specify unique values
+export const customerSlots: CustomerSlot[] = [
+    createCustomerSlot({
+        position: { left: '24%', top: '25%', width: widths.desktop },
+        mobilePosition: { left: '10%', top: '23%', width: widths.mobile.normal },
+        mobileNarrowPosition: { left: '8%', top: '27%', width: widths.mobile.narrow },
+        mobileOrderTransform: 'translate(-30%, -120%)'
+    }),
+    createCustomerSlot({
+        position: { left: '46%', top: '20%', width: widths.desktop },
+        mobilePosition: { left: '42%', top: '20%', width: widths.mobile.normal },
+        mobileNarrowPosition: { left: '42%', top: '25%', width: widths.mobile.narrow },
+        mobileOrderTransform: 'translate(-30%, -110%)'
+    }),
+    createCustomerSlot({
+        position: { left: '65%', top: '25%', width: widths.desktop },
+        mobilePosition: { left: '68%', top: '22%', width: widths.mobile.normal },
+        mobileNarrowPosition: { left: '70%', top: '27%', width: widths.mobile.narrow },
+        mobileOrderTransform: 'translate(-30%, -120%)'
+    })
 ];
 
 

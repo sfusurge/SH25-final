@@ -1,44 +1,49 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
-	import type { Writable } from 'svelte/store';
-	import { Stock, scoreStore } from '$lib/components/leaf/gameData/LeafGame';
+	import { createEventDispatcher, onMount } from "svelte";
+	import type { Writable } from "svelte/store";
+	import { Stock, scoreStore } from "$lib/components/leaf/gameData/LeafGame";
+	export let plantsStore: Writable<
+		Record<string, { key: string; state: Stock; points: number }>
+	>;
 
-	export let plantsStore: Writable<Record<string, { key: string; state: Stock; points: number }>>;
 	export let game: any;
 
 	// Map plant keys to filenames inside shop_restock/ and shop_unlock/
 	const fileByKey: Record<string, string> = {
-		plant1: 'monstera.png',
-		plant2: 'vine.png',
-		plant3: 'tomato.png',
-		plant4: 'stick.png',
-		plant5: 'carrot.png',
-		plant6: 'dandelion.png'
+		plant1: "monstera.png",
+		plant2: "vine.png",
+		plant3: "tomato.png",
+		plant4: "stick.png",
+		plant5: "carrot.png",
+		plant6: "dandelion.png",
 	};
 
-	const dispatch = createEventDispatcher<{ close: void; restock: { plantKey: string } }>();
+	const dispatch = createEventDispatcher<{
+		close: void;
+		restock: { plantKey: string };
+	}>();
 
 	function close() {
-		dispatch('close');
+		dispatch("close");
 	}
 </script>
 
 <div class="backdrop" on:click={close}></div>
 <div class="dialog-root">
-	<div
-		class="dialog"
-		role="dialog"
-		aria-modal="true"
-		aria-labelledby="shop-title"
-		on:click|stopPropagation
-	>
+	<div class="dialog" role="dialog" on:click|stopPropagation>
 		<div class="inner">
 			<div class="inner-header">
 				<h2 id="shop-title">Seed Shop</h2>
-				<button class="close" type="button" on:click={close} aria-label="Close">✕</button>
+				<button type="button" class="close-btn" on:click={close}>
+					<img
+						src="/assets/experiences/leaf/close.png"
+						alt="exit"
+						class="close"
+					/>
+				</button>
 			</div>
 			<section class="content">
-				{#each ['plant4', 'plant3', 'plant1', 'plant6', 'plant2', 'plant5'] as key (key)}
+				{#each ["plant4", "plant3", "plant1", "plant6", "plant2", "plant5"] as key (key)}
 					{@const p = $plantsStore[key]}
 					<div class="card">
 						<img
@@ -53,17 +58,31 @@
 						/>
 						<button
 							type="button"
-							class="action-btn {p?.state === Stock.Default ? 'unlock-btn' : 'restock-btn'}"
+							class="action-btn {p?.state === Stock.Default
+								? 'unlock-btn'
+								: 'restock-btn'}"
 							disabled={!p ||
 								p.state === Stock.Available ||
-								(p?.state === Stock.Default && $scoreStore < p.points)}
+								(p?.state === Stock.Default &&
+									$scoreStore < p.points)}
 							on:click={() => {
 								if (!p) return;
-								if (p.state === Stock.OutOfStock) dispatch('restock', { plantKey: key });
-								else if (p.state === Stock.Default && $scoreStore >= p.points)
+								if (p.state === Stock.OutOfStock)
+									dispatch("restock", { plantKey: key });
+								else if (
+									p.state === Stock.Default &&
+									$scoreStore >= p.points
+								)
 									game.unlockPlant(key);
 							}}
 						>
+							{#if p?.state === Stock.Default}
+								Unlock
+							{:else if p?.state === Stock.OutOfStock}
+								Restock
+							{:else}
+								Available
+							{/if}
 						</button>
 					</div>
 				{/each}
@@ -94,12 +113,13 @@
 	.dialog {
 		position: absolute;
 		left: 50%;
-		top: 8.6%;
+		top: 8%;
 		transform: translateX(-50%);
-		width: 30%;
-		height: 80%;
+		width: 50%;
+		height: 83%;
 		background:
-			url('/assets/experiences/leaf/modal_bg.png') center / cover no-repeat,
+			url("/assets/experiences/leaf/modal_bg.png") center / cover
+				no-repeat,
 			#0f1c1b;
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		border-radius: 8px;
@@ -122,31 +142,31 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		font-size: 12cqw;
 	}
 
 	.inner-header h2 {
-		font-family: 'Catriel', catriel, sans-serif;
+		font-family: "Catriel", catriel, sans-serif;
 		font-weight: 400;
 		font-style: italic;
-		font-size: 1.25cqw;
+		font-size: 2cqw;
 		margin: 0;
 	}
 
-	.close {
-		background: transparent;
-		border: 0;
-		color: #fff;
-		font-size: 1.2cqw; /* scales with background width */
+	.close-btn {
+		background: none;
+		border: none;
+		padding: 0;
 		cursor: pointer;
+		width: 2.5cqw;
+		height: auto;
 	}
 
 	.content {
-		padding: 0; /* no padding between border */
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		grid-auto-rows: auto;
-		column-gap: 3.5%; /* ~15.36px over 438px ≈ 3.5% of inner width */
-		row-gap: 0; /* no vertical gap */
+		column-gap: 3.5%;
 		justify-items: stretch;
 		align-items: start;
 		overflow: hidden; /* no scrollbars */
@@ -172,31 +192,55 @@
 	}
 
 	.action-btn {
-		background: transparent;
-		border: 0;
-		padding: 0;
-		width: 100%;
-		aspect-ratio: 333 / 50; /* keep image-based button proportional */
-		background-size: 100% 100%;
-		background-repeat: no-repeat;
-		background-position: center;
+		display: flex;
+		width: 92%;
+		height: 110%;
+		aspect-ratio: 333 / 50;
+		padding: 4px 10px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		border: 1px solid #8a6f6a;
+		background: rgba(6, 6, 5, 0.6);
 		cursor: pointer;
-		font-size: 0.9cqw; /* scale button label with background width */
+		font-size: 1cqw;
 		font-weight: 100;
 		color: #8a6f6a;
+		transition: all 0.3s ease;
+		position: relative;
+		overflow: hidden;
+		margin-bottom: 1cqh;
 	}
-	.restock-btn {
-		background-image: url('/assets/experiences/leaf/shop_restock/button.png');
+
+	.action-btn:hover {
+		border-color: #b8958a;
+		color: #b8958a;
+		box-shadow: 0 0 10px rgba(184, 149, 138, 0.3);
+		transform: translateY(-1px);
 	}
-	.unlock-btn {
-		background-image: url('/assets/experiences/leaf/shop_unlock/button.png');
+
+	.action-btn:active {
+		transform: translateY(0);
+		box-shadow: 0 0 5px rgba(184, 149, 138, 0.2);
+	}
+
+	.restock-btn:hover {
+		border-color: #b8958a;
+		color: #b8958a;
+		box-shadow: 0 0 10px rgba(184, 149, 138, 0.3);
+	}
+
+	.unlock-btn:hover {
+		border-color: #b8958a;
+		color: #b8958a;
+		box-shadow: 0 0 10px rgba(184, 149, 138, 0.3);
 	}
 	.action-btn:disabled {
 		opacity: 0.5;
 		cursor: default;
 	}
 
-	@container (max-width: 640px) {
+	/* @container (max-width: 640px) {
 		.dialog {
 			width: 90%;
 			height: 70%;
@@ -243,5 +287,5 @@
 			width: 100%;
 			height: 3cqw;
 		}
-	}
+	} */
 </style>

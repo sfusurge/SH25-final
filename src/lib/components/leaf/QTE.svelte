@@ -3,7 +3,6 @@
 		onQTE: (val: number) => void;
 		onDone?: (successes: number) => void;
 		attempts?: number;
-		sizeCqw?: number;
 		config: {
 			duration: number;
 			count: number;
@@ -16,7 +15,7 @@
 </script>
 
 <script lang="ts">
-	let { onQTE, onDone, attempts = 3, sizeCqw, config }: QTEProps = $props();
+	let { onQTE, onDone, attempts = 3, config }: QTEProps = $props();
 
 	// -------- geometry constants (single source of truth) ----------
 	const RADIUS_INSET_FRAC = 0.01875; // 1.5px on an 80px button
@@ -84,7 +83,10 @@
 	function getGeom() {
 		const center = btnSizePx / 2;
 
-		const thickness = Math.max(MIN_THICKNESS_PX, btnSizePx * THICKNESS_FRAC);
+		const thickness = Math.max(
+			MIN_THICKNESS_PX,
+			btnSizePx * THICKNESS_FRAC,
+		);
 		const outerR = Math.max(0, center - btnSizePx * RADIUS_INSET_FRAC);
 		const innerR = Math.max(0, outerR - thickness);
 
@@ -114,12 +116,12 @@
 		// Large-arc flag if sweep > 180°
 		const largeArc = 2 * ra > Math.PI ? 1 : 0;
 
-		let d = '';
+		let d = "";
 		d += `M ${ax0} ${ay0} `;
 		d += `A ${outerR} ${outerR} 0 ${largeArc} 1 ${ax1} ${ay1} `;
 		d += `L ${ix1} ${iy1} `;
 		d += `A ${innerR} ${innerR} 0 ${largeArc} 0 ${ix0} ${iy0} `;
-		d += 'Z';
+		d += "Z";
 		return d;
 	}
 
@@ -147,14 +149,14 @@
 		const ix0 = center + Math.sin(a0) * innerR;
 		const iy0 = center - Math.cos(a0) * innerR;
 
-		let d = '';
+		let d = "";
 		d += `M ${ox0} ${oy0} `;
 		d += `A ${outerR} ${outerR} 0 1 1 ${ox1} ${oy1} `;
 		d += `A ${outerR} ${outerR} 0 1 1 ${ox2} ${oy2} `;
 		d += `L ${ix2} ${iy2} `;
 		d += `A ${innerR} ${innerR} 0 1 0 ${ix1} ${iy1} `;
 		d += `A ${innerR} ${innerR} 0 1 0 ${ix0} ${iy0} `;
-		d += 'Z';
+		d += "Z";
 		return d;
 	}
 
@@ -193,7 +195,7 @@
 	}
 </script>
 
-<div class="qteContainer" style={sizeCqw != null ? `--container-size:${sizeCqw}cqw;` : ''}>
+<div class="qteContainer">
 	<button
 		bind:this={btnRef}
 		class="qteBtn"
@@ -202,18 +204,21 @@
 			checkClick();
 		}}
 	>
-		<img src="/finger.png" alt="finger" />
+		<img src="assets/experiences/leaf/finger.png" alt="finger" />
 		{#each arcs as center}
 			<div
 				class="arc"
-				style="--path: '{buildArc(center, config.major / 2)}'; --color: var(--border2); z-index: 2;"
+				style="--path: '{buildArc(
+					center,
+					config.major / 2,
+				)}'; --color: var(--border2); z-index: 2;"
 			></div>
 
 			<div
 				class="arc"
 				style="--path: '{buildArc(
 					center,
-					(config.minor + config.major) / 2
+					(config.minor + config.major) / 2,
 				)}'; --color: var(--border); z-index: 1;"
 			></div>
 		{/each}
@@ -233,7 +238,7 @@
 
 	.qteContainer {
 		position: relative;
-		--container-size: 5.5cqw;
+		--container-size: 7cqw;
 		--btn-size: calc(var(--container-size) * 0.8888889);
 		width: var(--container-size);
 		height: var(--container-size);
@@ -270,7 +275,7 @@
 	}
 
 	.qteBtn::after {
-		content: '';
+		content: "";
 		position: absolute;
 		left: 50%;
 		top: 50%;

@@ -1,14 +1,15 @@
 <script lang="ts">
 	export let onStart: (() => void) | undefined;
+	export let isRunning: boolean = false;
 	let pictures: string[] = [
-		'/assets/experiences/leaf/starting_modal/start_1.png',
-		'/assets/experiences/leaf/starting_modal/start_2.png',
-		'/assets/experiences/leaf/starting_modal/start_3.png'
+		"/assets/experiences/leaf/starting_modal/start_1.png",
+		"/assets/experiences/leaf/starting_modal/start_2.png",
+		"/assets/experiences/leaf/starting_modal/start_3.png",
 	];
 	let descriptions: string[] = [
-		'Provide plants to your visitors as they make requests, using the Seed Shop to Restock a plant or Unlock more valuable options. <strong>Click on the plant, then click on the visitor to deliver their request!</strong>',
-		"To grow a worthy plant, Click/Tap when the white line is in the target range. The more successes, the more valuable the plant! Don't forget to restock for the next visitor.",
-		'Careful! Visitors have limited patience.'
+		"Provide plants to your visitors as they make requests, using the Seed Shop to Restock a plant or Unlock more valuable options. <strong>Click on the plant, then click on the visitor to deliver their request!</strong>",
+		"To grow a worthy plant, <strong>Click/Tap when the white line is in the target range</strong>. The more successes, the more valuable the plant! Don't forget to restock for the next visitor.",
+		"Careful! Visitors have limited patience.",
 	];
 	let picIdx: number = 0;
 	function nextPicture() {
@@ -22,7 +23,9 @@
 			<div class="inner">
 				<div class="header">
 					<h2 class="title">Community garden</h2>
-					<button class="start-btn" type="button" on:click={onStart}>Start Game</button>
+					<button class="start-btn" type="button" on:click={onStart}
+						>{isRunning ? "Continue Game" : "Start Game"}</button
+					>
 				</div>
 				<div class="picture">
 					<img src={pictures[picIdx]} alt="Instruction" />
@@ -34,17 +37,32 @@
 					<button
 						class="nav-btn"
 						type="button"
-						on:click={() => (picIdx = picIdx > 0 ? picIdx - 1 : pictures.length - 1)}
+						on:click={() =>
+							(picIdx =
+								picIdx > 0 ? picIdx - 1 : pictures.length - 1)}
 					>
-						<img src="/assets/experiences/leaf/back_button.png" alt="Previous" />
+						<img
+							src="/assets/experiences/leaf/back_button.png"
+							alt="Previous"
+						/>
 					</button>
-					<button class="nav-btn" type="button" on:click={nextPicture}>
-						<img src="/assets/experiences/leaf/next_button.png" alt="Next" />
+					<button
+						class="nav-btn"
+						type="button"
+						on:click={nextPicture}
+					>
+						<img
+							src="/assets/experiences/leaf/next_button.png"
+							alt="Next"
+						/>
 					</button>
 				</div>
 				<div class="pagination">
 					{#each pictures as _, index}
-						<div class="pagination-dot" class:active={index === picIdx}></div>
+						<div
+							class="pagination-dot"
+							class:active={index === picIdx}
+						></div>
 					{/each}
 				</div>
 			</div>
@@ -58,16 +76,17 @@
 		inset: 0;
 		background: rgba(0, 0, 0, 0.5);
 		display: block;
-		z-index: 999;
+		z-index: 10000; /* Highest priority - above all game elements */
 	}
 	.modal {
 		position: absolute;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 35%;
-		height: 72%;
-		background: url('/assets/experiences/leaf/modal_bg.png') center / 100% 100% no-repeat;
+		width: 53%;
+		height: 84%;
+		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
+			100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -81,10 +100,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		--mediaW: 28cqw;
 	}
 	.inner {
-		width: var(--mediaW);
+		width: 90%;
+		height: 92%;
 		padding: 0.5cqh 0.5cqw;
 		box-sizing: border-box;
 		display: flex;
@@ -106,10 +125,10 @@
 		margin: 0;
 		color: #f1eceb;
 		text-align: left;
-		font-family: Catriel, sans-serif;
-		font-size: 1.25cqw;
+		font-family: var(--font-catriel);
+		font-size: 2cqw;
 		font-style: italic;
-		font-weight: 500;
+		font-weight: 5900;
 		line-height: normal;
 	}
 	.picture {
@@ -117,6 +136,7 @@
 		aspect-ratio: 253 / 148;
 		height: auto;
 		flex-shrink: 0;
+		margin-top: 1cqh;
 	}
 	.picture > img {
 		width: 100%;
@@ -126,24 +146,26 @@
 	}
 	.description {
 		width: 100%;
-		height: 8cqh;
-		margin: -0cqh 0 0 0;
+		height: 10cqh;
+		margin: -1cqh 0 0 0;
 		padding: 0;
 		color: #8a6f6a;
 		font-family: Catriel, sans-serif;
-		font-size: 0.8cqw;
+		font-size: 1.2cqw;
 		font-style: normal;
 		font-weight: 400;
 		line-height: normal;
 		text-align: left;
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/fix_optimize
 		overflow: hidden;
 	}
 	.start-btn {
 		display: flex;
-		width: 8cqw;
-		height: 1.5cqw;
-		padding: 0.2cqw 0.6cqw;
+		width: 12cqw;
+		height: 2.5cqw;
 		justify-content: center;
 		align-items: center;
 		gap: 0.5cqw;
@@ -152,7 +174,7 @@
 		color: #f1eceb;
 		border: 0.643px solid #f1eceb;
 		border-radius: 0;
-		font-size: 0.8cqw;
+		font-size: 1cqw;
 		cursor: pointer;
 	}
 	.nav-buttons {
@@ -163,10 +185,10 @@
 	}
 	.nav-btn {
 		display: flex;
-		width: 3.5cqw;
-		height: 1.8cqw;
+		width: 5cqw;
+		height: 2.5cqw;
 		padding: 0;
-		margin: 0 -0.5cqw;
+		margin: 0 -1cqw;
 		align-items: center;
 		gap: 0;
 		background: transparent;
@@ -187,8 +209,8 @@
 		margin-top: 0.5cqh;
 	}
 	.pagination-dot {
-		width: 0.3cqw;
-		height: 0.3cqw;
+		width: 0.4cqw;
+		height: 0.4cqw;
 		background-color: rgba(241, 236, 235, 0.3);
 		border-radius: 0;
 		transition: background-color 0.2s ease;
@@ -197,7 +219,7 @@
 		background-color: #f1eceb;
 	}
 
-	@container (max-width: 640px) {
+	/* @container (max-width: 640px) {
 		.modal {
 			width: 90%;
 			height: 60%;
@@ -286,5 +308,5 @@
 		.pagination {
 			gap: 0.6cqw;
 		}
-	}
+	} */
 </style>
