@@ -317,18 +317,12 @@
 		{/each}
 	{/if}
 
-	<!-- {#if !global.mobile}
-		<div
-			class="absolute top-0 left-0 right-0 z-[250] flex justify-between items-start pt-10 px-10"
-		>
-			<Pause />
-			<DesktopShop />
-		</div>
-	{/if} -->
-
 	{#if !global.mobile}
 		<div
 			class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[50] flex justify-center items-start pb-0 gap-8"
+			class:pointer-events-none={$gamePhase === "pre" ||
+				$showInstructionsDuringGame ||
+				$shopOpen}
 		>
 			<DesktopTimer />
 			<DesktopScore />

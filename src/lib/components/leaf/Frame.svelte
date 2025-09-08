@@ -5,7 +5,11 @@
     import Pause from "./Pause.svelte";
     import DesktopShop from "./DesktopShop.svelte";
     import DesktopTimer from "./DesktopTimer.svelte";
-
+    import {
+        gamePhase,
+        showInstructionsDuringGame,
+        shopOpen,
+    } from "$lib/components/leaf/gameData/LeafGame";
     import DesktopScore from "./DesktopScore.svelte";
 </script>
 
@@ -33,6 +37,9 @@
             {#if !global.mobile}
                 <div
                     class="absolute top-0 left-0 right-0 z-10 flex justify-between items-start pt-8 px-8 m-5"
+                    class:pointer-events-none={$gamePhase !== "running" ||
+                        $showInstructionsDuringGame ||
+                        $shopOpen}
                 >
                     <Pause />
                     <DesktopShop />

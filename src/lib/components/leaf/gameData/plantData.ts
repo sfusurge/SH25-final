@@ -69,7 +69,7 @@ export const plantData = [
             transform: 'translate(-50%, -85%)'
         },
         mobilePosition: {
-            width: '15%',
+            width: '13%',
             transform: 'translate(-52%, -90%)'
         },
         mobileVeryNarrowPosition: {
@@ -107,7 +107,7 @@ export const plantData = [
             transform: 'translate(-32%, -90%)'
         },
         mobilePosition: {
-            width: '25%',
+            width: '23%',
             transform: 'translate(-32%, -96.55%)'
         },
         mobileVeryNarrowPosition: {

@@ -57,7 +57,7 @@
 		z-index: 0;
 		pointer-events: none;
 		width: 0.8%;
-		transform: translateY(-130%);
+		transform: translateY(-110%);
 		top: 100%;
 	}
 
@@ -84,22 +84,22 @@
 
 	@container (max-width: 640px) {
 		.order-card {
-			width: 15%;
+			width: 12%;
 		}
 
 		.bubble-tail {
 			width: 1%;
-			transform: translateY(-300%);
+			transform: translateY(-170%);
 		}
 	}
 
 	@container (max-width: 400px) {
 		.order-card {
-			width: 18%;
+			width: 15%;
 		}
 
 		.bubble-tail {
-			transform: translateY(-400%);
+			transform: translateY(-150%);
 			top: 100%;
 		}
 	}

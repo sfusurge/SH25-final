@@ -80,7 +80,7 @@
 	}
 	.modal {
 		position: absolute;
-		top: 48%;
+		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
 		width: 50%;
@@ -223,8 +223,8 @@
 		}
 
 		.inner {
-			width: 90%;
-			height: 100%;
+			width: 75%;
+			height: 95%;
 		}
 
 		.title {
@@ -294,7 +294,7 @@
 		.nav-btn {
 			width: 8cqw;
 			height: 8cqw;
-			margin: 0 0cqw;
+			margin: 0cqw;
 		}
 
 		.pagination-dot {
@@ -304,6 +304,14 @@
 
 		.pagination {
 			gap: 0.6cqw;
+		}
+
+		.nav-btn {
+			display: flex;
+			width: 5cqw;
+			height: 2.5cqw;
+			padding: 0;
+			margin: 0 -6cqw;
 		}
 	}
 </style>
