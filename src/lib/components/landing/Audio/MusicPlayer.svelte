@@ -207,7 +207,11 @@
         width: 100%;
         max-width: 1000px;
         margin: 0 2rem;
-        margin-bottom: 2rem;
+        margin-bottom: 0rem;
+    }
+    .root.mobile {
+        margin: 0;
+        height: 5rem;
     }
     .root.mobile {
         margin: 0;

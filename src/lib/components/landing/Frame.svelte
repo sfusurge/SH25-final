@@ -6,6 +6,7 @@
         mobile?: boolean;
         mobileStyle?: string;
         src: string;
+        style?: string;
     }
 
     let loading = $state(true);
@@ -14,16 +15,14 @@
             loading = true;
         }
     });
-    let { mobile = false, src, mobileStyle = "" }: Props = $props();
-
-    $inspect(mobile ? mobileStyle : "");
+    let { mobile = false, src, mobileStyle = "", style = "" }: Props = $props();
 </script>
 
 <svelte:head>
     <link rel="preload" href="/assets/frame.svg" as="image" type="image/svg+xml" />
 </svelte:head>
 
-<div class="inset-0 relative parent" class:mobile>
+<div class="inset-0 relative parent" class:mobile {style}>
     {#key src}
         <div
             class="content"
@@ -56,14 +55,14 @@
             {/if}
         </div>
     {/key}
-    <div class="cover" class:mobile>
+    <!-- <div class="cover" class:mobile>
         <Diamond height={32} width={24} />
-    </div>
+    </div> -->
 
     {#if !mobile}
         <img
             src="/assets/frame.svg"
-            class="object-contain absolute inset-0 pointer-events-none z-10 w-full h-auto"
+            class="object-contain absolute inset-0 pointer-events-none z-10 h-full w-auto mx-auto"
             loading="eager"
             fetchpriority="high"
         />
@@ -72,12 +71,9 @@
 
 <style>
     .parent {
-        height: auto;
         width: auto;
-        max-width: 100%;
         display: flex;
         aspect-ratio: calc(872 / 511);
-        margin: 2rem;
     }
 
     .parent.mobile {
@@ -89,13 +85,13 @@
         overflow: hidden;
     }
     .content {
-        width: calc(100% - (2 * 2.87%));
-        max-width: 100%;
+        height: calc(100% - (2 * 2.87%));
+        aspect-ratio: calc(872 / 511);
         /* margin: 2.87%; */
 
         position: absolute;
-        left: 2.87%;
-        top: 2.87%;
+        /* left: 2.87%;
+        top: 2.87%; */
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -105,8 +101,7 @@
 
         video,
         img {
-            width: 100%;
-            height: auto;
+            height: 100%;
             object-fit: contain;
         }
     }

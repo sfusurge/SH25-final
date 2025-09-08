@@ -14,9 +14,9 @@
     class:medium={global.medium}
     class:mobile={global.mobile}
 >
-    <div class="flex flex-col justify-center pt-5 pr-6 pl-6 pb-10">
-        <div class="pb-6">
-            <h1 class="text-header text-sm italic self-stretch leading-normal font-bold">
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10">
+        <div class="pb-6 mt-2">
+            <h1 class="text-header text-sm italic self-stretch leading-normal font-bold mb-2">
                 Welcome to StormHacks 2025!
             </h1>
             <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
@@ -27,14 +27,14 @@
         </div>
 
         <HoverEffectButton
-            className="flex h-[31px] px-[10px] py-[4px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
+            className="flex h-[32px] px-[10px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
             onClick={() => window.open("https://portal.sfusurge.com/application", "_blank")}
         >
             Apply Now
         </HoverEffectButton>
     </div>
 
-    <div class="flex flex-col justify-center pt-5 pr-3 pl-6 pb-10 gap-5">
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             Interactive Experiences
         </h1>
@@ -42,7 +42,6 @@
             imageSrc="/assets/experiences/garden.webp"
             imageAlt="Stump's Community Garden"
             imageClass="w-full h-32 object-cover p-2"
-            className="mt-4"
             onClick={() => goto("/garden")}
             header="Stump's Community Garden"
             text="Tend to your garden and its visitors, expanding your plant shop's catalogue and handling challenges as they arise."
@@ -51,7 +50,6 @@
             imageSrc="/assets/experiences/lofi.webp"
             imageAlt="Lofi Player"
             imageClass="w-full h-32 object-cover p-2"
-            className="mt-4"
             onClick={() => goto("/music")}
             header="Lofi Player"
             text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
@@ -60,7 +58,7 @@
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
-    <div class="flex flex-col justify-center pt-5 pr-3 pl-6 pb-10 gap-5">
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
         <h1 class="text-header italic self-stretch leading-normal font-bold">WebToon Series</h1>
 <!--        <WebtoonTile-->
 <!--            imageSrc="/assets/ig.svg"-->
@@ -78,7 +76,7 @@
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
-    <div class="flex flex-col justify-center pt-5 pr-3 pl-6 pb-10 gap-5">
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
         <h1 class="text-header italic self-stretch leading-normal font-bold">Information</h1>
         <InformationTile
             className="p-2"
@@ -89,7 +87,7 @@
         <InformationTile
             className="p-2"
             onClick={() => goto("/partners")}
-            header="Our Partners"
+            header="Our Sponsors"
             text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
         />
         <LockedTile release="Coming Soon..." />
@@ -119,8 +117,8 @@
 
     .contentContainer.mobile {
         width: auto;
-        margin: 1rem 1rem;
-
-        overflow: visible;
+        margin: .5rem .5rem;
+        max-height: 26.25rem;
+        overflow-y:auto;
     }
 </style>

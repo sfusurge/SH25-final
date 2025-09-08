@@ -24,7 +24,7 @@
 				<div class="header">
 					<h2 class="title">Community garden</h2>
 					<button class="start-btn" type="button" on:click={onStart}
-						>{isRunning ? "Continue Game" : "Start Game"}</button
+					>{isRunning ? "Continue Game" : "Start Game"}</button
 					>
 				</div>
 				<div class="picture">
@@ -35,33 +35,33 @@
 				</div>
 				<div class="nav-buttons">
 					<button
-						class="nav-btn"
-						type="button"
-						on:click={() =>
+							class="nav-btn"
+							type="button"
+							on:click={() =>
 							(picIdx =
 								picIdx > 0 ? picIdx - 1 : pictures.length - 1)}
 					>
 						<img
-							src="/assets/experiences/leaf/back_button.png"
-							alt="Previous"
+								src="/assets/experiences/leaf/back_button.png"
+								alt="Previous"
 						/>
 					</button>
 					<button
-						class="nav-btn"
-						type="button"
-						on:click={nextPicture}
+							class="nav-btn"
+							type="button"
+							on:click={nextPicture}
 					>
 						<img
-							src="/assets/experiences/leaf/next_button.png"
-							alt="Next"
+								src="/assets/experiences/leaf/next_button.png"
+								alt="Next"
 						/>
 					</button>
 				</div>
 				<div class="pagination">
 					{#each pictures as _, index}
 						<div
-							class="pagination-dot"
-							class:active={index === picIdx}
+								class="pagination-dot"
+								class:active={index === picIdx}
 						></div>
 					{/each}
 				</div>
@@ -86,13 +86,14 @@
 		width: 53%;
 		height: 84%;
 		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
-			100% no-repeat;
+		100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 		text-align: left;
 		overflow: hidden;
 	}
+
 	.content {
 		padding: 5cqh 3cqw;
 		box-sizing: border-box;
@@ -306,3 +307,4 @@
 		}
 	}
 </style>
+

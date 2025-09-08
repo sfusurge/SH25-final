@@ -24,6 +24,8 @@
     import { PlayerState } from "$lib/sharedStates/music.svelte";
 
     let showSettings = $state(false);
+    let top = $state<HTMLDivElement>();
+    let bot = $state<HTMLDivElement>();
 </script>
 
 {#snippet TimerBackgroundDialog()}
@@ -86,7 +88,7 @@
     {/if}
 
     {#if !global.mobile}
-        <div class="flex justify-between items-start px-8">
+        <div bind:this={top} class="flex justify-between items-start px-8">
             <Timer />
             <SwapBackground />
         </div>
@@ -96,9 +98,12 @@
         src={currentBackground.val}
         mobile={global.mobile}
         mobileStyle={bgMobileStyle[currentBackground.val]}
+        style={!global.mobile
+            ? `max-height: calc(100% - ${top?.clientHeight ?? 0}px - ${bot?.clientHeight}px - 0rem);`
+            : ""}
     />
 
-    <div class="flex justify-center">
+    <div bind:this={bot} class="flex justify-center">
         <MusicPlayer />
     </div>
 </div>
@@ -114,11 +119,13 @@
     }
 
     .layoutRoot {
-        margin: 2rem, 0;
+        padding: 4rem;
+        gap: 1rem;
     }
 
     .layoutRoot.mobile {
         margin: 0;
         gap: 0;
+        padding: 0rem;
     }
 </style>

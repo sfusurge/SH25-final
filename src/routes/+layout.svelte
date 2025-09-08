@@ -32,6 +32,8 @@
 		children: Snippet;
 	}
 
+	let { children }: Props = $props();
+
 	if (dev) {
 		onMount(() => {
 			setInterval(() => {
@@ -39,17 +41,18 @@
 			}, 100);
 		});
 	}
-
-	let { children }: Props = $props();
 </script>
 
 <svelte:window bind:innerWidth={width} />
 
-<div class="h-screen w-full relative overflow-x-hidden bg-[#0C0C0B]">
+<div
+	class="h-screen w-full relative overflow-x-hidden bg-[#0C0C0B] flex flex-row root"
+	class:medium={global.medium}
+>
 	<AmbiancePlayer />
 
 	<!-- background tiling -->
-	<div class="absolute inset-0 z-10 overflow-hidden">
+	<div class="absolute inset-0 overflow-hidden z-0">
 		<div
 			class="absolute
 				bg-[length:82.5px_82.5px]
@@ -63,16 +66,17 @@
 		></div>
 	</div>
 
-	<div class="relative z-30 flex flex-row h-full main" class:medium={global.medium}>
-		{#if !global.mobile || (global.mobile && page.url.pathname === "/")}
-			<Sidebar />
-		{/if}
-		{@render children()}
-	</div>
+	{#if !global.mobile || (global.mobile && (page.url.pathname === "/"  || page.url.pathname.startsWith("/partners")))}
+		<Sidebar />
+	{/if}
+	{@render children()}
 </div>
 
 <style>
-	.main.medium {
+	.root.medium {
+		flex-direction: column;
+	}
+	.main.mobile {
 		flex-direction: column;
 	}
 </style>
