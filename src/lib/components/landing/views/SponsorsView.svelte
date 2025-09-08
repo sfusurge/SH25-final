@@ -44,12 +44,12 @@
                 }
             ],
             bronze: [
-                {
-                    name: "Motorola",
-                    tier: "Bronze",
-                    picture: "/assets/sponsors/Monetary/Logo/Motorola/Motorola_Logo_White.png",
-                    link: "https://www.motorola.com/ca/en/homepage"
-                },
+                // {
+                //     name: "Motorola",
+                //     tier: "Bronze",
+                //     picture: "/assets/sponsors/Monetary/Logo/Motorola/Motorola_Logo_White.png",
+                //     link: "https://www.motorola.com/ca/en/homepage"
+                // },
                 {
                     name: "Kardium",
                     tier: "Bronze",
