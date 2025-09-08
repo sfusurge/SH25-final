@@ -106,7 +106,6 @@
         min-height: 0;
         min-width: 0;
         width: 100%;
-        height: 100%;
 
         overflow-y: auto;
         overflow-x: hidden;
@@ -118,7 +117,6 @@
     .contentContainer.mobile {
         width: auto;
         margin: .5rem .5rem;
-        max-height: 26.25rem;
         overflow-y:auto;
     }
 </style>
