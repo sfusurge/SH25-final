@@ -32,6 +32,8 @@
 		children: Snippet;
 	}
 
+	let { children }: Props = $props();
+
 	if (dev) {
 		onMount(() => {
 			setInterval(() => {
@@ -39,8 +41,6 @@
 			}, 100);
 		});
 	}
-
-	let { children }: Props = $props();
 </script>
 
 <svelte:window bind:innerWidth={width} />
@@ -63,16 +63,19 @@
 		></div>
 	</div>
 
-	<div class="relative z-30 flex flex-row h-full main" class:medium={global.medium}>
-		{#if !global.mobile || (global.mobile && page.url.pathname === "/")}
+	<div class="relative z-30 flex flex-row h-full main" class:medium={global.medium} class:mobile={global.mobile}>
+		{#if !global.mobile || (global.mobile && (page.url.pathname === "/" || page.url.pathname.startsWith("/faq") || page.url.pathname.startsWith("/partners")))}
 			<Sidebar />
 		{/if}
-		{@render children()}
+			{@render children()}
 	</div>
 </div>
 
 <style>
 	.main.medium {
+		flex-direction: column;
+	}
+	.main.mobile {
 		flex-direction: column;
 	}
 </style>

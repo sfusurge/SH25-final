@@ -30,7 +30,7 @@
 
 <button
     {style}
-    class={`bg-[#231f1f] alt flex flex-col items-start gap-2.5 self-stretch cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
+    class={`bg-[#231f1f] alt flex flex-col text-left items-start gap-2.5 self-stretch cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
     onclick={onClick}
 >
     {#if imageSrc}
@@ -39,7 +39,7 @@
 
     {#if header || text}
         <div
-            class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg]"
+            class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] px-2"
         >
             {#if header}
                 <h1 class="text-header text-sm italic self-stretch leading-normal font-bold">
@@ -47,7 +47,7 @@
                 </h1>
             {/if}
             {#if text}
-                <h3 class="text-textalt text-[12px] italic font-normal leading-normal px-2">
+                <h3 class="text-textalt text-[12px] italic font-normal leading-normal">
                     {text}
                 </h3>
             {/if}

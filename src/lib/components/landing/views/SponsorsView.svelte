@@ -136,9 +136,10 @@
     };
 </script>
 
-<div class="flex flex-col items-center justify-center w-full min-h-screen gap-6 p-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 w-full max-w-6xl gap-4 h-80">
-        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden h-full">
+
+<div class="flex flex-col items-center justify-center w-full gap-6 p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 w-full max-w-6xl gap-4 md:max-h-80">
+        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden h-80 md:h-full">
             <BlockPatternVertical className="h-full flex-shrink-0" />
             <div class="flex flex-col flex-1 p-4 overflow-y-auto hidden-scrollbar">
                 <div class="w-full mb-4">
@@ -168,7 +169,7 @@
             <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
         </div>
 
-        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden h-80">
+        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden max-h-80 md:h-full">
             <BlockPatternVertical className="h-full flex-shrink-0" />
             <div class="flex flex-col flex-1 items-center p-4 overflow-y-auto hidden-scrollbar">
                 <div class="w-full mb-4">
@@ -197,7 +198,7 @@
             <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
         </div>
 
-        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden">
+        <div class="flex flex-row items-stretch border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden max-h-80 md:h-full">
             <BlockPatternVertical className="h-full flex-shrink-0" />
             <div class="flex flex-col flex-1 items-center p-4 overflow-y-auto hidden-scrollbar">
                 <div class="w-full mb-4">
@@ -227,32 +228,32 @@
         </div>
     </div>
 
-    <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414] backdrop-blur-[5px] overflow-hidden my-4 overflow-y-auto overflow-x-hidden h-full hidden-scrollbar">
-        <div class="flex flex-row items-stretch min-h-[300px] h-full">
+    <div class="flex flex-col w-full max-w-6xl border border-[#574E49] bg-[#161414]/90 backdrop-blur-md overflow-hidden my-4">
+        <div class="flex flex-row items-stretch min-h-[300px]">
             <BlockPatternVertical className="h-full flex-shrink-0" />
-                <div class="flex flex-col flex-1 items-center">
-                    <div class="w-full pt-6 px-6">
-                        <h1 class="text-[#F1ECEB] text-[12px] italic font-bold leading-normal text-left">
-                            In-Kind Sponsors
-                        </h1>
-                    </div>
-                    <div class="flex flex-row gap-10 justify-center items-center flex-wrap p-8 w-full justify-center">
-                        {#each companies.inKind as company}
-                            <a
-                                    href={company.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="hover:scale-105 transition-transform duration-200"
-                                    title={company.name}
-                            >
-                                <img
-                                        src={company.picture}
-                                        alt={company.name}
-                                        class="max-h-20 max-w-[120px] object-contain"
-                                />
-                            </a>
-                        {/each}
-                    </div>
+            <div class="flex flex-col flex-1 items-center py-6">
+                <div class="w-full px-6 mb-4">
+                    <h1 class="text-[#F1ECEB] text-[12px] italic font-bold leading-normal text-left">
+                        In-Kind Sponsors
+                    </h1>
+                </div>
+                <div class="flex flex-row gap-6 md:gap-10 justify-center items-center flex-wrap px-6 pb-6 w-full">
+                    {#each companies.inKind as company}
+                        <a
+                                href={company.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="hover:scale-105 transition-transform duration-200"
+                                title={company.name}
+                        >
+                            <img
+                                    src={company.picture}
+                                    alt={company.name}
+                                    class="max-h-16 md:max-h-20 max-w-[100px] md:max-w-[120px] object-contain"
+                            />
+                        </a>
+                    {/each}
+                </div>
             </div>
             <BlockPatternVertical className="h-full rotate-180 flex-shrink-0" />
         </div>
