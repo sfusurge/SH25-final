@@ -1,20 +1,40 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		        <title>StormHacks 2025</title>
-        <meta name="description" content="Join us at SFU Burnaby Campus from October 4th to 5th for Western Canada's biggest hackathon" />
-		
-		<meta property="og:title" content="StormHacks 2025" />
-        <meta property="og:description" content="Join us at SFU Burnaby Campus from October 4th to 5th for Western Canada's biggest hackathon" />
-        <meta property="og:image" content="%sveltekit.assets%/assets/experiences/lofi.webp" />
-        <meta property="og:url" content="https://stormhacks.com" />
-        <meta property="og:type" content="website" />
-		%sveltekit.head%
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-81K9GMGPFV"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'G-81K9GMGPFV');
+	</script>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>StormHacks 2025</title>
+	<meta name="description"
+		content="Join us at SFU Burnaby Campus from October 4th to 5th for Western Canada's biggest hackathon" />
+
+	<meta property="og:site_name" content="sfusurge.com" />
+	<meta property="article:author" content="https://sfusurge.com" />
+	<meta property="article:publisher" content="https://sfusurge.com" />
+	<meta property="og:title" content="StormHacks 2025" />
+	<meta property="og:description"
+		content="Join us at SFU Burnaby Campus from October 4th to 5th for Western Canada's biggest hackathon" />
+	<meta property="og:url" content="https://stormhacks.com" />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="/assets/experiences/sh_highres.webp" />
+	<meta property="og:image:type" content="image/webp" />
+	<meta property="og:image:alt" content="Stormhacks 2025" />
+	<meta property="og:image:width" content="600" />
+	<meta property="og:image:height" content="337" />
+	%sveltekit.head%
+</head>
+
+<body data-sveltekit-preload-data="hover">
+	<div style="display: contents">%sveltekit.body%</div>
+</body>
+
 </html>

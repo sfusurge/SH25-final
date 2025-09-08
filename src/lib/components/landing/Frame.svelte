@@ -55,9 +55,9 @@
             {/if}
         </div>
     {/key}
-    <!-- <div class="cover" class:mobile>
+    <div class="cover" class:mobile>
         <Diamond height={32} width={24} />
-    </div> -->
+    </div>
 
     {#if !mobile}
         <img
@@ -136,9 +136,12 @@
         justify-content: center;
         align-items: center;
         position: absolute;
-        left: 2.87%;
-        top: 2.87%;
-        width: calc(100% - (2 * 2.87%));
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+
+        height: calc(100% - (2 * 2.87%));
+
         aspect-ratio: calc(872 / 511);
         /* transform: translate(0, -50%); */
         z-index: 1;

@@ -213,10 +213,6 @@
         margin: 0;
         height: 5rem;
     }
-    .root.mobile {
-        margin: 0;
-        height: 5rem;
-    }
     .hor {
         display: flex;
         flex-direction: row;

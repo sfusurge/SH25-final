@@ -119,19 +119,18 @@
         min-height: 0;
         min-width: 0;
         width: 100%;
-        height: 100%;
 
         overflow-y: auto;
         overflow-x: hidden;
     }
     .contentContainer.medium {
         max-width: 550px;
+        max-height: 100%;
     }
 
     .contentContainer.mobile {
         width: auto;
-        margin: 0.5rem 0.5rem;
-        max-height: 26.25rem;
-        overflow-y: auto;
+        margin: .5rem .5rem;
+        overflow-y:auto;
     }
 </style>

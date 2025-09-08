@@ -22,7 +22,7 @@
 		<div class="content">
 			<div class="inner">
 				<div class="header">
-					<h2 class="title">Community garden</h2>
+					<h2 class="title">Community Garden</h2>
 					<button class="start-btn" type="button" on:click={onStart}
 						>{isRunning ? "Continue Game" : "Start Game"}</button
 					>

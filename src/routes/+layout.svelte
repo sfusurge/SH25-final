@@ -27,6 +27,7 @@
 	import { onMount, type Snippet } from "svelte";
 	import { dev } from "$app/environment";
 	import { page } from "$app/state";
+	import MobileTopBar from "$lib/components/landing/Sidebar/MobileTopBar/MobileTopBar.svelte";
 
 	interface Props {
 		children: Snippet;
@@ -48,6 +49,7 @@
 <div
 	class="h-screen w-full relative overflow-x-hidden bg-[#0C0C0B] flex flex-row root"
 	class:medium={global.medium}
+	class:mobile={global.mobile}
 >
 	<AmbiancePlayer />
 
@@ -66,9 +68,14 @@
 		></div>
 	</div>
 
-	{#if !global.mobile || (global.mobile && (page.url.pathname === "/"  || page.url.pathname.startsWith("/partners")))}
+	{#if !global.mobile || (global.mobile && page.url.pathname === "/")}
 		<Sidebar />
 	{/if}
+
+	{#if global.mobile && page.url.pathname !== "/music" && page.url.pathname !== "/"}
+		<MobileTopBar />
+	{/if}
+
 	{@render children()}
 </div>
 
@@ -76,7 +83,8 @@
 	.root.medium {
 		flex-direction: column;
 	}
-	.main.mobile {
+
+	.root.mobile {
 		flex-direction: column;
 	}
 </style>

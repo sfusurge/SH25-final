@@ -42,14 +42,26 @@
         <span class="title">Background</span>
         <HorizontalDivider />
 
-        <HoverEffectButton
-            style="font-size: 15px; padding:0.5rem;"
-            onClick={() => {
-                toggleBackground();
-            }}
-        >
-            Swap Background
-        </HoverEffectButton>
+        <div class="hor gap-2">
+            <HoverEffectButton
+                style="font-size: 15px; padding:0.5rem; height:36px;"
+                onClick={() => {
+                    toggleBackground(false);
+                }}
+            >
+                Swap Background
+            </HoverEffectButton>
+
+            <HoverEffectButton
+                style="font-size: 15px; padding:0.5rem;"
+                onClick={() => {
+                    toggleBackground(true);
+                }}
+                large
+            >
+                <img src="/assets/moon.svg" alt="" style="width:24px; height:24px;" />
+            </HoverEffectButton>
+        </div>
     </Dialog>
 {/snippet}
 
@@ -58,6 +70,7 @@
     class="flex flex-1 flex-col h-full layoutRoot"
     style="max-height: 100dvh; justify-content: center; "
     class:mobile={global.mobile}
+    class:medium={global.medium}
 >
     {#if global.mobile}
         <!-- Topbar -->
@@ -122,7 +135,9 @@
         padding: 4rem;
         gap: 1rem;
     }
-
+    .layoutRoot.medium {
+        padding: 2rem;
+    }
     .layoutRoot.mobile {
         margin: 0;
         gap: 0;
