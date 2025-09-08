@@ -32,18 +32,10 @@
             <!-- Overlays above the frame image -->
             {#if !global.mobile}
                 <div
-                    class="absolute top-0 left-0 right-0 z-40 flex justify-between items-start pt-8 px-8 m-5"
+                    class="absolute top-0 left-0 right-0 z-10 flex justify-between items-start pt-8 px-8 m-5"
                 >
                     <Pause />
                     <DesktopShop />
-                </div>
-            {/if}
-            {#if !global.mobile}
-                <div
-                    class="absolute bottom-0 left-1/2 -translate-x-1/2 z-0 flex justify-center items-start pb-4 gap-8"
-                >
-                    <DesktopTimer />
-                    <DesktopScore />
                 </div>
             {/if}
         </div>
@@ -62,13 +54,6 @@
         width: auto;
         max-width: 100%;
         aspect-ratio: 872 / 511;
-    }
-
-    .frame-wrap {
-        --inset-top: 2.9%;
-        --inset-right: 2.7%;
-        --inset-bottom: 3.4%; /* a touch more if the bottom leaks */
-        --inset-left: 2.8%;
     }
 
     /* Responsive adjustments for smaller screens */

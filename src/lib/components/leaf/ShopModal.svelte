@@ -112,11 +112,11 @@
 
 	.dialog {
 		position: absolute;
-		top: 50%;
+		top: 48%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 50%;
-		height: 83%;
+		width: 44%;
+		height: 75%;
 		background:
 			url("/assets/experiences/leaf/modal_bg.png") center / cover
 				no-repeat,
@@ -130,8 +130,8 @@
 	}
 
 	.inner {
-		width: 73%;
-		height: 79.2%;
+		width: 70%;
+		height: 80%;
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
@@ -193,7 +193,7 @@
 
 	.action-btn {
 		display: flex;
-		width: 92%;
+		width: 100%;
 		height: 110%;
 		aspect-ratio: 333 / 50;
 		padding: 4px 10px;

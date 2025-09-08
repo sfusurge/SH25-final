@@ -24,7 +24,7 @@
 				<div class="header">
 					<h2 class="title">Community garden</h2>
 					<button class="start-btn" type="button" on:click={onStart}
-					>{isRunning ? "Continue Game" : "Start Game"}</button
+						>{isRunning ? "Continue Game" : "Start Game"}</button
 					>
 				</div>
 				<div class="picture">
@@ -35,33 +35,33 @@
 				</div>
 				<div class="nav-buttons">
 					<button
-							class="nav-btn"
-							type="button"
-							on:click={() =>
+						class="nav-btn"
+						type="button"
+						on:click={() =>
 							(picIdx =
 								picIdx > 0 ? picIdx - 1 : pictures.length - 1)}
 					>
 						<img
-								src="/assets/experiences/leaf/back_button.png"
-								alt="Previous"
+							src="/assets/experiences/leaf/back_button.png"
+							alt="Previous"
 						/>
 					</button>
 					<button
-							class="nav-btn"
-							type="button"
-							on:click={nextPicture}
+						class="nav-btn"
+						type="button"
+						on:click={nextPicture}
 					>
 						<img
-								src="/assets/experiences/leaf/next_button.png"
-								alt="Next"
+							src="/assets/experiences/leaf/next_button.png"
+							alt="Next"
 						/>
 					</button>
 				</div>
 				<div class="pagination">
 					{#each pictures as _, index}
 						<div
-								class="pagination-dot"
-								class:active={index === picIdx}
+							class="pagination-dot"
+							class:active={index === picIdx}
 						></div>
 					{/each}
 				</div>
@@ -76,17 +76,17 @@
 		inset: 0;
 		background: rgba(0, 0, 0, 0.5);
 		display: block;
-		z-index: 10000; /* Highest priority - above all game elements */
+		z-index: 1000000; /* Highest priority - above all game elements */
 	}
 	.modal {
 		position: absolute;
-		top: 50%;
+		top: 48%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 53%;
-		height: 84%;
+		width: 50%;
+		height: 77.5%;
 		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
-		100% no-repeat;
+			100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
@@ -104,13 +104,13 @@
 	}
 	.inner {
 		width: 90%;
-		height: 92%;
+		height: 95%;
 		padding: 0.5cqh 0.5cqw;
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 2cqh;
+		gap: 1.9cqh;
 		max-height: 100%;
 		overflow: hidden;
 	}
@@ -147,7 +147,7 @@
 	}
 	.description {
 		width: 100%;
-		height: 10cqh;
+		height: 8cqh;
 		margin: -1cqh 0 0 0;
 		padding: 0;
 		color: #8a6f6a;
@@ -307,4 +307,3 @@
 		}
 	}
 </style>
-

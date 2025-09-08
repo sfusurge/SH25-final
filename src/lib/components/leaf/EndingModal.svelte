@@ -47,11 +47,11 @@
 	}
 	.modal {
 		position: absolute;
-		top: 50%;
+		top: 48%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 53%;
-		height: 84%;
+		width: 50%;
+		height: 77%;
 		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
 			100% no-repeat;
 		border-radius: 0;

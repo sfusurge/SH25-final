@@ -5,6 +5,7 @@
 	import Customer from "$lib/components/leaf/Customer.svelte";
 	import ShopModal from "$lib/components/leaf/ShopModal.svelte";
 	import QTE from "$lib/components/leaf/QTE.svelte";
+	import { global } from "../../../routes/+layout.svelte";
 	import {
 		observeLayout,
 		isMobile,
@@ -37,6 +38,8 @@
 	import { customerSlots } from "$lib/components/leaf/gameData/customerData.ts";
 	import InstructionsModal from "./InstructionsModal.svelte";
 	import EndingModal from "./EndingModal.svelte";
+	import DesktopTimer from "./DesktopTimer.svelte";
+	import DesktopScore from "./DesktopScore.svelte";
 
 	function onOpenModal() {
 		shopOpen.set(true);
@@ -248,11 +251,9 @@
 			isRunning={$gamePhase === "running"}
 			onStart={() => {
 				if ($gamePhase === "running") {
-					// Continue game
 					showInstructionsDuringGame.set(false);
 					resumeGame();
 				} else {
-					// Start new game
 					closeShop();
 					game.startGame();
 				}
@@ -311,6 +312,15 @@
 		{/each}
 	{/if}
 </div>
+
+{#if !global.mobile}
+	<div
+		class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[-1] flex justify-center items-start pb-0 gap-8"
+	>
+		<DesktopTimer />
+		<DesktopScore />
+	</div>
+{/if}
 
 <style>
 	* {

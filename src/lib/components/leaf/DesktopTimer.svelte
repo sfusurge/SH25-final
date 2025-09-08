@@ -25,7 +25,9 @@
 </script>
 
 {#if !$isMobile}
-    <div class="mt-auto mb-8 relative border border-border bg-background h-11">
+    <div
+        class="mt-auto mb-8 relative border border-border bg-background h-11 z-0"
+    >
         <RockFilter />
         <div class="flex justify-between items-center h-full w-40">
             <BlockPatternVertical className="h-11 mr-2" />
