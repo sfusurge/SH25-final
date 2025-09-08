@@ -66,12 +66,10 @@
 		></div>
 	</div>
 
-	<div class="relative z-30 flex flex-row h-full main" class:medium={global.medium} class:mobile={global.mobile}>
-		{#if !global.mobile || (global.mobile && (page.url.pathname === "/" || page.url.pathname.startsWith("/faq") || page.url.pathname.startsWith("/partners")))}
-			<Sidebar />
-		{/if}
-			{@render children()}
-	</div>
+	{#if !global.mobile || (global.mobile && (page.url.pathname === "/" || page.url.pathname.startsWith("/faq") || page.url.pathname.startsWith("/partners")))}
+		<Sidebar />
+	{/if}
+	{@render children()}
 </div>
 
 <style>
