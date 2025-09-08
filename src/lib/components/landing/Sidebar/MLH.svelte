@@ -1,4 +1,4 @@
-<div class="flex flex-row items-center justify-center w-full h-full pt-4">
+<div class="flex flex-row items-center justify-center pt-4">
     <a
         href="https://mlh.io"
         target="_blank"

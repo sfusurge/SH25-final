@@ -8,6 +8,7 @@
         style?: string;
         active?: boolean;
         square?: boolean;
+        large?: boolean;
     }
 
     let {
@@ -17,6 +18,7 @@
         active = false,
         children,
         square = false,
+        large = false,
     }: Props = $props();
 </script>
 
@@ -25,6 +27,7 @@
     class={`bg-[#231f1f] alt flex justify-center items-center cursor-pointer group relative transition-all duration-300 border-[0.643px] border-primary hover:border-border hover:shadow-[0_0_6px_0_var(--color-primary)] ${className} ${active ? "shadow-[0_0_12px_0_var(--color-primary)] border-border" : ""}`}
     onclick={onClick}
     class:square
+    class:large
 >
     <div
         class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg]"
@@ -51,5 +54,12 @@
         min-width: 24px;
         width: 24px;
         height: 24px;
+    }
+
+    .large {
+        min-width: 36px;
+
+        width: 36px;
+        height: 36px;
     }
 </style>

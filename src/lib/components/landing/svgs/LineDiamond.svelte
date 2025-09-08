@@ -5,14 +5,7 @@
         className?: string;
     }
 
-    let { height, width, className = '' }: Props = $props();
+    let { height, width, className = "" }: Props = $props();
 </script>
 
-<img
-        src="/assets/line-diamond.svg"
-        {height}
-        {width}
-        alt="horizontal pattern"
-        class="flex-1 {className}"
-        data-demon="border"
-/>
+<img src="/assets/line-diamond.svg" {height} {width} class="flex-1 {className}" />

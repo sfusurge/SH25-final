@@ -1,5 +1,19 @@
-<div class="flex flex-row justify-center items-center gap-4 mt-4">
-    {#each [{ href: "https://www.instagram.com/sfusurge/", src: "/assets/ig.svg", alt: "Instagram" }, { href: "https://sfusurge.com", src: "/assets/web.svg", alt: "Website" }, { href: "https://www.linkedin.com/company/sfu-surge/", src: "/assets/linkedin.svg", alt: "LinkedIn" }] as icon}
+<script lang="ts">
+    import { global } from "../../../routes/+layout.svelte";
+
+    const links = [
+        { href: "https://www.instagram.com/sfusurge/", src: "/assets/ig.svg", alt: "Instagram" },
+        { href: "https://sfusurge.com", src: "/assets/web.svg", alt: "Website" },
+        {
+            href: "https://www.linkedin.com/company/sfu-surge/",
+            src: "/assets/linkedin.svg",
+            alt: "LinkedIn",
+        },
+    ];
+</script>
+
+<div class="flex flex-row justify-center items-center gap-4 mt-4 {global.medium ? 'mb-8' : ''}">
+    {#each links as icon}
         <a href={icon.href} target="_blank" rel="noopener noreferrer">
             <img
                 src={icon.src}
