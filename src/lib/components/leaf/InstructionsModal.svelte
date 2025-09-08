@@ -156,10 +156,6 @@
 		font-weight: 400;
 		line-height: normal;
 		text-align: left;
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/fix_optimize
 		overflow: hidden;
 	}
 	.start-btn {
@@ -219,7 +215,7 @@
 		background-color: #f1eceb;
 	}
 
-	/* @container (max-width: 640px) {
+	@container (max-width: 640px) {
 		.modal {
 			width: 90%;
 			height: 60%;
@@ -308,5 +304,5 @@
 		.pagination {
 			gap: 0.6cqw;
 		}
-	} */
+	}
 </style>

@@ -20,7 +20,7 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
         majorMod: 1.0,
         minorMod: 1.0,
         offsetYcqh: -8,
-        offsetYcqh640: -10,
+        offsetYcqh640: -6,
         offsetYcqh400: -4
     },
     // Vine
@@ -32,7 +32,7 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
         majorMod: 1.0,
         minorMod: 1.0,
         offsetYcqh: 18,
-        offsetYcqh640: 14,
+        offsetYcqh640: 20,
         offsetYcqh400: 18
     },
     // Tomato
@@ -68,7 +68,7 @@ export const qteConfigByPlant: Record<string, QTEConfig> = {
         majorMod: 1.0,
         minorMod: 1.0,
         offsetYcqh: -12,
-        offsetYcqh640: -12,
+        offsetYcqh640: -10,
         offsetYcqh400: -8
     },
     // Dandelion

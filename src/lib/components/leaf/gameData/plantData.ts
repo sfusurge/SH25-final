@@ -15,6 +15,10 @@ export const plantData = [
             width: '40%',
             transform: 'translate(-57%, -88%)'
         },
+        mobileVeryNarrowPosition: {
+            width: '47%',
+            transform: 'translate(-57%, -88%)'
+        },
         points: 100,
     },
     {
@@ -27,7 +31,11 @@ export const plantData = [
             transform: 'translate(-40%, -42%)'
         },
         mobilePosition: {
-            width: '100%',
+            width: '150%',
+            transform: 'translate(-40%, -42%)'
+        },
+        mobileVeryNarrowPosition: {
+            width: '200%',
             transform: 'translate(-40%, -42%)'
         },
         points: 3000,
@@ -45,6 +53,10 @@ export const plantData = [
             width: '18%',
             transform: 'translate(-52%, -97%)'
         },
+        mobileVeryNarrowPosition: {
+            width: '20%',
+            transform: 'translate(-52%, -97%)'
+        },
         points: 20,
     },
     {
@@ -57,6 +69,10 @@ export const plantData = [
             transform: 'translate(-50%, -85%)'
         },
         mobilePosition: {
+            width: '15%',
+            transform: 'translate(-52%, -90%)'
+        },
+        mobileVeryNarrowPosition: {
             width: '15%',
             transform: 'translate(-52%, -90%)'
         },
@@ -75,6 +91,10 @@ export const plantData = [
             width: '20%',
             transform: 'translate(-52%, -96.55%)'
         },
+        mobileVeryNarrowPosition: {
+            width: '20%',
+            transform: 'translate(-52%, -96.55%)'
+        },
         points: 99999,
     },
     {
@@ -89,6 +109,10 @@ export const plantData = [
         mobilePosition: {
             width: '25%',
             transform: 'translate(-32%, -96.55%)'
+        },
+        mobileVeryNarrowPosition: {
+            width: '25%',
+            transform: 'translate(-35%, -96.55%)'
         },
         points: 250,
     }
