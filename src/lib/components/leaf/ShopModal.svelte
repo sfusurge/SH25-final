@@ -252,19 +252,24 @@
 		}
 
 		.inner-header h2 {
-			font-size: 3cqw;
+			font-size: 4cqw;
 		}
 
 		.close {
-			font-size: 3cqw;
+			font-size: 4cqw;
+		}
+
+		.content {
+			column-gap: 1%;
+		}
+
+		.card {
+			gap: 0.8cqh;
 		}
 
 		.plant-img {
-			max-height: 30cqh;
-		}
-
-		.action-btn {
-			width: 100%;
+			max-height: 28cqh;
+			width: 88%;
 		}
 
 		.close-btn {
@@ -272,7 +277,7 @@
 		}
 
 		.action-btn {
-			width: 100%;
+			width: 88%;
 			height: 3cqw;
 			font-size: 2.25cqw;
 		}
@@ -301,6 +306,7 @@
 
 		.plant-img {
 			max-height: 28cqw;
+			width: 21cqw;
 		}
 
 		.action-btn {
