@@ -79,6 +79,12 @@
                     tier: "Bronze",
                     picture: "/assets/sponsors/Monetary/Logo/ColorStack SFU/Platinum-ColorStack.png",
                     link: "https://www.colorstack.org/"
+                },
+                {
+                    name: "Ekohe",
+                    tier: "Bronze",
+                    picture: "/assets/sponsors/Monetary/Logo/Ekohe/ekohe.png",
+                    link: "https://www.ekohe.com/"
                 }
             ]
         },
