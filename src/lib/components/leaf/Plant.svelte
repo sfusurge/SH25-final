@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
-	import { Stock, game } from "$lib/components/leaf/gameData/LeafGame.ts";
-	import { isMobile } from "$lib/components/leaf/gameData/layout";
+	import {
+		Stock,
+		game,
+		tempSelectedPlant,
+	} from "$lib/components/leaf/gameData/LeafGame.ts";
+	import { isMobile, isNarrow } from "$lib/components/leaf/gameData/layout";
 	type PlantMeta = {
 		key: string;
 		imageSrc: string;
@@ -12,6 +16,7 @@
 			transform?: string;
 		};
 		mobilePosition?: { width: string; transform?: string };
+		mobileVeryNarrowPosition?: { width: string; transform?: string };
 	};
 	export let plant: PlantMeta;
 	export let bucketState: Stock;
@@ -22,16 +27,21 @@
 	$: posLeft = basePosition?.left ?? plant.position.left;
 	$: posTop = basePosition?.top ?? plant.position.top;
 	$: imgTransform =
-		($isMobile && plant.mobilePosition
-			? plant.mobilePosition.transform
-			: plant.position.transform) ?? "";
+		($isNarrow && plant.mobileVeryNarrowPosition
+			? plant.mobileVeryNarrowPosition.transform
+			: $isMobile && plant.mobilePosition
+				? plant.mobilePosition.transform
+				: plant.position.transform) ?? "";
 	$: widthVal =
-		$isMobile && plant.mobilePosition
-			? plant.mobilePosition.width
-			: plant.position.width;
+		$isNarrow && plant.mobileVeryNarrowPosition
+			? plant.mobileVeryNarrowPosition.width
+			: $isMobile && plant.mobilePosition
+				? plant.mobilePosition.width
+				: plant.position.width;
+	$: isSelected = $tempSelectedPlant === plant.key;
 </script>
 
-<img
+```<img
 	src={plant.imageSrc}
 	alt=""
 	class="plant"
@@ -39,10 +49,12 @@
 	class:overPlant2={plant.key === "plant5"}
 	class:plant4={plant.key === "plant4"}
 	class:disabled={isOut}
+	class:selected={isSelected}
 	style="left:{posLeft}; top:{posTop}; width:{widthVal}; transform:{imgTransform}"
 	draggable="false"
 	on:click={() => isAvailable && dispatch("click")}
 />
+```
 
 <style>
 	.plant {
@@ -76,11 +88,24 @@
 	.plant:active {
 		filter: brightness(0.95);
 	}
+	.plant.selected {
+		filter: drop-shadow(0 0 8px #ffd700) brightness(1.1);
+		transform: scale(1.05);
+	}
+
+	.plant.selected:hover {
+		filter: drop-shadow(0 0 8px #ffd700) brightness(1.15);
+	}
+
+	.plant.selected:active {
+		filter: drop-shadow(0 0 8px #ffd700) brightness(1.05);
+	}
+
 	.plant.disabled {
 		opacity: 0.3;
 		pointer-events: none;
 		cursor: default;
 		filter: none;
-		transform: none;
+		transform: none !important;
 	}
 </style>
