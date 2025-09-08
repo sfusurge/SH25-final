@@ -1,21 +1,25 @@
 <script lang="ts">
 	// Mode: display shows icon+value; button shows inner clickable icon
-	export let mode: 'display' | 'button' = 'display';
+	export let mode: "display" | "button" = "display";
 
 	// Content
 	export let value: string | number | undefined = undefined;
 	export let onClick: (() => void) | undefined = undefined;
 
 	// Visual assets
-	export let containerSrc: string = '/assets/experiences/leaf/container.png'; // box background (from /static)
+	export let containerSrc: string = "/assets/experiences/leaf/container.png"; // box background (from /static)
 	export let iconSrc: string | undefined = undefined; // left icon in display mode
 </script>
 
-{#if mode === 'button'}
+{#if mode === "button"}
 	<!-- Static background box; only the inner image button is clickable -->
 	<div class="hud-box" style="background-image: url({containerSrc});">
 		<button type="button" class="icon-button" on:click={onClick}>
-			<img src="/assets/experiences/leaf/view_shop.png" alt="" class="icon" />
+			<img
+				src="/assets/experiences/leaf/view_shop.png"
+				alt=""
+				class="icon"
+			/>
 		</button>
 	</div>
 {:else}
@@ -24,7 +28,7 @@
 			<img src={iconSrc} alt="" class="left-icon" />
 		{/if}
 		{#if value !== undefined}
-			<span class="value" aria-live="polite">{value}</span>
+			<span class="value">{value}</span>
 		{/if}
 	</div>
 {/if}
@@ -84,7 +88,7 @@
 	.value {
 		font-size: max(0.625vw, 1.11vh);
 		color: #8a6f6a;
-		font-family: 'Catriel', catriel, sans-serif;
+		font-family: "Catriel", catriel, sans-serif;
 		font-weight: 400;
 		letter-spacing: 0.02em;
 	}

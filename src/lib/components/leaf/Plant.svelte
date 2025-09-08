@@ -1,11 +1,16 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
-	import { Stock, game } from '$lib/components/leaf/gameData/LeafGame.ts';
-	import { isMobile } from '$lib/components/leaf/gameData/layout';
+	import { createEventDispatcher } from "svelte";
+	import { Stock, game } from "$lib/components/leaf/gameData/LeafGame.ts";
+	import { isMobile } from "$lib/components/leaf/gameData/layout";
 	type PlantMeta = {
 		key: string;
 		imageSrc: string;
-		position: { left?: string; top?: string; width: string; transform?: string };
+		position: {
+			left?: string;
+			top?: string;
+			width: string;
+			transform?: string;
+		};
 		mobilePosition?: { width: string; transform?: string };
 	};
 	export let plant: PlantMeta;
@@ -19,21 +24,24 @@
 	$: imgTransform =
 		($isMobile && plant.mobilePosition
 			? plant.mobilePosition.transform
-			: plant.position.transform) ?? '';
+			: plant.position.transform) ?? "";
 	$: widthVal =
-		$isMobile && plant.mobilePosition ? plant.mobilePosition.width : plant.position.width;
+		$isMobile && plant.mobilePosition
+			? plant.mobilePosition.width
+			: plant.position.width;
 </script>
 
 <img
 	src={plant.imageSrc}
 	alt=""
 	class="plant"
-	class:overBucket={plant.key === 'plant2'}
-	class:overPlant2={plant.key === 'plant5'}
+	class:overBucket={plant.key === "plant2"}
+	class:overPlant2={plant.key === "plant5"}
+	class:plant4={plant.key === "plant4"}
 	class:disabled={isOut}
 	style="left:{posLeft}; top:{posTop}; width:{widthVal}; transform:{imgTransform}"
 	draggable="false"
-	on:click={() => isAvailable && dispatch('click')}
+	on:click={() => isAvailable && dispatch("click")}
 />
 
 <style>
@@ -41,19 +49,25 @@
 		position: absolute;
 		display: block;
 		height: auto;
-		z-index: 1;
+		z-index: 10; /* Higher than buckets (z-index 2-7) and customers (z-index 2) */
 		cursor: pointer;
 		transition:
 			transform 0.15s ease,
 			filter 0.15s ease,
 			opacity 0.15s ease;
+		pointer-events: auto; /* Explicitly enable pointer events */
 	}
 	.plant.overBucket {
-		z-index: 8;
+		z-index: 18; /* Plant2 over buckets */
 	}
 
 	.plant.overPlant2 {
-		z-index: 9;
+		z-index: 19; /* Plant5 over Plant2 */
+	}
+
+	/* Plant 4 needs higher z-index to be clickable over customer-hit areas */
+	.plant.plant4 {
+		z-index: 16;
 	}
 
 	.plant:hover {

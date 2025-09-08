@@ -8,7 +8,7 @@ export const plantData = [
         altText: 'Monstera',
         // width uses vw; left/top inherit from bucket; adjust via transform
         position: {
-            width: '15%',
+            width: '22%',
             transform: 'translate(-57%, -88%)'
         },
         mobilePosition: {
@@ -23,7 +23,7 @@ export const plantData = [
         imageSrc: '/assets/experiences/leaf/plant/plant2.png',
         altText: 'River Vine',
         position: {
-            width: '50%',
+            width: '63%',
             transform: 'translate(-40%, -42%)'
         },
         mobilePosition: {
@@ -38,7 +38,7 @@ export const plantData = [
         imageSrc: '/assets/experiences/leaf/plant/plant3.png',
         altText: 'Tomato',
         position: {
-            width: '6.5%',
+            width: '9.5%',
             transform: 'translate(-56%, -95%)'
         },
         mobilePosition: {
@@ -53,7 +53,7 @@ export const plantData = [
         imageSrc: '/assets/experiences/leaf/plant/plant4.png',
         altText: 'Staff Stick',
         position: {
-            width: '6%',
+            width: '8%',
             transform: 'translate(-50%, -85%)'
         },
         mobilePosition: {
@@ -68,7 +68,7 @@ export const plantData = [
         imageSrc: '/assets/experiences/leaf/plant/plant5.png',
         altText: 'Mega Carrot',
         position: {
-            width: '7%',
+            width: '10%',
             transform: 'translate(-50%, -97%)'
         },
         mobilePosition: {
@@ -83,7 +83,7 @@ export const plantData = [
         imageSrc: '/assets/experiences/leaf/plant/plant6.png',
         altText: 'Giant Dandelion',
         position: {
-            width: '11%',
+            width: '15%',
             transform: 'translate(-32%, -90%)'
         },
         mobilePosition: {

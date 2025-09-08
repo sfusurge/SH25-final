@@ -4,12 +4,22 @@
 	export let translate: string | undefined = undefined;
 	export let progress: number | undefined = undefined;
 
-	$: clampedProgress = progress == null ? null : Math.max(0, Math.min(1, progress));
-	$: pctWidth = clampedProgress == null ? '100%' : `${Math.round(clampedProgress * 100)}%`;
+	$: clampedProgress =
+		progress == null ? null : Math.max(0, Math.min(1, progress));
+	$: pctWidth =
+		clampedProgress == null
+			? "100%"
+			: `${Math.round(clampedProgress * 100)}%`;
 	$: hasTimer = progress !== undefined;
 </script>
 
-<div class="order-card" style:left style:top style:transform={translate} {...$$restProps}>
+<div
+	class="order-card"
+	style:left
+	style:top
+	style:transform={translate}
+	{...$$restProps}
+>
 	<slot />
 	{#if hasTimer}
 		<div class="order-timer">
@@ -28,8 +38,8 @@
 		background: #fffccf;
 		border-radius: 0.5208333333vw;
 		padding: 0.5vw 0.6vw 0.9375vw;
-		width: var(--orderW, 5%);
-		max-height: 9.3vh;
+		width: 7%;
+		max-height: 18%;
 		font-family: sans-serif;
 		color: #6d6d6d;
 		font-size: 1.2vh;

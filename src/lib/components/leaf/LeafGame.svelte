@@ -1,74 +1,26 @@
 <script lang="ts">
-	import Background from './Background.svelte';
-	import { isMobile } from '$lib/components/leaf/gameData/layout';
+	import Pause from "./Pause.svelte";
+	import DesktopShop from "$lib/components/leaf/DesktopShop.svelte";
+	import Frame from "$lib/components/leaf/Frame.svelte";
+	import DesktopTimer from "./DesktopTimer.svelte";
+	import DesktopScore from "./DesktopScore.svelte";
 </script>
 
-{#if $$props.mobile}
-	<div class="relative w-full h-[75dvh]">
-		<div id="leafGame" class:mobile={$isMobile}>
-			<Background />
-		</div>
+<div class="flex-1 sm:flex flex-col hidden h-full" style="max-height: 100dvh">
+	<div class="flex justify-between items-start pt-8 px-8">
+		<Pause />
+		<DesktopShop />
 	</div>
-{:else}
+
 	<div
-			class="inset-0 relative"
-			style="
-          height: 100%;
-          width: auto;
-          max-width: 100%;
-          object-fit: contain;
-          display: flex;
-          aspect-ratio: calc(872/511);
-       "
+		class="m-8 flex-1 flex items-center justify-center"
+		style="min-height: 0"
 	>
-		<div
-				style="
-             position: absolute;
-             left: 2.87%;
-             top: 50%;
-             width: calc(100% - (2 * 2.87%));
-             aspect-ratio: calc(872/511);
-             transform: translate(0, -50%);
-             z-index: 3;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-          "
-		>
-			<div id="leafGame" class:mobile={$isMobile}>
-				<Background />
-			</div>
-		</div>
-
-		<img
-				src="/assets/frame.svg"
-				alt="frame"
-				class="object-contain absolute inset-0 pointer-events-none z-10 w-full h-full"
-				loading="eager"
-				data-demon="border"
-		/>
+		<Frame />
 	</div>
-{/if}
 
-<style>
-	* {
-		--leafGameHeight: 80vh;
-	}
-
-	#leafGame {
-		width: calc(100vw - 2px);
-		aspect-ratio: 19 / 8;
-		height: auto;
-		max-height: 100vh;
-		border: 1px solid;
-		overflow: visible;
-		background: #1b3534;
-	}
-
-	#leafGame.mobile {
-		aspect-ratio: 393 / 852;
-		width: 100vw;
-		height: auto;
-		max-height: 100vh;
-	}
-</style>
+	<div class="flex justify-center items-start pb-4 gap-8">
+		<DesktopTimer />
+		<DesktopScore />
+	</div>
+</div>

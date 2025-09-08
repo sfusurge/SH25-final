@@ -68,10 +68,6 @@
         padding: 1rem;
         height: 3rem;
         width: 100%;
-    }
-    .topbar {
-        width: 100dvw;
-        background-color: var(--color-background);
         position: fixed;
         left: 0;
         top: 0;
