@@ -31,7 +31,7 @@
                 {
                     name: "AMD",
                     tier: "Platinum",
-                    picture: "/assets/sponsors/Monetary/Logo/CDM/Blue_Centre for digital media.png",
+                    picture: "/assets/sponsors/Monetary/Logo/AMD/AMD-Logo-SVG_001.svg",
                     link: "https://www.amd.com/en.html"
                 },
                 {
