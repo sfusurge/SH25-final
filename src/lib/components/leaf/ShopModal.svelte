@@ -121,7 +121,7 @@
 		left: 50%;
 		transform: translate(-50%, -50%);
 		width: 44%;
-		height: 75%;
+		height: 90%;
 		background:
 			url("/assets/experiences/leaf/modal_bg.png") center / cover
 				no-repeat,

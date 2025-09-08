@@ -266,7 +266,7 @@
 	@container (max-width: 400px) {
 		.modal {
 			width: 90%;
-			height: 48%;
+			height: 50%;
 		}
 
 		.inner {
@@ -294,7 +294,13 @@
 		.nav-btn {
 			width: 8cqw;
 			height: 8cqw;
-			margin: 0cqw;
+			margin: -1.2cqh 0.7cqw;
+		}
+
+		.nav-btn img {
+			width: 80%;
+			height: 80%;
+			object-fit: contain;
 		}
 
 		.pagination-dot {
@@ -304,14 +310,6 @@
 
 		.pagination {
 			gap: 0.6cqw;
-		}
-
-		.nav-btn {
-			display: flex;
-			width: 5cqw;
-			height: 2.5cqw;
-			padding: 0;
-			margin: 0 -6cqw;
 		}
 	}
 </style>
