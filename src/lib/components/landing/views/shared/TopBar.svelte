@@ -68,11 +68,15 @@
         padding: 1rem;
         height: 3rem;
         width: 100%;
+    }
+    .topbar {
         position: fixed;
         left: 0;
         top: 0;
         width: 100%;
 
+        width: 100dvw;
+        background-color: var(--color-background);
         display: flex;
         flex-direction: column;
         align-items: center;

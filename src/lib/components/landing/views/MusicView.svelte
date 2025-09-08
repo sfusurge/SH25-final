@@ -58,6 +58,7 @@
     class="flex flex-1 flex-col h-full layoutRoot"
     style="max-height: 100dvh; justify-content: center; "
     class:mobile={global.mobile}
+    class:medium={global.medium}
 >
     {#if global.mobile}
         <!-- Topbar -->
@@ -122,7 +123,9 @@
         padding: 4rem;
         gap: 1rem;
     }
-
+    .layoutRoot.medium {
+        padding: 2rem;
+    }
     .layoutRoot.mobile {
         margin: 0;
         gap: 0;
