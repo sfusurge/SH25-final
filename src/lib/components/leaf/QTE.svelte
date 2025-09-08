@@ -17,6 +17,12 @@
 <script lang="ts">
 	let { onQTE, onDone, attempts = 3, config }: QTEProps = $props();
 
+	import {
+		gamePaused,
+		pauseStartTime,
+		totalPauseTime,
+	} from "$lib/components/leaf/gameData/LeafGame";
+
 	// -------- geometry constants (single source of truth) ----------
 	const RADIUS_INSET_FRAC = 0.01875; // 1.5px on an 80px button
 	const THICKNESS_FRAC = 0.125; // 10px on an 80px button
@@ -52,13 +58,44 @@
 	let successes = $state(0);
 	let sessionDone = $state(false);
 
+	const timeOriginOffset = Date.now() - performance.now();
+	const startWallMs = Date.now();
+	const basePausedMsAtStart =
+		$totalPauseTime +
+		($pauseStartTime ? Math.max(0, startWallMs - $pauseStartTime) : 0);
+
 	function updateTimer(t: number) {
 		if (sessionDone) return;
-		timer = (t % (config.duration * 1000)) / 1000;
+		if ($gamePaused) {
+			// Stop scheduling frames while paused
+			rafId = null;
+			return;
+		}
+		const nowWallMs = t + timeOriginOffset;
+		const effectivePausedMs =
+			$totalPauseTime +
+			($pauseStartTime ? Math.max(0, nowWallMs - $pauseStartTime) : 0);
+		const pausedDeltaSinceStart = Math.max(
+			0,
+			effectivePausedMs - basePausedMsAtStart,
+		);
+		const elapsedActiveMs = Math.max(
+			0,
+			nowWallMs - startWallMs - pausedDeltaSinceStart,
+		);
+		timer = (elapsedActiveMs % (config.duration * 1000)) / 1000;
 		rafId = requestAnimationFrame(updateTimer);
 	}
 
 	$effect(() => {
+		if (sessionDone) return;
+		// If paused, cancel any pending RAF and do not schedule
+		if ($gamePaused) {
+			if (rafId != null) cancelAnimationFrame(rafId);
+			rafId = null;
+			return;
+		}
+		// If not paused, ensure RAF is running
 		rafId = requestAnimationFrame(updateTimer);
 		return () => {
 			if (rafId != null) cancelAnimationFrame(rafId);
