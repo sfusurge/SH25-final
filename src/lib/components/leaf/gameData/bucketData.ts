@@ -107,7 +107,7 @@ export const bucketData: BucketData[] = [
         },
         altText: 'Bucket 4',
         position: {
-            left: '61%',
+            left: '60%',
             top: '60%',
             width: '5%'
         },

@@ -106,6 +106,5 @@
 		pointer-events: none;
 		cursor: default;
 		filter: none;
-		transform: none !important;
 	}
 </style>

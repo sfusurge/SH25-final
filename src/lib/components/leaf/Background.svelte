@@ -4,6 +4,7 @@
 	import { bucketData } from "$lib/components/leaf/gameData/bucketData";
 	import Customer from "$lib/components/leaf/Customer.svelte";
 	import ShopModal from "$lib/components/leaf/ShopModal.svelte";
+
 	import QTE from "$lib/components/leaf/QTE.svelte";
 	import { global } from "../../../routes/+layout.svelte";
 	import {
@@ -121,6 +122,10 @@
 				: slot.orderTransform;
 		return t ?? baseTranslate;
 	};
+
+	function __sveltets_2_any() {
+		throw new Error("Function not implemented.");
+	}
 </script>
 
 {#if ENABLE_QTE && $activeQTESessions.length > 0}
@@ -311,16 +316,19 @@
 			{/if}
 		{/each}
 	{/if}
-</div>
 
-{#if !global.mobile}
-	<div
-		class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[-1] flex justify-center items-start pb-0 gap-8"
-	>
-		<DesktopTimer />
-		<DesktopScore />
-	</div>
-{/if}
+	{#if !global.mobile}
+		<div
+			class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[50] flex justify-center items-start pb-0 gap-8"
+			class:pointer-events-none={$gamePhase === "pre" ||
+				$showInstructionsDuringGame ||
+				$shopOpen}
+		>
+			<DesktopTimer />
+			<DesktopScore />
+		</div>
+	{/if}
+</div>
 
 <style>
 	* {

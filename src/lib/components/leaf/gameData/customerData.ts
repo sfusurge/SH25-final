@@ -61,7 +61,7 @@ export const customerSlots: CustomerSlot[] = [
     createCustomerSlot({
         position: { left: '65%', top: '25%', width: widths.desktop },
         mobilePosition: { left: '68%', top: '25%', width: widths.mobile.normal },
-        mobileNarrowPosition: { left: '70%', top: '28%', width: widths.mobile.narrow },
+        mobileNarrowPosition: { left: '72%', top: '28%', width: widths.mobile.narrow },
         mobileOrderTransform: 'translate(-30%, -120%)'
     })
 ];
