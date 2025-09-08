@@ -6,9 +6,9 @@
 
 <div class="hidden sm:flex mt-auto relative border border-border bg-[#231f1f] h-11">
     <RockFilter />
-    <div class="flex justify-between items-center h-full">
-        <BlockPatternVertical className="h-[44px] mr-1.5" />
+    <div class="flex justify-between  h-full">
+        <BlockPatternVertical  />
         <TimerComp   />
-        <BlockPatternVertical className="h-11 ml-1.5 rotate-180" />
+        <BlockPatternVertical/>
     </div>
 </div>

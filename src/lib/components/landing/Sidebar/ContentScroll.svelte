@@ -112,6 +112,7 @@
     }
     .contentContainer.medium {
         max-width: 550px;
+        max-height: 100%;
     }
 
     .contentContainer.mobile {
