@@ -26,10 +26,9 @@
 			<div class="order-timer-fill" style:width={pctWidth}></div>
 		</div>
 	{/if}
-</div>
-
-<div class="bubble-tail" style:left style:top>
-	<img src="/assets/experiences/leaf/bubble.png" />
+	<div class="bubble-tail">
+		<img src="/assets/experiences/leaf/bubble.png" />
+	</div>
 </div>
 
 <style>
@@ -49,12 +48,12 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		overflow: hidden;
+		overflow: visible;
 	}
 
 	.bubble-tail {
 		position: absolute;
-		z-index: 0;
+		z-index: 1000;
 		pointer-events: none;
 		width: 0.8%;
 		transform: translateY(-110%);
@@ -88,8 +87,7 @@
 		}
 
 		.bubble-tail {
-			width: 1%;
-			transform: translateY(-170%);
+			width: 8.33%; /* proportional to 12% card width */
 		}
 	}
 
@@ -99,8 +97,7 @@
 		}
 
 		.bubble-tail {
-			transform: translateY(-150%);
-			top: 100%;
+			width: 6.67%; /* proportional to 15% card width */
 		}
 	}
 </style>
