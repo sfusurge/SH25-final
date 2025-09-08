@@ -23,14 +23,6 @@
 		</div>
 	{/if}
 
-	<!-- Desktop layout -->
-	<!-- {#if !global.mobile}
-		<div class="flex justify-between items-start pt-8 px-8">
-			<Pause />
-			<DesktopShop />
-		</div>
-	{/if} -->
-
 	<div
 		class="flex-1 flex items-center justify-center"
 		class:m-8={!global.mobile}

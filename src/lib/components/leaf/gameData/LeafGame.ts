@@ -139,12 +139,12 @@ export type plantInfo = {
 
 
 const INITIAL_STATES: Record<string, Stock> = {
-    bucket1: Stock.Available,
-    bucket2: Stock.Available,
-    bucket3: Stock.Available,
-    bucket4: Stock.Available,
+    bucket1: Stock.Default,
+    bucket2: Stock.Default,
+    bucket3: Stock.Default,
+    bucket4: Stock.Default,
     bucket5: Stock.Available,
-    bucket6: Stock.Available,
+    bucket6: Stock.Default,
 };
 
 export const plantArray = writable<Record<string, plantInfo>>(
@@ -614,19 +614,19 @@ export class LeafGame {
         pauseStartTime.set(null);
         totalPauseTime.set(0);
         // Reset all plants to default state, except plant4 which stays available
-        // const initial = get(plantArray);
-        // const reset = Object.fromEntries(Object.values(initial).map((p) => {
-        //     const isPlant4 = p.key === 'plant4';
-        //     return [p.key, {
-        //         ...p,
-        //         state: isPlant4 ? Stock.Available : Stock.Default,
-        //         count: isPlant4 ? 10 : 0,
-        //         multiplier: 1
-        //     }];
-        // }));
-        // plantArray.set(reset as Record<string, plantInfo>);
+        const initial = get(plantArray);
+        const reset = Object.fromEntries(Object.values(initial).map((p) => {
+            const isPlant4 = p.key === 'plant4';
+            return [p.key, {
+                ...p,
+                state: isPlant4 ? Stock.Available : Stock.Default,
+                count: isPlant4 ? 10 : 0,
+                multiplier: 1
+            }];
+        }));
+        plantArray.set(reset as Record<string, plantInfo>);
 
-        // this.unlockedKeys = ['plant4'];
+        this.unlockedKeys = ['plant4'];
 
         gamePhase.set('running');
         const ends = Date.now() + GAME_DURATION_MS;
