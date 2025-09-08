@@ -17,6 +17,7 @@ export interface BucketData {
     altText: string;
     position: BucketPosition;
     mobilePosition?: BucketPosition;
+    mobileVeryNarrowPosition?: BucketPosition;
     availablePosition?: BucketPosition; // optional alternate position when Available
 }
 
@@ -39,6 +40,11 @@ export const bucketData: BucketData[] = [
             left: '12%',
             top: '58%',
             width: '15%'
+        },
+        mobileVeryNarrowPosition: {
+            left: '10%',
+            top: '55%',
+            width: '18%'
         }
     },
     {
@@ -59,6 +65,11 @@ export const bucketData: BucketData[] = [
             left: '25%',
             top: '67.5%',
             width: '12%'
+        },
+        mobileVeryNarrowPosition: {
+            left: '25%',
+            top: '65%',
+            width: '15%'
         }
     },
     {
@@ -79,6 +90,11 @@ export const bucketData: BucketData[] = [
             left: '34%',
             top: '50%',
             width: '13%'
+        },
+        mobileVeryNarrowPosition: {
+            left: '35%',
+            top: '47%',
+            width: '16%'
         }
     },
     {
@@ -99,6 +115,11 @@ export const bucketData: BucketData[] = [
             left: '65%',
             top: '50%',
             width: '10%'
+        },
+        mobileVeryNarrowPosition: {
+            left: '67%',
+            top: '47%',
+            width: '12%'
         }
     },
     {
@@ -119,6 +140,11 @@ export const bucketData: BucketData[] = [
             left: '72%',
             top: '70%',
             width: '25%'
+        },
+        mobileVeryNarrowPosition: {
+            left: '75%',
+            top: '67%',
+            width: '30%'
         }
     },
     {
@@ -138,6 +164,11 @@ export const bucketData: BucketData[] = [
         mobilePosition: {
             left: '88%',
             top: '58%',
+            width: '20%'
+        },
+        mobileVeryNarrowPosition: {
+            left: '93%',
+            top: '55%',
             width: '20%'
         }
     }

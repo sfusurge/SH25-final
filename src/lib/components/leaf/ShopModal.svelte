@@ -112,9 +112,9 @@
 
 	.dialog {
 		position: absolute;
+		top: 50%;
 		left: 50%;
-		top: 8%;
-		transform: translateX(-50%);
+		transform: translate(-50%, -50%);
 		width: 50%;
 		height: 83%;
 		background:
@@ -240,7 +240,7 @@
 		cursor: default;
 	}
 
-	/* @container (max-width: 640px) {
+	@container (max-width: 640px) {
 		.dialog {
 			width: 90%;
 			height: 70%;
@@ -261,22 +261,37 @@
 		.action-btn {
 			width: 100%;
 		}
+
+		.close-btn {
+			width: 5cqw;
+		}
+
+		.action-btn {
+			width: 100%;
+			height: 3cqw;
+			font-size: 2.25cqw;
+		}
 	}
 
 	@container (max-width: 400px) {
 		.dialog {
 			width: 95%;
 			height: 50%;
+			top: 50%;
 			left: 50%;
-			top: 20%;
+			transform: translate(-50%, -50%);
+		}
+
+		.content {
+			column-gap: 1.5%;
 		}
 
 		.inner-header h2 {
-			font-size: 3cqw;
+			font-size: 4cqw;
 		}
 
 		.close {
-			font-size: 3cqw;
+			font-size: 4cqw;
 		}
 
 		.plant-img {
@@ -284,8 +299,16 @@
 		}
 
 		.action-btn {
-			width: 100%;
-			height: 3cqw;
+			width: 21cqw;
+			height: 5cqw;
 		}
-	} */
+
+		.close-btn {
+			width: 4cqw;
+		}
+
+		.inner-header h2 {
+			font-size: 4cqw;
+		}
+	}
 </style>

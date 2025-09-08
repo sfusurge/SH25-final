@@ -34,8 +34,8 @@ const defaultCustomerSlot: Partial<CustomerSlot> = {
 const widths = {
     desktop: '10%',
     mobile: {
-        normal: '14%',
-        narrow: '16%'
+        normal: '17%',
+        narrow: '22%'
     }
 };
 
@@ -48,20 +48,20 @@ function createCustomerSlot(overrides: Partial<CustomerSlot>): CustomerSlot {
 export const customerSlots: CustomerSlot[] = [
     createCustomerSlot({
         position: { left: '24%', top: '25%', width: widths.desktop },
-        mobilePosition: { left: '10%', top: '23%', width: widths.mobile.normal },
-        mobileNarrowPosition: { left: '8%', top: '27%', width: widths.mobile.narrow },
+        mobilePosition: { left: '10%', top: '25%', width: widths.mobile.normal },
+        mobileNarrowPosition: { left: '8%', top: '28%', width: widths.mobile.narrow },
         mobileOrderTransform: 'translate(-30%, -120%)'
     }),
     createCustomerSlot({
-        position: { left: '46%', top: '20%', width: widths.desktop },
-        mobilePosition: { left: '42%', top: '20%', width: widths.mobile.normal },
+        position: { left: '46%', top: '22%', width: widths.desktop },
+        mobilePosition: { left: '42%', top: '23%', width: widths.mobile.normal },
         mobileNarrowPosition: { left: '42%', top: '25%', width: widths.mobile.narrow },
-        mobileOrderTransform: 'translate(-30%, -110%)'
+        mobileOrderTransform: 'translate(-30%, -120%)'
     }),
     createCustomerSlot({
         position: { left: '65%', top: '25%', width: widths.desktop },
-        mobilePosition: { left: '68%', top: '22%', width: widths.mobile.normal },
-        mobileNarrowPosition: { left: '70%', top: '27%', width: widths.mobile.narrow },
+        mobilePosition: { left: '68%', top: '25%', width: widths.mobile.normal },
+        mobileNarrowPosition: { left: '70%', top: '28%', width: widths.mobile.narrow },
         mobileOrderTransform: 'translate(-30%, -120%)'
     })
 ];

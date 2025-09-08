@@ -393,8 +393,6 @@
 		transform: translate(-50%, -60%);
 	}
 
-	/* removed unused toast styles; thanks now renders inside Customer's Order bubble */
-
 	.qte-overlay {
 		position: absolute;
 		z-index: 150;
@@ -425,5 +423,20 @@
 		background: rgba(128, 128, 128, 0.5);
 		z-index: 200;
 		pointer-events: all;
+	}
+
+	@container (max-width: 640px) {
+		.mascot {
+			width: 30%;
+			z-index: 40;
+		}
+	}
+
+	@container (max-width: 340px) {
+		.mascot {
+			width: 40%;
+			z-index: 40;
+			transform: translate(-55%, -65%);
+		}
 	}
 </style>

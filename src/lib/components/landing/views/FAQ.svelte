@@ -47,7 +47,7 @@ Within just 36 hours, teams bring their ideas to life. We empower and enable tea
     }
 </script>
 
-<div class="w-full flex items-center justify-center py-8">
+<div class="w-full flex items-center justify-center">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 place-items-center py-0 p-10 lg:p-20 w-full max-h-[100vh] overflow-y-auto overflow-x-hidden">
         {#each faqData as faq, index}
             <div
