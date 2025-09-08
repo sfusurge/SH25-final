@@ -6,8 +6,11 @@ export const backgrounds = Object.freeze({
 });
 
 export const bgMobileStyle = Object.freeze({
-    [backgrounds.FOUNTAIN]: "",
-    [backgrounds.SPARKY_WRITE]: "object-position: right 35% top 0;"
+    [backgrounds.FOUNTAIN]: "object-position: right 20% top 0;",
+    [backgrounds.FOUNTAIN_DARK]: "object-position: right 20% top 0;",
+
+    [backgrounds.SPARKY_WRITE]: "object-position: right 35% top 0;",
+    [backgrounds.SPARKY_WRITE_DARK]: "object-position: right 35% top 0;",
 })
 
 export type Background = (typeof backgrounds)[keyof (typeof backgrounds)];
@@ -16,7 +19,7 @@ let isDark = $state(false);
 let toggle = $state(false);
 // TODO: adapt for more backgrounds
 export function toggleBackground(toggleDark = false) {
-       if (toggleDark) {
+    if (toggleDark) {
         isDark = !isDark;
     } else {
         toggle = !toggle;
