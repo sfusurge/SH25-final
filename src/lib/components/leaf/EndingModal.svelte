@@ -47,11 +47,11 @@
 	}
 	.modal {
 		position: absolute;
-		top: 50%;
+		top: 48%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 53%;
-		height: 84%;
+		width: 50%;
+		height: 77%;
 		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
 			100% no-repeat;
 		border-radius: 0;
@@ -154,7 +154,7 @@
 		cursor: pointer;
 	}
 
-	/* @container (max-width: 640px) {
+	@container (max-width: 640px) {
 		.modal {
 			width: 90%;
 			height: 60%;
@@ -189,6 +189,7 @@
 
 		.message {
 			font-size: 2.5cqw;
+			margin-bottom: -1cqh;
 		}
 
 		.restart-btn {
@@ -201,12 +202,12 @@
 	@container (max-width: 400px) {
 		.modal {
 			width: 90%;
-			height: 45%;
+			height: 48%;
 		}
 
 		.inner {
 			width: 90%;
-			height: 100%;
+			height: 95%;
 		}
 
 		.title {
@@ -241,10 +242,4 @@
 			gap: 0.6cqw;
 		}
 	}
-
-	@container (max-width: 640px) {
-		.message {
-			margin-bottom: -1cqh;
-		}
-	} */
 </style>

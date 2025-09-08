@@ -112,11 +112,11 @@
 
 	.dialog {
 		position: absolute;
+		top: 48%;
 		left: 50%;
-		top: 8%;
-		transform: translateX(-50%);
-		width: 50%;
-		height: 83%;
+		transform: translate(-50%, -50%);
+		width: 44%;
+		height: 75%;
 		background:
 			url("/assets/experiences/leaf/modal_bg.png") center / cover
 				no-repeat,
@@ -130,8 +130,8 @@
 	}
 
 	.inner {
-		width: 73%;
-		height: 79.2%;
+		width: 70%;
+		height: 80%;
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
@@ -193,7 +193,7 @@
 
 	.action-btn {
 		display: flex;
-		width: 92%;
+		width: 100%;
 		height: 110%;
 		aspect-ratio: 333 / 50;
 		padding: 4px 10px;
@@ -240,7 +240,7 @@
 		cursor: default;
 	}
 
-	/* @container (max-width: 640px) {
+	@container (max-width: 640px) {
 		.dialog {
 			width: 90%;
 			height: 70%;
@@ -261,22 +261,37 @@
 		.action-btn {
 			width: 100%;
 		}
+
+		.close-btn {
+			width: 5cqw;
+		}
+
+		.action-btn {
+			width: 100%;
+			height: 3cqw;
+			font-size: 2.25cqw;
+		}
 	}
 
 	@container (max-width: 400px) {
 		.dialog {
 			width: 95%;
 			height: 50%;
+			top: 50%;
 			left: 50%;
-			top: 20%;
+			transform: translate(-50%, -50%);
+		}
+
+		.content {
+			column-gap: 1.5%;
 		}
 
 		.inner-header h2 {
-			font-size: 3cqw;
+			font-size: 4cqw;
 		}
 
 		.close {
-			font-size: 3cqw;
+			font-size: 4cqw;
 		}
 
 		.plant-img {
@@ -284,8 +299,16 @@
 		}
 
 		.action-btn {
-			width: 100%;
-			height: 3cqw;
+			width: 21cqw;
+			height: 5cqw;
 		}
-	} */
+
+		.close-btn {
+			width: 4cqw;
+		}
+
+		.inner-header h2 {
+			font-size: 4cqw;
+		}
+	}
 </style>

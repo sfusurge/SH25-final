@@ -28,7 +28,7 @@
 	{/if}
 </div>
 
-<div class="bubble-tail" style:left style:top style:transform={translate}>
+<div class="bubble-tail" style:left style:top>
 	<img src="/assets/experiences/leaf/bubble.png" />
 </div>
 
@@ -38,7 +38,7 @@
 		background: #fffccf;
 		border-radius: 0.5208333333vw;
 		padding: 0.5vw 0.6vw 0.9375vw;
-		width: 7%;
+		width: 9%;
 		max-height: 18%;
 		font-family: sans-serif;
 		color: #6d6d6d;
@@ -56,8 +56,14 @@
 		position: absolute;
 		z-index: 0;
 		pointer-events: none;
-		transform: translateY(9.3vh);
 		width: 0.8%;
+		transform: translateY(-130%);
+		top: 100%;
+	}
+
+	.bubble-tail img {
+		width: 100%;
+		height: auto;
 	}
 
 	.order-timer {
@@ -74,5 +80,27 @@
 		height: 100%;
 		background: #7a5b73;
 		border-radius: 0;
+	}
+
+	@container (max-width: 640px) {
+		.order-card {
+			width: 15%;
+		}
+
+		.bubble-tail {
+			width: 1%;
+			transform: translateY(-300%);
+		}
+	}
+
+	@container (max-width: 400px) {
+		.order-card {
+			width: 18%;
+		}
+
+		.bubble-tail {
+			transform: translateY(-400%);
+			top: 100%;
+		}
 	}
 </style>

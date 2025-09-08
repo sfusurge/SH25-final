@@ -5,6 +5,7 @@
 	import Customer from "$lib/components/leaf/Customer.svelte";
 	import ShopModal from "$lib/components/leaf/ShopModal.svelte";
 	import QTE from "$lib/components/leaf/QTE.svelte";
+	import { global } from "../../../routes/+layout.svelte";
 	import {
 		observeLayout,
 		isMobile,
@@ -37,6 +38,8 @@
 	import { customerSlots } from "$lib/components/leaf/gameData/customerData.ts";
 	import InstructionsModal from "./InstructionsModal.svelte";
 	import EndingModal from "./EndingModal.svelte";
+	import DesktopTimer from "./DesktopTimer.svelte";
+	import DesktopScore from "./DesktopScore.svelte";
 
 	function onOpenModal() {
 		shopOpen.set(true);
@@ -248,11 +251,9 @@
 			isRunning={$gamePhase === "running"}
 			onStart={() => {
 				if ($gamePhase === "running") {
-					// Continue game
 					showInstructionsDuringGame.set(false);
 					resumeGame();
 				} else {
-					// Start new game
 					closeShop();
 					game.startGame();
 				}
@@ -311,6 +312,15 @@
 		{/each}
 	{/if}
 </div>
+
+{#if !global.mobile}
+	<div
+		class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[-1] flex justify-center items-start pb-0 gap-8"
+	>
+		<DesktopTimer />
+		<DesktopScore />
+	</div>
+{/if}
 
 <style>
 	* {
@@ -393,8 +403,6 @@
 		transform: translate(-50%, -60%);
 	}
 
-	/* removed unused toast styles; thanks now renders inside Customer's Order bubble */
-
 	.qte-overlay {
 		position: absolute;
 		z-index: 150;
@@ -425,5 +433,20 @@
 		background: rgba(128, 128, 128, 0.5);
 		z-index: 200;
 		pointer-events: all;
+	}
+
+	@container (max-width: 640px) {
+		.mascot {
+			width: 30%;
+			z-index: 40;
+		}
+	}
+
+	@container (max-width: 340px) {
+		.mascot {
+			width: 40%;
+			z-index: 40;
+			transform: translate(-55%, -65%);
+		}
 	}
 </style>

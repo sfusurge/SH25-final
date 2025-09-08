@@ -142,8 +142,8 @@ const INITIAL_STATES: Record<string, Stock> = {
     bucket1: Stock.Default,
     bucket2: Stock.Default,
     bucket3: Stock.Default,
-    bucket4: Stock.Available,
-    bucket5: Stock.Default,
+    bucket4: Stock.Default,
+    bucket5: Stock.Available,
     bucket6: Stock.Default,
 };
 

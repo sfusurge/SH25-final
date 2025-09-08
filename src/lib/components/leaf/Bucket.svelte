@@ -4,7 +4,7 @@
 	import Plant from "./Plant.svelte";
 	import { plantData } from "$lib/components/leaf/gameData/plantData";
 	import { game, plantsStore } from "$lib/components/leaf/gameData/LeafGame";
-	import { isMobile } from "$lib/components/leaf/gameData/layout";
+	import { isMobile, isNarrow } from "$lib/components/leaf/gameData/layout";
 
 	export let bucket: BucketData;
 
@@ -32,13 +32,21 @@
 	class:out={isOut}
 	class:topBucket={bucket.key === "bucket5" || bucket.id === 5}
 	class:bucket1={bucket.key === "bucket1"}
-	style="left: {$isMobile && bucket.mobilePosition
-		? bucket.mobilePosition.left
-		: bucket.position.left}; top: {$isMobile && bucket.mobilePosition
-		? bucket.mobilePosition.top
-		: bucket.position.top}; width: {$isMobile && bucket.mobilePosition
-		? bucket.mobilePosition.width
-		: bucket.position.width}; transform: translate(-50%, 0)"
+	style="left: {$isNarrow && bucket.mobileVeryNarrowPosition
+		? bucket.mobileVeryNarrowPosition.left
+		: $isMobile && bucket.mobilePosition
+			? bucket.mobilePosition.left
+			: bucket.position.left}; top: {$isNarrow &&
+	bucket.mobileVeryNarrowPosition
+		? bucket.mobileVeryNarrowPosition.top
+		: $isMobile && bucket.mobilePosition
+			? bucket.mobilePosition.top
+			: bucket.position.top}; width: {$isNarrow &&
+	bucket.mobileVeryNarrowPosition
+		? bucket.mobileVeryNarrowPosition.width
+		: $isMobile && bucket.mobilePosition
+			? bucket.mobilePosition.width
+			: bucket.position.width}; transform: translate(-50%, 0)"
 	draggable="false"
 />
 
@@ -48,13 +56,17 @@
 		bucketState={plantState ?? Stock.Default}
 		basePosition={{
 			left:
-				$isMobile && bucket.mobilePosition
-					? bucket.mobilePosition.left
-					: bucket.position.left,
+				$isNarrow && bucket.mobileVeryNarrowPosition
+					? bucket.mobileVeryNarrowPosition.left
+					: $isMobile && bucket.mobilePosition
+						? bucket.mobilePosition.left
+						: bucket.position.left,
 			top:
-				$isMobile && bucket.mobilePosition
-					? bucket.mobilePosition.top
-					: bucket.position.top,
+				$isNarrow && bucket.mobileVeryNarrowPosition
+					? bucket.mobileVeryNarrowPosition.top
+					: $isMobile && bucket.mobilePosition
+						? bucket.mobilePosition.top
+						: bucket.position.top,
 		}}
 		on:click={() => game.plantClick(matchingPlant.key)}
 	/>
