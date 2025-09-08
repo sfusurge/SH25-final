@@ -5,6 +5,12 @@
         monetary: {
             platinum: [
                 {
+                    name: "Scalar",
+                    tier: "Platinum",
+                    picture: "/assets/sponsors/Monetary/Logo/Scalar/scalar-logo.svg",
+                    link: "https://scalar.com/"
+                },
+                {
                     name: "Transoft",
                     tier: "Platinum",
                     picture: "/assets/sponsors/Monetary/Logo/Transoft/transoft_white.svg",
@@ -44,12 +50,12 @@
                 }
             ],
             bronze: [
-                // {
-                //     name: "Motorola",
-                //     tier: "Bronze",
-                //     picture: "/assets/sponsors/Monetary/Logo/Motorola/Motorola_Logo_White.png",
-                //     link: "https://www.motorola.com/ca/en/homepage"
-                // },
+                {
+                    name: "Motorola",
+                    tier: "Bronze",
+                    picture: "/assets/sponsors/Monetary/Logo/Motorola/Motorola_Logo_White.png",
+                    link: "https://www.motorola.com/ca/en/homepage"
+                },
                 {
                     name: "Kardium",
                     tier: "Bronze",
@@ -82,15 +88,20 @@
                 picture: "/assets/sponsors/In-Kind/Logos/T1/T1_logo.svg",
                 link: "https://www.t1.gg/"
             },
-            {
-                name: "Microsoft",
-                picture: "/assets/sponsors/In-Kind/Logos/Microsoft/microsoft.png",
-                link: "https://www.microsoft.com/en-ca"
-            },
+            // {
+            //     name: "Microsoft",
+            //     picture: "/assets/sponsors/In-Kind/Logos/Microsoft/microsoft.png",
+            //     link: "https://www.microsoft.com/en-ca"
+            // },
             {
                 name: "Electronic Arts",
                 picture: "/assets/sponsors/In-Kind/Logos/Electronic Arts/EA_Logo_WH.svg",
                 link: "https://www.ea.com/"
+            },
+            {
+                name: "RedBull",
+                picture: "/assets/sponsors/In-Kind/Logos/RedBull/redbull-logo.svg",
+                link: "https://www.redbull.com/ca-en/"
             },
             {
                 name: "The Hive (Mt. Pleasant)",

@@ -87,7 +87,7 @@
         <InformationTile
             className="p-2"
             onClick={() => goto("/partners")}
-            header="Our Partners"
+            header="Our Sponsors"
             text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
         />
         <LockedTile release="Coming Soon..." />
