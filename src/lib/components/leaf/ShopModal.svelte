@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from "svelte";
 	import type { Writable } from "svelte/store";
-	import { Stock, scoreStore } from "$lib/components/leaf/gameData/LeafGame";
+	import {
+		Stock,
+		scoreStore,
+		gamePaused,
+	} from "$lib/components/leaf/gameData/LeafGame";
 	export let plantsStore: Writable<
 		Record<string, { key: string; state: Stock; points: number }>
 	>;
@@ -64,7 +68,8 @@
 							disabled={!p ||
 								p.state === Stock.Available ||
 								(p?.state === Stock.Default &&
-									$scoreStore < p.points)}
+									$scoreStore < p.points) ||
+								$gamePaused}
 							on:click={() => {
 								if (!p) return;
 								if (p.state === Stock.OutOfStock)
