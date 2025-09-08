@@ -66,7 +66,7 @@
 		></div>
 	</div>
 
-	{#if !global.mobile || (global.mobile && (page.url.pathname === "/" || page.url.pathname.startsWith("/faq") || page.url.pathname.startsWith("/partners")))}
+	{#if !global.mobile || (global.mobile && (page.url.pathname === "/"  || page.url.pathname.startsWith("/partners")))}
 		<Sidebar />
 	{/if}
 	{@render children()}

@@ -99,7 +99,7 @@
         mobile={global.mobile}
         mobileStyle={bgMobileStyle[currentBackground.val]}
         style={!global.mobile
-            ? `max-height: calc(100% - ${top?.clientHeight ?? 0}px - ${bot?.clientHeight}px - 6rem);`
+            ? `max-height: calc(100% - ${top?.clientHeight ?? 0}px - ${bot?.clientHeight}px - 0rem);`
             : ""}
     />
 
@@ -119,7 +119,7 @@
     }
 
     .layoutRoot {
-        padding: 2rem;
+        padding: 4rem;
         gap: 1rem;
     }
 
