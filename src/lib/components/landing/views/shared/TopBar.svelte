@@ -28,13 +28,16 @@
     .topbar {
         width: 100%;
         background-color: var(--color-background);
-        position: relative;
+        position: sticky;
+        top: 0;
         padding: 1rem;
 
         display: flex;
         flex-direction: row;
         gap: 1rem;
         align-items: center;
+
+        z-index: 100;
     }
 
     .icon {

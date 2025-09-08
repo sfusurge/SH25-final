@@ -97,3 +97,6 @@ body {
 	scrollbar-width: thin;
 	scrollbar-color: #5c4b48 transparent;
 }
+div {
+	z-index: 1;
+}
