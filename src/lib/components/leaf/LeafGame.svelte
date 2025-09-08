@@ -17,11 +17,11 @@
 	style="max-height: 100dvh; overflow: hidden;"
 >
 	<!-- Mobile TopBar -->
-	{#if global.mobile}
+	<!-- {#if global.mobile}
 		<div class="mobile-topbar-container">
 			<TopBar></TopBar>
 		</div>
-	{/if}
+	{/if} -->
 
 	<div
 		class="flex-1 flex items-center justify-center"
@@ -42,9 +42,11 @@
 
 <style>
 	.mobile-topbar-container {
-		position: relative;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
 		z-index: 100;
-		flex-shrink: 0;
 	}
 
 	.mobile-frame-container {
