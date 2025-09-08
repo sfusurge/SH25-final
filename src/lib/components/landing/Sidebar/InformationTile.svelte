@@ -24,14 +24,14 @@
         onclick={onClick}
 >
     {#if header || text}
-        <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] text-start">
+        <div class="transition-all duration-300 group-hover:brightness-[1.8] space-y-1 group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] text-start text-pretty">
             {#if header}
                 <h1 class="text-header text-xs italic self-stretch leading-normal font-bold">
                     {header}
                 </h1>
             {/if}
             {#if text}
-                <h3 class="text-textalt text-xs italic font-normal leading-normal">
+                <h3 class="text-textalt text-xs italic font-normal leading-normal text-pretty">
                     {text}
                 </h3>
             {/if}
