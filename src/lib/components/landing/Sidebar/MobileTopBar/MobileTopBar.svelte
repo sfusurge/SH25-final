@@ -6,7 +6,7 @@
 
     const pages: { [key: string]: string } = {
         "/faq": "Frequently Asked Questions",
-        "/garden": "Garden Game",
+        "/garden": "Stumpy's Community Garden",
         "/partners": "Our Partners",
     };
 
