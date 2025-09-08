@@ -188,7 +188,7 @@
                         Gold Sponsors
                     </h1>
                 </div>
-                <div class="flex flex-col items-center gap-4 w-full">
+                <div class="flex flex-col items-center justify-center h-full gap-4 w-full">
                     {#each companies.monetary.gold as company}
                         <a
                                 href={company.link}
