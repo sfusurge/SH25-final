@@ -69,6 +69,25 @@
 
     <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
         <h1 class="text-header italic self-stretch leading-normal font-bold">
+            Information
+        </h1>
+        <InformationTile
+                className="p-2"
+                onClick={() => goto("/faq")}
+                header="Frequently Asked Questions"
+                text="Confused about anything related to StormHacks? Check out our curated list of questions and answers."
+        />
+        <InformationTile
+                className="p-2"
+                onClick={() => goto("/partners")}
+                header="Our Sponsors"
+                text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
+        />
+        <LockedTile release="Coming Soon..." />
+    </div>
+
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
+        <h1 class="text-header italic self-stretch leading-normal font-bold">
             WebToon Series
         </h1>
         <!--        <WebtoonTile-->
@@ -85,25 +104,6 @@
         <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [09/29/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
-    </div>
-
-    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
-        <h1 class="text-header italic self-stretch leading-normal font-bold">
-            Information
-        </h1>
-        <InformationTile
-            className="p-2"
-            onClick={() => goto("/faq")}
-            header="Frequently Asked Questions"
-            text="Confused about anything related to StormHacks? Check out our curated list of questions and answers."
-        />
-        <InformationTile
-            className="p-2"
-            onClick={() => goto("/partners")}
-            header="Our Sponsors"
-            text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
-        />
-        <LockedTile release="Coming Soon..." />
     </div>
 
     {#if global.medium}
