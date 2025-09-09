@@ -8,8 +8,9 @@
     export let padding = '8px';
 </script>
 
-<div class="image-container"
+<a class="image-container hover:scale-105 transition-transform duration-200"
      style="width: {width}; height: {height};"
+    {href} target="_blank" rel="noopener noreferrer"
 >
     <div class="diamond-row">
         <Diamond width={8} height={14} />
@@ -17,21 +18,19 @@
     </div>
 
     <div class="image-wrapper" style="padding: {padding}">
-        <a {href} target="_blank" rel="noopener noreferrer">
-            <img
-                    class="contained-image"
-                    loading="lazy"
-                    {src}
-                    {alt}
-            />
-        </a>
+        <img
+                class="contained-image"
+                loading="lazy"
+                {src}
+                {alt}
+        />
     </div>
 
     <div class="diamond-row">
         <Diamond width={8} height={14} />
         <Diamond width={8} height={14} />
     </div>
-</div>
+</a>
 
 <style>
     .image-container {
@@ -80,10 +79,5 @@
         height: auto;
         object-fit: contain;
         display: block;
-    }
-
-    a:hover .contained-image {
-        opacity: 0.8;
-        transition: opacity 0.2s ease;
     }
 </style>
