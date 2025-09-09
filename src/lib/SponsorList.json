@@ -139,16 +139,16 @@
       "padding": "8px"
     },
     {
-      "name": "RedBull",
-      "picture": "/assets/sponsors/In-Kind/Logos/RedBull/redbull-basement-logo.png",
-      "link": "https://www.redbull.com/ca-en/",
+      "name": "Domino's Pizza",
+      "picture": "/assets/sponsors/In-Kind/Logos/Dominos/Domino's Pizza.svg",
+      "link": "https://www.dominos.ca/en/",
       "padding": "0px"
     },
     {
       "name": "The Hive (Mt. Pleasant)",
       "picture": "/assets/sponsors/In-Kind/Logos/The Hive (Mt. Pleasant)/HIVE-MAIN LOGO.png",
       "link": "https://hiveclimbing.com/mountpleasant/",
-      "padding": "8px"
+      "padding": "0px"
     },
     {
       "name": "Vancouver Mysteries",
