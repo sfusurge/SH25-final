@@ -80,7 +80,7 @@
         <!--            header="[Ch 1] Together"-->
         <!--            text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."-->
         <!--        />-->
-        <LockedTile release="Releases [09/09/2025]" />
+        <LockedTile release="Releases [09/10/2025]" />
         <LockedTile release="Releases [09/15/2025]" />
         <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [09/29/2025]" />
