@@ -5,7 +5,7 @@
 </script>
 
 <div class="w-full h-screen overflow-y-auto pt-8 ">
-    <div class="flex flex-col items-center gap-4">
+    <div class="flex flex-col items-center gap-8">
         <h1 class="header top-0 bg-inherit z-10 py-4">
             Our Sponsors
         </h1>
@@ -19,13 +19,14 @@
                             src={company.picture}
                             alt={company.name}
                             href={company.link}
+                            padding={company.padding}
                     />
                 {/each}
             </div>
         </div>
 
         <div class="flex">
-            <div class="grid grid-cols-2 items-center gap-4 w-full">
+            <div class="grid grid-cols-2 items-center gap-6 w-full">
                 {#each companies.monetary.platinum as company}
                     <SponsorFrame
                             height="140px"
@@ -33,13 +34,14 @@
                             src={company.picture}
                             alt={company.name}
                             href={company.link}
+                            padding={company.padding}
                     />
                 {/each}
             </div>
         </div>
 
         <div class="flex">
-            <div class="grid grid-cols-3 items-center gap-4 w-full">
+            <div class="grid grid-cols-3 items-center gap-6 w-full">
                 {#each companies.monetary.bronze as company}
                     <SponsorFrame
                             height="93px"
@@ -47,6 +49,7 @@
                             src={company.picture}
                             alt={company.name}
                             href={company.link}
+                            padding={company.padding}
                     />
                 {/each}
             </div>
@@ -57,7 +60,7 @@
         </h1>
 
         <div class="flex">
-            <div class="grid grid-cols-3 items-center gap-4 w-full">
+            <div class="grid grid-cols-3 items-center gap-6 w-full">
                 {#each companies.inKind as company}
                     <SponsorFrame
                             height="93px"
@@ -65,6 +68,7 @@
                             src={company.picture}
                             alt={company.name}
                             href={company.link}
+                            padding={company.padding}
                     />
                 {/each}
             </div>

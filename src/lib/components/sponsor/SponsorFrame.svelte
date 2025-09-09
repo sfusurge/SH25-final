@@ -4,10 +4,10 @@
     export let className = '';
     export let width = '';
     export let height = '';
-    export let src = ''
+    export let src = '';
     export let alt = 'Image';
     export let href = '';
-    export let long = false;
+    export let padding = '8px';
 </script>
 
 <div
@@ -19,7 +19,7 @@
         <Diamond width={8} height={14} />
     </div>
 
-    <div class="image-wrapper">
+    <div class="image-wrapper" style="padding: {padding}">
         <a {href} target="_blank" rel="noopener noreferrer">
             <img
                     class="contained-image"
@@ -62,7 +62,6 @@
         align-items: center;
         justify-content: center;
         width: 100%;
-        padding: 8px;
         overflow: hidden;
     }
 
