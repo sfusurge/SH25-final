@@ -17,6 +17,30 @@
                     link: "https://www.transoftsolutions.com/"
                 },
                 {
+                    name: "AMD",
+                    tier: "Platinum",
+                    picture: "/assets/sponsors/Monetary/Logo/AMD/AMD-Logo-SVG_001.svg",
+                    link: "https://www.amd.com/en.html"
+                },
+                {
+                    name: "Vercel",
+                    tier: "Platinum",
+                    picture: "/assets/sponsors/Monetary/Logo/Vercel/Vercel_logo_black.svg",
+                    link: "https://vercel.com/"
+                },
+                {
+                    name: "Huawei",
+                    tier: "Platinum",
+                    picture: "/assets/sponsors/Monetary/Logo/Huawei/huawei2.svg",
+                    link: "https://www.huawei.com/ca/"
+                },
+                {
+                    name: "Wondershare",
+                    tier: "Platinum",
+                    picture: "/assets/sponsors/Monetary/Logo/Wondershare/wondershare-vertical-white.svg",
+                    link: "https://www.wondershare.com/"
+                },
+                {
                     name: "Trulioo",
                     tier: "Platinum",
                     picture: "/assets/sponsors/Monetary/Logo/Trulioo/Trulioo light.png",
@@ -28,18 +52,6 @@
                     picture: "/assets/sponsors/Monetary/Logo/Safe Software/Alternative Platinum Safe Software.png",
                     link: "https://www.safe.com/"
                 },
-                {
-                    name: "AMD",
-                    tier: "Platinum",
-                    picture: "/assets/sponsors/Monetary/Logo/AMD/AMD-Logo-SVG_001.svg",
-                    link: "https://www.amd.com/en.html"
-                },
-                {
-                    name: "Vercel",
-                    tier: "Platinum",
-                    picture: "/assets/sponsors/Monetary/Logo/Vercel/Vercel_logo_black.svg",
-                    link: "https://vercel.com/"
-                }
             ],
             gold: [
                 {
@@ -85,6 +97,12 @@
                     tier: "Bronze",
                     picture: "/assets/sponsors/Monetary/Logo/Ekohe/ekohe.png",
                     link: "https://www.ekohe.com/"
+                },
+                {
+                    name: "Chang Institute",
+                    tier: "Bronze",
+                    picture: "/assets/sponsors/Monetary/Logo/Chang/Chang-Logo-White-2.png",
+                    link: "https://www.sfu.ca/chang-institute/home/"
                 }
             ]
         },
@@ -94,21 +112,16 @@
                 picture: "/assets/sponsors/In-Kind/Logos/T1/T1_logo.svg",
                 link: "https://www.t1.gg/"
             },
-            // {
-            //     name: "Microsoft",
-            //     picture: "/assets/sponsors/In-Kind/Logos/Microsoft/microsoft.png",
-            //     link: "https://www.microsoft.com/en-ca"
-            // },
             {
                 name: "Electronic Arts",
                 picture: "/assets/sponsors/In-Kind/Logos/Electronic Arts/EA_Logo_WH.svg",
                 link: "https://www.ea.com/"
             },
-            {
-                name: "RedBull",
-                picture: "/assets/sponsors/In-Kind/Logos/RedBull/redbull-logo.svg",
-                link: "https://www.redbull.com/ca-en/"
-            },
+            // {
+            //     name: "RedBull",
+            //     picture: "/assets/sponsors/In-Kind/Logos/RedBull/redbull-logo.svg",
+            //     link: "https://www.redbull.com/ca-en/"
+            // },
             {
                 name: "The Hive (Mt. Pleasant)",
                 picture: "/assets/sponsors/In-Kind/Logos/The Hive (Mt. Pleasant)/HIVE-MAIN LOGO.png",
@@ -135,6 +148,21 @@
                 link: "https://www.thetaphouse.ca/"
             },
             {
+                name: "Steve's Poké Bar",
+                picture: "/assets/sponsors/In-Kind/Logos/Steve's Poke Bar/SPB-Logo_Primary.png",
+                link: "https://www.stevespokebar.ca/"
+            },
+            {
+                name: "Rain or Shine Ice Cream",
+                picture: "/assets/sponsors/In-Kind/Logos/Rain or Shine Ice Cream/Logo.webp",
+                link: "https://rainorshineicecream.com/"
+            },
+            {
+                name: "Photo Crumb",
+                picture: "/assets/sponsors/In-Kind/Logos/Photo Crumb/PC-Logo-White.webp",
+                link: "https://www.photocrumb.com/"
+            },
+            {
                 name: "Rio Theatre",
                 picture: "/assets/sponsors/In-Kind/Logos/Rio Theatre/rio-theatre-logo.png",
                 link: "https://riotheatre.ca/"
@@ -148,6 +176,26 @@
                 name: "Indomie",
                 picture: "/assets/sponsors/In-Kind/Logos/Indomie/indomie.png",
                 link: "https://indomieonline.ca/"
+            },
+            {
+                name: "Balsamiq",
+                picture: "/assets/sponsors/In-Kind/Logos/Balsamiq/balsamiq_logomark_white (1).svg",
+                link: "https://balsamiq.com/"
+            },
+            {
+                name: "CodeCrafters",
+                picture: "/assets/sponsors/In-Kind/Logos/CodeCrafters/Copy of CodeCrafters.io full logo full text (White text).png",
+                link: "https://codecrafters.io/"
+            },
+            {
+                name: "Museum of Vancouver",
+                picture: "/assets/sponsors/In-Kind/Logos/Museum of Vancouver (MOV)/Copy of MOV Logo (White) High Res No Background.png",
+                link: "https://museumofvancouver.ca/"
+            },
+            {
+                name: "CloudNine Clothing",
+                picture: "/assets/sponsors/In-Kind/Logos/CloudNine Clothing/CloudNine-white.png",
+                link: "https://www.cloudnineclothing.ca/"
             }
         ]
     };
