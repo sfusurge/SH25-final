@@ -1,5 +1,5 @@
 import { AABB, Vector2 } from "$lib/Vector2";
-import { type MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
+import { type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 
 export function loadImageToCanvas(src: string, width: number, flip = false, padding = 0) {
     const img = new Image();

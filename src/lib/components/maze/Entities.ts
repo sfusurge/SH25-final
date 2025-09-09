@@ -1,7 +1,7 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { Vector2 } from "$lib/Vector2";
 import { AABB } from "$lib/Vector2";
-import { debug, type MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
+import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 import { AStar, lineOfSight } from "$lib/components/maze/PathFind";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
 import type { Room, RoomLayout } from "$lib/components/maze/Room";
