@@ -88,7 +88,10 @@ export class ProjectileEntity extends Entity {
         const entityType = other.metadata?.entityType;
 
         // Destroy projectile on collision with solid objects
-        if (entityType === ENTITY_TYPE.rock || entityType === ENTITY_TYPE.enemy) {
+        if (
+            entityType === ENTITY_TYPE.rock ||
+            (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
+        ) {
             this.metadata.destroyed = true;
         }
     }
@@ -253,7 +256,7 @@ export class Player extends Entity {
         }
 
 
-        const inheritedVelocity = this.vel.mul(0.6);
+        const inheritedVelocity = this.vel.mul(0.4);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
         game.addProjectile(projectile);
     }
@@ -373,6 +376,8 @@ export class WalkerEntity extends Entity {
     static: boolean = false;
 
     sprite: HTMLCanvasElement;
+    hurtSprite: HTMLCanvasElement;
+    deadSprite: HTMLCanvasElement;
 
     maxVel: number = 150;
     accel: number = 2000;
@@ -384,29 +389,74 @@ export class WalkerEntity extends Entity {
     playerLoc?: Vector2;
     directTarget = false;
     health: number = 3;
+    maxHealth: number = 3;
+
+    // Visual state management
+    isHurt: boolean = false;
+    hurtDuration: number = 0;
+    hurtDisplayTime: number = 500; // ms to show hurt sprite
+    isDead: boolean = false;
+    deathTime: number = 0;
+    fadeOutDuration: number = 1000; // ms to fade out
 
     constructor(pos: Vector2, health?: number) {
         super(pos, 25, 25);
 
+
+        // TODO: Convert to webp
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
+        this.hurtSprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1_hurt.png", 50, false, 0);
+        this.deadSprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1_dead.png", 50, false, 0);
         this.metadata.entityType = ENTITY_TYPE.enemy;
         this.health = health ?? 3;
+        this.maxHealth = this.health;
     }
 
     onCollision(other: Entity, game?: any): void {
+        // Dead entities don't participate in any collisions
+        if (this.isDead) {
+            return;
+        }
+
         if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy) {
             this.resolveCollision(other.aabb, other.vel);
         }
         if (other.metadata.entityType === ENTITY_TYPE.projectile) {
             this.health -= 1;
+
+            // Set hurt state when hit
+            this.isHurt = true;
+            this.hurtDuration = this.hurtDisplayTime;
+
             if (this.health <= 0) {
-                this.metadata.destroyed = true;
+                this.isDead = true;
+                this.deathTime = Date.now();
+                // Don't set destroyed immediately - let the fade animation complete
             }
             this.applyImpulse(this.pos.sub(other.pos).normalize().mul(400));
         }
     }
 
     update(game: MazeGame, dt: number): void {
+        // Update hurt state timer
+        if (this.isHurt && this.hurtDuration > 0) {
+            this.hurtDuration -= dt * 1000; // Convert dt to ms
+            if (this.hurtDuration <= 0) {
+                this.isHurt = false;
+                this.hurtDuration = 0;
+            }
+        }
+
+        // Handle death animation completion
+        if (this.isDead) {
+            const timeSinceDeath = Date.now() - this.deathTime;
+            if (timeSinceDeath >= this.fadeOutDuration) {
+                this.metadata.destroyed = true;
+            }
+            // Don't process other logic when dead
+            return;
+        }
+
         if (game.currentRoomId === 0) {
             return;
         }
@@ -554,7 +604,24 @@ export class WalkerEntity extends Entity {
         ctx.rotate(angleOffset);
         ctx.translate(-this.sprite.width / 2, -this.sprite.height);
 
-        ctx.drawImage(this.sprite, 0, 0);
+        // Choose the appropriate sprite based on state
+        let currentSprite = this.sprite;
+        if (this.isDead) {
+            currentSprite = this.deadSprite;
+
+            // Calculate fade alpha based on time since death
+            const timeSinceDeath = Date.now() - this.deathTime;
+            const fadeProgress = Math.min(timeSinceDeath / this.fadeOutDuration, 1);
+            const alpha = 1 - fadeProgress;
+            ctx.globalAlpha = alpha;
+        } else if (this.isHurt) {
+            currentSprite = this.hurtSprite;
+        }
+
+        ctx.drawImage(currentSprite, 0, 0);
+
+        // Reset canvas properties
+        ctx.globalAlpha = 1;
 
         ctx.setTransform(transform);
 

@@ -154,6 +154,11 @@
         <MazeEndingModal
             score={$scoreStore}
             onRestart={() => {
+                // Reset the game world (new maze, entities, player position)
+                if (gameController) {
+                    gameController.reset();
+                }
+                // Reset the game state (score, health, timer)
                 game.startGame();
             }}
         />
@@ -195,7 +200,6 @@
     }
 
     canvas {
-        border: 5px solid #00ff00; /* Green border like the original maze game */
         image-rendering: pixelated; /* Better for pixel art games */
         width: 100%;
         height: 100%;

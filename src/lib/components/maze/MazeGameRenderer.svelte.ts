@@ -3,6 +3,8 @@ import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 import { Player, ProjectileEntity } from "./Entities";
+import { gamePaused, gamePhase } from "./gameData/MazeGameData";
+import { get } from "svelte/store";
 
 export const debug = $state<{ [key: string]: any }>({
 })
@@ -229,6 +231,62 @@ export class MazeGame {
         requestAnimationFrame(this.update.bind(this));
     }
 
+    reset() {
+        // Generate a new maze
+        this.mazeGenerator = new MazeGenerator(
+            40, // maze width
+            40, // maze height
+            50, // attempts to generate rooms
+            50, // winding percent for paths
+            0.03 // random open percent
+        );
+
+        this.maze = this.mazeGenerator.generate();
+        this.rooms = this.mazeGenerator.rooms;
+        this.idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+        this.currentRoomId = 0;
+
+        // Reset player position to first room
+        const firstRoom = this.mazeGenerator.rooms[0];
+        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
+        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
+
+        let foundSafeSpot = false;
+        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
+
+        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
+            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
+                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
+                    playerStartX = x;
+                    playerStartY = y;
+                    foundSafeSpot = true;
+                }
+            }
+        }
+
+        const playerStartPos = new Vector2(
+            (playerStartX + 0.5) * CELL_SIZE,
+            (playerStartY + 0.5) * CELL_SIZE
+        );
+
+        // Reset player
+        this.player.pos = playerStartPos;
+        this.player.vel = Vector2.ZERO;
+        this.player.immuneDuration = 0;
+        this.player.shootCooldown = 0;
+
+        // Clear entities and projectiles
+        this.entities = [];
+        this.projectiles = [];
+
+        // Reset entity grid
+        this.entityGrid = null;
+        this.lastRoomId = -1;
+
+        // Reset camera
+        this.camera = Vector2.ZERO;
+    }
+
     detectMobileMode() {
         this.mobileMode = 'ontouchstart' in window || window.innerWidth <= 768;
     }
@@ -341,6 +399,13 @@ export class MazeGame {
     lastTime = 0;
     deltaTime = 0;
     update(time: number) {
+        // Skip game updates if paused or not in running phase, but continue the animation loop
+        if (get(gamePaused) || get(gamePhase) !== 'running') {
+            this.lastTime = time;
+            requestAnimationFrame(this.update.bind(this));
+            return;
+        }
+
         this.deltaTime = (time - this.lastTime) / 1000;
         debug.delta = this.deltaTime.toFixed(4);
 
