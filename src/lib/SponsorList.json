@@ -1,0 +1,226 @@
+{
+  "monetary": {
+    "platinum": [
+      {
+        "name": "Scalar",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Scalar/scalar-logo.svg",
+        "link": "https://scalar.com/",
+        "style": "long"
+      },
+      {
+        "name": "Transoft",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Transoft/transoft_white.svg",
+        "link": "https://www.transoftsolutions.com/",
+        "style": "long"
+      },
+      {
+        "name": "AMD",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/AMD/AMD-Logo-SVG_001.svg",
+        "link": "https://www.amd.com/en.html",
+        "style": "long"
+      },
+      {
+        "name": "Vercel",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Vercel/Vercel_logo_black.svg",
+        "link": "https://vercel.com/",
+        "style": "long"
+      },
+      {
+        "name": "Huawei",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Huawei/huawei2.svg",
+        "link": "https://www.huawei.com/ca/",
+        "style": "long"
+      },
+      {
+        "name": "Wondershare",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Wondershare/wondershare-vertical-white.svg",
+        "link": "https://www.wondershare.com/",
+        "style": "long"
+      },
+      {
+        "name": "Trulioo",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Trulioo/Trulioo light.png",
+        "link": "https://www.trulioo.com/",
+        "style": "long"
+      },
+      {
+        "name": "Safe Software",
+        "tier": "Platinum",
+        "picture": "/assets/sponsors/Monetary/Logo/Safe Software/Alternative Platinum Safe Software.png",
+        "link": "https://www.safe.com/",
+        "style": "long"
+      }
+    ],
+    "gold": [
+      {
+        "name": "Clay",
+        "tier": "Gold",
+        "picture": "/assets/sponsors/Monetary/Logo/Clay/Clay Logo Light.png",
+        "link": "https://clay.com/",
+        "style": "long"
+      }
+    ],
+    "bronze": [
+      {
+        "name": "Motorola",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/Motorola/Motorola_Logo_White.png",
+        "link": "https://www.motorola.com/ca/en/homepage",
+        "style": "long"
+      },
+      {
+        "name": "Kardium",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/Kardium/Kardium.svg",
+        "link": "https://kardium.com/",
+        "style": "long"
+      },
+      {
+        "name": "Centre for Digital Media",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/CDM/Blue_Centre for digital media.png",
+        "link": "https://thecdm.ca/",
+        "style": "long"
+      },
+      {
+        "name": "Microsoft",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/Microsoft/microsoft.png",
+        "link": "https://www.microsoft.com/en-ca",
+        "style": "long"
+      },
+      {
+        "name": "ColorStack",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/ColorStack SFU/Platinum-ColorStack.png",
+        "link": "https://www.colorstack.org/",
+        "style": "long"
+      },
+      {
+        "name": "Ekohe",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/Ekohe/ekohe.png",
+        "link": "https://www.ekohe.com/",
+        "style": "long"
+      },
+      {
+        "name": "Chang Institute",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/Chang/Chang-Logo-White-2.png",
+        "link": "https://www.sfu.ca/chang-institute/home/",
+        "style": "long"
+      }
+    ]
+  },
+  "inKind": [
+    {
+      "name": "T1",
+      "picture": "/assets/sponsors/In-Kind/Logos/T1/T1_logo.svg",
+      "link": "https://www.t1.gg/",
+      "style": "long"
+    },
+    {
+      "name": "Electronic Arts",
+      "picture": "/assets/sponsors/In-Kind/Logos/Electronic Arts/EA_Logo_WH.svg",
+      "link": "https://www.ea.com/",
+      "style": "long"
+    },
+    {
+      "name": "The Hive (Mt. Pleasant)",
+      "picture": "/assets/sponsors/In-Kind/Logos/The Hive (Mt. Pleasant)/HIVE-MAIN LOGO.png",
+      "link": "https://hiveclimbing.com/mountpleasant/",
+      "style": "long"
+    },
+    {
+      "name": "Vancouver Mysteries",
+      "picture": "/assets/sponsors/In-Kind/Logos/Vancouver Mysteries/transparent.png",
+      "link": "https://vancouvermysteries.com/",
+      "style": "long"
+    },
+    {
+      "name": "Vancouver Water Games",
+      "picture": "/assets/sponsors/In-Kind/Logos/Vancouver Water Games/VWA Logo (1).png",
+      "link": "https://www.vancouverwatergames.com/",
+      "style": "long"
+    },
+    {
+      "name": "Old Spaghetti Factory",
+      "picture": "/assets/sponsors/In-Kind/Logos/Old Spaghetti Factory/osf-logo.svg",
+      "link": "https://oldspaghettifactory.ca/",
+      "style": "long"
+    },
+    {
+      "name": "Taphouse",
+      "picture": "/assets/sponsors/In-Kind/Logos/Taphouse/taphouse.png",
+      "link": "https://www.thetaphouse.ca/",
+      "style": "long"
+    },
+    {
+      "name": "Steve's Poké Bar",
+      "picture": "/assets/sponsors/In-Kind/Logos/Steve's Poke Bar/SPB-Logo_Primary.png",
+      "link": "https://www.stevespokebar.ca/",
+      "style": "long"
+    },
+    {
+      "name": "Rain or Shine Ice Cream",
+      "picture": "/assets/sponsors/In-Kind/Logos/Rain or Shine Ice Cream/Logo.webp",
+      "link": "https://rainorshineicecream.com/",
+      "style": "long"
+    },
+    {
+      "name": "Photo Crumb",
+      "picture": "/assets/sponsors/In-Kind/Logos/Photo Crumb/PC-Logo-White.webp",
+      "link": "https://www.photocrumb.com/",
+      "style": "long"
+    },
+    {
+      "name": "Rio Theatre",
+      "picture": "/assets/sponsors/In-Kind/Logos/Rio Theatre/rio-theatre-logo.png",
+      "link": "https://riotheatre.ca/",
+      "style": "long"
+    },
+    {
+      "name": "Steelseries",
+      "picture": "/assets/sponsors/In-Kind/Logos/Steelseries/Steelseries-logo-white.png",
+      "link": "https://steelseries.com/en-ca",
+      "style": "long"
+    },
+    {
+      "name": "Indomie",
+      "picture": "/assets/sponsors/In-Kind/Logos/Indomie/indomie.png",
+      "link": "https://indomieonline.ca/",
+      "style": "long"
+    },
+    {
+      "name": "Balsamiq",
+      "picture": "/assets/sponsors/In-Kind/Logos/Balsamiq/balsamiq_logomark_white (1).svg",
+      "link": "https://balsamiq.com/",
+      "style": "long"
+    },
+    {
+      "name": "CodeCrafters",
+      "picture": "/assets/sponsors/In-Kind/Logos/CodeCrafters/Copy of CodeCrafters.io full logo full text (White text).png",
+      "link": "https://codecrafters.io/",
+      "style": "long"
+    },
+    {
+      "name": "Museum of Vancouver",
+      "picture": "/assets/sponsors/In-Kind/Logos/Museum of Vancouver (MOV)/Copy of MOV Logo (White) High Res No Background.png",
+      "link": "https://museumofvancouver.ca/",
+      "style": "long"
+    },
+    {
+      "name": "CloudNine Clothing",
+      "picture": "/assets/sponsors/In-Kind/Logos/CloudNine Clothing/CloudNine-white.png",
+      "link": "https://www.cloudnineclothing.ca/",
+      "style": "long"
+    }
+  ]
+}
