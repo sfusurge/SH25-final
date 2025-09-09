@@ -1,7 +1,5 @@
 <script>
     import Diamond from "$lib/components/landing/svgs/Diamond.svelte";
-
-    export let className = '';
     export let width = '';
     export let height = '';
     export let src = '';
@@ -10,9 +8,8 @@
     export let padding = '8px';
 </script>
 
-<div
-        class="image-container {className}"
-        style="width: {width}; height: {height};"
+<div class="image-container"
+     style="width: {width}; height: {height};"
 >
     <div class="diamond-row">
         <Diamond width={8} height={14} />
