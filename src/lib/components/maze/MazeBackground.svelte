@@ -13,6 +13,9 @@
         resumeGame,
         nowStore,
         GAME_DURATION_MS,
+        setGameCanvas,
+        focusGameCanvas,
+        pauseGame,
     } from "$lib/components/maze/gameData/MazeGameData";
     import { derived } from "svelte/store";
     import MazeInstructionsModal from "./MazeInstructionsModal.svelte";
@@ -31,6 +34,8 @@
     let canvasWidth = $state(600);
     let canvasHeight = $state(600);
 
+    let cleanupClickListener: (() => void) | undefined;
+
     onMount(() => {
         if (canvas && canvasContainer) {
             // Set up ResizeObserver to handle container size changes
@@ -42,6 +47,55 @@
             // Set up window resize listener
             window.addEventListener("resize", updateCanvasSize);
 
+            // pause game on outside click
+            const handleOutsideClick = (event: MouseEvent) => {
+
+                if ($gamePhase !== "running" || $gamePaused) {
+                    return;
+                }
+
+                const target = event.target as Element;
+
+                // Don't pause if clicking on the canvas, UI elements
+                if (target === canvas) {
+                    return;
+                }
+
+                if (
+                    // is there a better way lol
+                    target.closest("button") ||
+                    target.closest(".modal") ||
+                    target.closest(".modal-backdrop") ||
+                    target.closest('[role="button"]') ||
+                    target.closest("input") ||
+                    target.closest("select") ||
+                    target.closest(".hud") ||
+                    target.closest(".nav-btn") ||
+                    target.closest(".start-btn") ||
+                    target.closest(".restart-btn") ||
+
+                    //mobile
+                    target.closest(".joystick-container") ||
+                    target.closest(".touch-controller") ||
+                    target.closest(".touch-overlay") ||
+                    target.closest(".joystick") ||
+                    target.closest(".joystick-base") ||
+                    target.closest(".joystick-knob")
+                ) {
+                    return;
+                }
+
+                // Pause the game for clicks outside the canvas and UI
+                pauseGame();
+            };
+
+            document.addEventListener("click", handleOutsideClick);
+
+            // Store cleanup function
+            cleanupClickListener = () => {
+                document.removeEventListener("click", handleOutsideClick);
+            };
+
             // Initial canvas sizing (wait for next tick to ensure DOM is ready)
             setTimeout(() => {
                 updateCanvasSize();
@@ -49,6 +103,7 @@
                 // Initialize game controller after canvas is properly sized
                 if (canvas) {
                     gameController = new MazeGame(canvas);
+                    setGameCanvas(canvas);
                 }
             }, 0);
         }
@@ -57,6 +112,10 @@
     onDestroy(() => {
         // TODO destroy MazeGame controller and unmount all related event listners.
         window.removeEventListener("resize", updateCanvasSize);
+
+        if (cleanupClickListener) {
+            cleanupClickListener();
+        }
     });
 
     function updateCanvasSize() {
@@ -146,6 +205,7 @@
                 } else {
                     game.startGame();
                 }
+                focusGameCanvas();
             }}
         />
     {/if}
@@ -160,6 +220,7 @@
                 }
                 // Reset the game state (score, health, timer)
                 game.startGame();
+                focusGameCanvas();
             }}
         />
     {/if}

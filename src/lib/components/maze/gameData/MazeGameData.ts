@@ -56,6 +56,21 @@ export function openInstructions() {
     pauseGame();
 }
 
+let gameCanvas: HTMLCanvasElement | null = null;
+
+export function setGameCanvas(canvas: HTMLCanvasElement) {
+    gameCanvas = canvas;
+}
+
+export function focusGameCanvas() {
+    if (gameCanvas) {
+        // ensure focus happens AFTER event cycle
+        setTimeout(() => {
+            gameCanvas?.focus();
+        }, 0);
+    }
+}
+
 export const nowStore = writable<number>(Date.now());
 
 // Game timing constants

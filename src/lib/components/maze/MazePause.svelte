@@ -7,10 +7,12 @@
         toggleGamePause,
         openInstructions,
         gamePhase,
+        focusGameCanvas,
     } from "$lib/components/maze/gameData/MazeGameData";
 
     function togglePlayPause() {
         toggleGamePause();
+        focusGameCanvas();
     }
 </script>
 
@@ -42,6 +44,7 @@
             onClick={() => {
                 if ($gamePhase === "running") {
                     openInstructions();
+                    focusGameCanvas();
                 }
             }}
         >
