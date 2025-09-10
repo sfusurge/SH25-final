@@ -92,11 +92,11 @@
         </h1>
         <WebtoonTile
                 imageSrc="/assets/ig.svg"
-                imageAlt="[Ch 1] Together"
+                imageAlt="[Ch 1] Who are you...?"
                 imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
                 className="mt-4"
                 onClick={() => goto("/webtoon#1")}
-                header="[Ch 1] Together"
+                header="[Ch 1] Who are you...?"
                 text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
         />
         <LockedTile release="Releases [09/15/2025]" />

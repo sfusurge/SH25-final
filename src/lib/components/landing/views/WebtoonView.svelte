@@ -151,15 +151,18 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        padding: 20px;
+        min-height: 100dvh;
+        padding: 10px;
         box-sizing: border-box;
         width: 100%;
     }
 
     .container {
         position: relative;
-        width: 889px;
-        height: 750px;
+        width: min(889px, 100%);
+        height: min(750px, calc(100vh - 20px));
+        height: min(750px, calc(100dvh - 20px));
+        max-width: calc(100vw - 20px);
         flex-shrink: 0;
         border: 1px solid #574E49;
         background: #363636;
@@ -230,5 +233,49 @@
 
     .custom-scrollbar .thumb:hover {
         background: #6b5f59;
+    }
+
+    @media (max-width: 768px) {
+        .wrapper {
+            padding: 8px;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        .container {
+            width: calc(100vw - 16px);
+            height: calc(100vh - 16px);
+            height: calc(100dvh - 16px);
+        }
+
+        .diamond {
+            width: 18px;
+            height: 18px;
+        }
+
+        .diamond-top-left { top: -9px; left: -9px; }
+        .diamond-top-right { top: -9px; right: -9px; }
+        .diamond-bottom-left { bottom: -9px; left: -9px; }
+        .diamond-bottom-right { bottom: -9px; right: -9px; }
+
+        .custom-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar .thumb {
+            width: 4px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .wrapper {
+            padding: 4px;
+        }
+
+        .container {
+            width: calc(100vw - 8px);
+            height: calc(100vh - 8px);
+            height: calc(100dvh - 8px);
+        }
     }
 </style>
