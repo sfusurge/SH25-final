@@ -233,6 +233,18 @@
       "picture": "/assets/sponsors/In-Kind/Logos/CloudNine Clothing/CloudNine-white.png",
       "link": "https://www.cloudnineclothing.ca/",
       "padding": "8px"
+    },
+    {
+      "name": "buffer"
+    },
+    {
+      "name": "Lattech",
+      "picture": "/assets/sponsors/In-Kind/Logos/Lattech/lattech.png",
+      "link": "https://litt.ly/lattech",
+      "padding": "0px"
+    },
+    {
+      "name": "buffer"
     }
   ]
 }

@@ -86,14 +86,18 @@
         <div class="flex">
             <div class="grid grid-cols-1 md:grid-cols-3 items-center gap-6 w-full">
                 {#each companies.inKind as company}
-                    <SponsorFrame
-                            height="93px"
-                            width="220px"
-                            src={company.picture}
-                            alt={company.name}
-                            href={company.link}
-                            padding={company.padding}
-                    />
+                    {#if company.name.toLowerCase() !== 'buffer'}
+                        <SponsorFrame
+                                height="93px"
+                                width="220px"
+                                src={company.picture}
+                                alt={company.name}
+                                href={company.link}
+                                padding={company.padding}
+                        />
+                    {:else}
+                        <div class="hidden md:block" style="height:93px; width:220px;"></div>
+                    {/if}
                 {/each}
             </div>
         </div>

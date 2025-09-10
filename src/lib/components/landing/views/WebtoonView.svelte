@@ -1,9 +1,9 @@
 <script lang="ts">
     interface Props {
-        imageUrl?: string;
+        imageUrls?: string[];
     }
 
-    let { imageUrl = "" }: Props = $props();
+    let { imageUrls = [] }: Props = $props();
 </script>
 
 <div class="wrapper">
@@ -14,7 +14,9 @@
         <div class="diamond diamond-bottom-right"></div>
 
         <div class="image-container">
-            <img src={imageUrl} alt="Scrollable content" />
+            {#each imageUrls as imageUrl, index}
+                <img src={imageUrl} alt="Image {index + 1}" />
+            {/each}
         </div>
     </div>
 </div>
@@ -84,6 +86,8 @@
         width: 100%;
         height: auto;
         display: block;
+        margin: 0;
+        padding: 0;
     }
 
     .image-container::-webkit-scrollbar {
