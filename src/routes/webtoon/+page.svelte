@@ -1,28 +1,34 @@
-<script>
-    import { onMount } from 'svelte';
-    import { page } from '$app/stores';
+<script lang="ts">
     import WebtoonView from "$lib/components/landing/views/WebtoonView.svelte";
+    import { page } from "$app/state";
 
-    const Webtoon1 = ["/assets/webtoons/1/1.1.png","/assets/webtoons/1/1.2.png","/assets/webtoons/1/1.3.png","/assets/webtoons/1/1.4.png","/assets/webtoons/1/1.5.png","/assets/webtoons/1/1.6.png","/assets/webtoons/1/1.7.png","/assets/webtoons/1/1.8.png","/assets/webtoons/1/1.9.png"]
-    let currentHash = '';
-    let webtoonArray = [];
+    const webtoons = [
+        [
+            "/assets/webtoons/1/1.1.webp",
+            "/assets/webtoons/1/1.2.webp",
+            "/assets/webtoons/1/1.3.webp",
+            "/assets/webtoons/1/1.4.webp",
+            "/assets/webtoons/1/1.5.webp",
+            "/assets/webtoons/1/1.6.webp",
+            "/assets/webtoons/1/1.7.webp",
+            "/assets/webtoons/1/1.8.webp",
+            "/assets/webtoons/1/1.9.webp",
+        ],
+    ];
 
-    onMount(() => {
-        currentHash = window.location.hash;
-        const handleHashChange = () => {
-            currentHash = window.location.hash;
-        };
-        window.addEventListener('hashchange', handleHashChange);
-        return () => {
-            window.removeEventListener('hashchange', handleHashChange);
-        };
+    const currentIdx = $derived.by(() => {
+        const idx = parseInt(page.url.hash);
+        if (!idx || isNaN(idx) || idx < 1 || idx > webtoons.length) {
+            return 0;
+        }
+        return idx - 1;
     });
 
-    $: if (currentHash === '#1') {
-        webtoonArray = Webtoon1;
-    } else {
-        webtoonArray = Webtoon1;
-    }
+    const currentWebToons = $derived(webtoons[currentIdx]);
+
+    $effect(() => {
+        location.hash = `${currentIdx + 1}`;
+    });
 </script>
 
-<WebtoonView imageUrls={Webtoon1}/>
+<WebtoonView key={`webtoon#${currentIdx + 1}`} imageUrls={currentWebToons} />

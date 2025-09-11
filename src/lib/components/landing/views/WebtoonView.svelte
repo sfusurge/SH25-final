@@ -1,15 +1,37 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
+    import { updateComicUsage } from "$lib/firebase/api";
+    import { onMount, onDestroy } from "svelte";
 
-    export let imageUrls: string[] = [];
-    export let fixedThumbHeight: number = 50;
-    export let trackWidth: number = 5;
+    interface Props {
+        key: number | string;
+        imageUrls?: string[];
+        fixedThumbHeight?: number;
+        trackWidth?: number;
+    }
 
-    let container: HTMLElement | null = null;
-    let thumb: HTMLElement | null = null;
+    const { key, imageUrls = [], fixedThumbHeight = 50, trackWidth = 5 }: Props = $props();
 
-    let thumbHeight = 0;
-    let thumbTop = 0;
+    let container = $state<HTMLElement>();
+    let thumb = $state<HTMLElement>();
+
+    let thumbHeight = $state(0);
+    let thumbTop = $state(0);
+
+    let endOfPage = $derived(
+        Math.abs(thumbTop - (container?.clientHeight ?? 99999) - thumbHeight) < 300,
+    );
+
+    $effect(() => {
+        if (endOfPage) {
+            const savedEndOfPage = localStorage.getItem(`endofpage-${key}`);
+            if (savedEndOfPage) {
+                // usage already tracked
+                return;
+            }
+            localStorage.setItem(`endofpage-${key}`, "saved");
+            updateComicUsage(`${key}`, "finish");
+        }
+    });
 
     function clamp(v: number, a: number, b: number) {
         return Math.max(a, Math.min(b, v));
@@ -49,18 +71,29 @@
             resizeObserver.observe(container);
 
             mutationObserver = new MutationObserver(updateThumb);
-            mutationObserver.observe(container, { childList: true, subtree: true, characterData: true });
+            mutationObserver.observe(container, {
+                childList: true,
+                subtree: true,
+                characterData: true,
+            });
 
-            container.addEventListener('scroll', onScroll);
+            container.addEventListener("scroll", onScroll);
         }
-        window.addEventListener('resize', updateThumb);
+        window.addEventListener("resize", updateThumb);
+
+        // track initial view
+        const initialViewSaved = localStorage.getItem(`initialView-${key}`);
+        if (!initialViewSaved) {
+            localStorage.setItem(`initialView-${key}`, "saved");
+            updateComicUsage(`${key}`, "view");
+        }
     });
 
     onDestroy(() => {
         if (resizeObserver) resizeObserver.disconnect();
         if (mutationObserver) mutationObserver.disconnect();
-        if (container) container.removeEventListener('scroll', onScroll);
-        window.removeEventListener('resize', updateThumb);
+        if (container) container.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", updateThumb);
     });
 
     let dragging = false;
@@ -72,11 +105,13 @@
         if (!thumb) return;
         dragging = true;
         const pid = (e as PointerEvent).pointerId;
-        try { (thumb as HTMLElement).setPointerCapture(pid); } catch {}
+        try {
+            (thumb as HTMLElement).setPointerCapture(pid);
+        } catch {}
         startPointerY = e.clientY;
         startThumbTop = thumbTop;
-        window.addEventListener('pointermove', onPointerMove);
-        window.addEventListener('pointerup', onPointerUp, { once: true });
+        window.addEventListener("pointermove", onPointerMove);
+        window.addEventListener("pointerup", onPointerUp, { once: true });
     }
 
     function onPointerMove(e: PointerEvent) {
@@ -97,8 +132,10 @@
 
     function onPointerUp(e: PointerEvent) {
         dragging = false;
-        try { (thumb as HTMLElement)?.releasePointerCapture((e as PointerEvent).pointerId); } catch {}
-        window.removeEventListener('pointermove', onPointerMove);
+        try {
+            (thumb as HTMLElement)?.releasePointerCapture((e as PointerEvent).pointerId);
+        } catch {}
+        window.removeEventListener("pointermove", onPointerMove);
     }
 
     function onTrackPointerDown(e: PointerEvent) {
@@ -130,16 +167,16 @@
         </div>
 
         <div
-                class="custom-scrollbar"
-                on:pointerdown={onTrackPointerDown}
-                style="--track-width: {trackWidth}px"
-                aria-hidden="true"
+            class="custom-scrollbar"
+            on:pointerdown={onTrackPointerDown}
+            style="--track-width: {trackWidth}px"
+            aria-hidden="true"
         >
             <div
-                    class="thumb"
-                    bind:this={thumb}
-                    on:pointerdown={onThumbPointerDown}
-                    style="height: {thumbHeight}px; transform: translateY({thumbTop}px);"
+                class="thumb"
+                bind:this={thumb}
+                on:pointerdown={onThumbPointerDown}
+                style="height: {thumbHeight}px; transform: translateY({thumbTop}px);"
             ></div>
         </div>
     </div>
@@ -163,7 +200,7 @@
         height: min(750px, calc(100dvh - 20px));
         max-width: calc(100vw - 20px);
         flex-shrink: 0;
-        border: 1px solid #574E49;
+        border: 1px solid #574e49;
         background: #363636;
     }
 
@@ -173,15 +210,27 @@
         height: 21.985px;
         transform: rotate(-45deg);
         flex-shrink: 0;
-        border: 1px solid #574E49;
-        background: #0C0C0B;
+        border: 1px solid #574e49;
+        background: #0c0c0b;
         z-index: 20;
     }
 
-    .diamond-top-left { top: -11px; left: -11px; }
-    .diamond-top-right { top: -11px; right: -11px; }
-    .diamond-bottom-left { bottom: -11px; left: -11px; }
-    .diamond-bottom-right { bottom: -11px; right: -11px; }
+    .diamond-top-left {
+        top: -11px;
+        left: -11px;
+    }
+    .diamond-top-right {
+        top: -11px;
+        right: -11px;
+    }
+    .diamond-bottom-left {
+        bottom: -11px;
+        left: -11px;
+    }
+    .diamond-bottom-right {
+        bottom: -11px;
+        right: -11px;
+    }
 
     .image-container {
         position: absolute;
