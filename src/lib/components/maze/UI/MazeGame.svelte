@@ -1,8 +1,8 @@
 <script lang="ts">
     import MazePause from "./MazePause.svelte";
-    import MazeFrame from "$lib/components/maze/MazeFrame.svelte";
-    import { global } from "../../../routes/+layout.svelte";
-    import TopBar from "../landing/views/shared/TopBar.svelte";
+    import MazeFrame from "$lib/components/maze/UI/MazeFrame.svelte";
+    import { global } from "../../../../routes/+layout.svelte";
+    import TopBar from "../../landing/views/shared/TopBar.svelte";
 
     let showSettings = $state(false);
 </script>

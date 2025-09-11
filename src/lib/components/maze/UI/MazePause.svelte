@@ -1,7 +1,7 @@
 <script>
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
-    import RockFilter from "../landing/svgs/RockFilter.svelte";
+    import RockFilter from "../../landing/svgs/RockFilter.svelte";
     import {
         gamePaused,
         toggleGamePause,

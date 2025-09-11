@@ -1,7 +1,7 @@
 <script lang="ts">
     import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
-    import { global } from "../../../routes/+layout.svelte";
+    import { global } from "../../../../routes/+layout.svelte";
     import {
         gamePhase,
         gameEndsAt,

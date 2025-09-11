@@ -1,5 +1,5 @@
 <script lang="ts">
-    import HudBox from "../leaf/HudBox.svelte";
+    import HudBox from "../../leaf/HudBox.svelte";
     import {
         scoreStore,
         healthStore,

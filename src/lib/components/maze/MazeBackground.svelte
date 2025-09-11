@@ -1,6 +1,6 @@
 <script lang="ts">
     import { debug, MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
-    import DualTouchController from "$lib/components/maze/DualTouchController.svelte";
+    import DualTouchController from "$lib/components/maze/UI/DualTouchController.svelte";
     import type { Vector2 } from "$lib/Vector2";
     import { onDestroy, onMount } from "svelte";
     import { global } from "../../../routes/+layout.svelte";
@@ -18,11 +18,11 @@
         pauseGame,
     } from "$lib/components/maze/gameData/MazeGameData";
     import { derived } from "svelte/store";
-    import MazeInstructionsModal from "./MazeInstructionsModal.svelte";
-    import MazeEndingModal from "./MazeEndingModal.svelte";
-    import MazeDesktopTimer from "./MazeDesktopTimer.svelte";
-    import MazeDesktopScore from "./MazeDesktopScore.svelte";
-    import MazeMobileUI from "./MazeMobileUI.svelte";
+    import MazeInstructionsModal from "./UI/MazeInstructionsModal.svelte";
+    import MazeEndingModal from "./UI/MazeEndingModal.svelte";
+    import MazeDesktopTimer from "./UI/MazeDesktopTimer.svelte";
+    import MazeDesktopScore from "./UI/MazeDesktopScore.svelte";
+    import MazeMobileUI from "./UI/MazeMobileUI.svelte";
     import { game } from "$lib/components/maze/gameData/MazeGameData";
 
     let canvas: HTMLCanvasElement | undefined = $state();

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import MazeBackground from "./MazeBackground.svelte";
-    import { global } from "../../../routes/+layout.svelte";
+    import MazeBackground from "../MazeBackground.svelte";
+    import { global } from "../../../../routes/+layout.svelte";
     import MazePause from "./MazePause.svelte";
     import MazeDesktopHealth from "./MazeDesktopHealth.svelte";
     import {

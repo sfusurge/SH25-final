@@ -1,5 +1,5 @@
 <script lang="ts">
-    import MazeGame from "$lib/components/maze/MazeGame.svelte";
+    import MazeGame from "$lib/components/maze/UI/MazeGame.svelte";
 </script>
 
 <MazeGame />
