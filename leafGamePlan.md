@@ -42,3 +42,7 @@
     + Then the dialog can read this variable and render accordingly.
 * Player
     + Similar to customer, do all the rendering logic in frontend
+
+* Game logic
+    + Try to avoid using `setInterval` and `setTimeout` if possible, they are some times imprecise for game kinda application.
+    + In game's main eventloop, do a `requestAnimationFrame(callbackfunc)` instead
