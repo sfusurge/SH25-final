@@ -69,13 +69,6 @@
     ],
     "bronze": [
       {
-        "name": "Motorola",
-        "tier": "Bronze",
-        "picture": "/assets/sponsors/Monetary/Logo/Motorola/Motorola_Logo_White.png",
-        "link": "https://www.motorola.com/ca/en/homepage",
-        "padding": "8px"
-      },
-      {
         "name": "Kardium",
         "tier": "Bronze",
         "picture": "/assets/sponsors/Monetary/Logo/Kardium/Kardium.svg",
@@ -111,17 +104,11 @@
         "padding": "0px"
       },
       {
-        "name": "buffer"
-      },
-      {
         "name": "Chang Institute",
         "tier": "Bronze",
         "picture": "/assets/sponsors/Monetary/Logo/Chang/Chang-Logo-White-2.png",
         "link": "https://www.sfu.ca/chang-institute/home/",
         "padding": "0px"
-      },
-      {
-        "name": "buffer"
       }
     ]
   },
