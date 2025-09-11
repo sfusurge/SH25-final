@@ -42,12 +42,17 @@
     async function play() {
         await tick();
         audioRef?.play();
-
         // usage tracking
         updateMusicStats();
     }
 
-    $inspect(paused, !lock ? currentTrack.file : "");
+    let initialPlay = $state(true);
+    $effect(() => {
+        if (initialPlay && !paused) {
+            initialPlay = false;
+            updateMusicStats();
+        }
+    });
 </script>
 
 <audio
