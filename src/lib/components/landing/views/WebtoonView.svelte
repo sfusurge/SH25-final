@@ -150,8 +150,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
-        min-height: 100dvh;
+        height: 100dvh;
         padding: 10px;
         box-sizing: border-box;
         width: 100%;
@@ -257,14 +256,6 @@
         .diamond-top-right { top: -9px; right: -9px; }
         .diamond-bottom-left { bottom: -9px; left: -9px; }
         .diamond-bottom-right { bottom: -9px; right: -9px; }
-
-        .custom-scrollbar {
-            width: 6px;
-        }
-
-        .custom-scrollbar .thumb {
-            width: 4px;
-        }
     }
 
     @media (max-width: 480px) {
@@ -273,9 +264,9 @@
         }
 
         .container {
-            width: calc(100vw - 8px);
-            height: calc(100vh - 8px);
-            height: calc(100dvh - 8px);
+            max-height: calc(100vh - 80px);
+            max-height: calc(100dvh - 80px);
+            max-width: calc(100vw - 30px);
         }
     }
 </style>
