@@ -1,6 +1,17 @@
 <script lang="ts">
-	export let score: number = 0;
-	export let onRestart: (() => void) | undefined;
+	import { updateLeafUsage } from "$lib/firebase/api";
+	import { onMount } from "svelte";
+
+	interface Props {
+		score: number;
+		onRestart: () => void;
+	}
+	let { score, onRestart }: Props = $props();
+
+	// TODO, refactor game controller, put this in end of game event instead
+	onMount(() => {
+		updateLeafUsage(score);
+	});
 </script>
 
 <div class="modal-backdrop">
@@ -26,12 +37,9 @@
 					/>
 				</div>
 				<div class="message">
-					What a beautiful garden you have created! Your visitors
-					thank you.
+					What a beautiful garden you have created! Your visitors thank you.
 				</div>
-				<button class="restart-btn" type="button" on:click={onRestart}
-					>Play Again</button
-				>
+				<button class="restart-btn" type="button" onclick={onRestart}>Play Again</button>
 			</div>
 		</div>
 	</div>
@@ -52,8 +60,7 @@
 		transform: translate(-50%, -50%);
 		width: 50%;
 		height: 77%;
-		background: url("/assets/experiences/leaf/modal_bg.png") center / 100%
-			100% no-repeat;
+		background: url("/assets/experiences/leaf/modal_bg.png") center / 100% 100% no-repeat;
 		border-radius: 0;
 		padding: 0;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
