@@ -49,43 +49,17 @@
 
             // pause game on outside click
             const handleOutsideClick = (event: MouseEvent) => {
-
                 if ($gamePhase !== "running" || $gamePaused) {
                     return;
                 }
 
                 const target = event.target as Element;
+                console.log("Clicked element:", target);
 
-                // Don't pause if clicking on the canvas, UI elements
-                if (target === canvas) {
+                if (canvasContainer?.contains(target)) {
                     return;
                 }
 
-                if (
-                    // is there a better way lol
-                    target.closest("button") ||
-                    target.closest(".modal") ||
-                    target.closest(".modal-backdrop") ||
-                    target.closest('[role="button"]') ||
-                    target.closest("input") ||
-                    target.closest("select") ||
-                    target.closest(".hud") ||
-                    target.closest(".nav-btn") ||
-                    target.closest(".start-btn") ||
-                    target.closest(".restart-btn") ||
-
-                    //mobile
-                    target.closest(".joystick-container") ||
-                    target.closest(".touch-controller") ||
-                    target.closest(".touch-overlay") ||
-                    target.closest(".joystick") ||
-                    target.closest(".joystick-base") ||
-                    target.closest(".joystick-knob")
-                ) {
-                    return;
-                }
-
-                // Pause the game for clicks outside the canvas and UI
                 pauseGame();
             };
 
