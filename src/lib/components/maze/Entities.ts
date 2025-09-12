@@ -4,7 +4,8 @@ import { AABB } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 import { AStar, lineOfSight } from "$lib/components/maze/PathFind";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
-import type { Room, RoomLayout } from "$lib/components/maze/Room";
+import type { RoomLayout } from "$lib/components/maze/Room";
+import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 export const ENTITY_TYPE = Object.freeze({
     player: -1,
@@ -229,6 +230,7 @@ export class Player extends Entity {
         if (other.metadata.entityType === ENTITY_TYPE.enemy && this.immuneDuration <= 0) {
             this.applyImpulse(this.pos.sub(other.pos).normalize().muli(500));
             this.immuneDuration = 1;
+            GameState.reduceHealth(10);
         }
     }
 
@@ -256,7 +258,7 @@ export class Player extends Entity {
         }
 
 
-        const inheritedVelocity = this.vel.mul(0.4);
+        const inheritedVelocity = this.vel.mul(0.3);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
         game.addProjectile(projectile);
     }
@@ -428,10 +430,11 @@ export class WalkerEntity extends Entity {
             this.isHurt = true;
             this.hurtDuration = this.hurtDisplayTime;
 
-            if (this.health <= 0) {
+            if (this.health <= 0 && !this.isDead) {
                 this.isDead = true;
                 this.deathTime = Date.now();
-                // Don't set destroyed immediately - let the fade animation complete
+                // Award points and increment counter when enemy dies
+                GameState.incrementEnemiesKilled();
             }
             this.applyImpulse(this.pos.sub(other.pos).normalize().mul(400));
         }

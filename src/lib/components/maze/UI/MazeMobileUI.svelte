@@ -1,14 +1,6 @@
 <script lang="ts">
     import HudBox from "../../leaf/HudBox.svelte";
-    import {
-        scoreStore,
-        healthStore,
-        gamePhase,
-        gameEndsAt,
-        nowStore,
-        GAME_DURATION_MS,
-    } from "$lib/components/maze/gameData/MazeGameData";
-    import { game } from "$lib/components/maze/gameData/MazeGameData";
+    import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
     // Timer formatting function
     function fmt(ms: number) {
@@ -18,20 +10,15 @@
         return `${mm}:${ss}`;
     }
 
-    let sessionTimeLeftMs = $derived(
-        $gamePhase === "running" && $gameEndsAt
-            ? Math.max(0, $gameEndsAt - $nowStore)
-            : $gamePhase === "ended"
-              ? 0
-              : GAME_DURATION_MS
-    );
+    let sessionTimeLeftMs = $derived(GameState.timeRemaining);
 </script>
 
 <div class="center-strip" data-maze-ui>
     <div class="hud">
         <HudBox mode="display" iconSrc="/assets/clock.svg" value={fmt(sessionTimeLeftMs)} />
-        <HudBox mode="display" iconSrc="/assets/diamond.svg" value={$scoreStore} />
-        <HudBox mode="display" iconSrc="/assets/eye-open.svg" value={$healthStore} />
+        // TODO: Get actual assets for score and health
+        <HudBox mode="display" iconSrc="/assets/diamond.svg" value={GameState.score} />
+        <HudBox mode="display" iconSrc="/assets/eye-open.svg" value={GameState.health} />
     </div>
 </div>
 

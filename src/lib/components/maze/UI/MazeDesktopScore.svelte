@@ -2,7 +2,7 @@
     import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import { global } from "../../../../routes/+layout.svelte";
-    import { scoreStore } from "$lib/components/maze/gameData/MazeGameData";
+    import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 </script>
 
 {#if !global.mobile}
@@ -14,7 +14,7 @@
                 <img src="/assets/diamond.svg" alt="Score Icon" height="15" width="16" />
                 <span
                     class="text-primary text-sm font-normal leading-normal opacity-100"
-                    style="font-family: var(--font-catriel);">{$scoreStore}</span
+                    style="font-family: var(--font-catriel);">{GameState.score}</span
                 >
             </div>
             <BlockPatternVertical className="h-11 rotate-180 ml-2" />

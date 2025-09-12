@@ -25,9 +25,7 @@
                         class="success-image"
                     />
                 </div>
-                <div class="message">
-                    you reached the end wow
-                </div>
+                <div class="message">you reached the end wow</div>
                 <button class="restart-btn" type="button" on:click={onRestart}>Play Again</button>
             </div>
         </div>
@@ -210,7 +208,7 @@
             font-size: 4cqw;
         }
 
-        .start-btn {
+        /* .start-btn {
             width: 20cqw;
             height: 4.5cqw;
             font-size: 2cqw;
@@ -236,6 +234,6 @@
 
         .pagination {
             gap: 0.6cqw;
-        }
+        }   */
     }
 </style>

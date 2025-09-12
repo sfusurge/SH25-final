@@ -3,8 +3,7 @@ import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 import { Player, ProjectileEntity } from "./Entities";
-import { gamePaused, gamePhase } from "./gameData/MazeGameData";
-import { get } from "svelte/store";
+import { GameState } from "./MazeGameState.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
 })
@@ -400,7 +399,7 @@ export class MazeGame {
     deltaTime = 0;
     update(time: number) {
         // Skip game updates if paused or not in running phase, but continue the animation loop
-        if (get(gamePaused) || get(gamePhase) !== 'running') {
+        if (GameState.paused || !GameState.isGameRunning) {
             this.lastTime = time;
             requestAnimationFrame(this.update.bind(this));
             return;

@@ -6,9 +6,7 @@
         "/assets/experiences/leaf/starting_modal/start_2.png",
         "/assets/experiences/leaf/starting_modal/start_3.png",
     ];
-    let descriptions: string[] = [
-        "text",
-    ];
+    let descriptions: string[] = ["text"];
     let picIdx: number = 0;
     function nextPicture() {
         picIdx = (picIdx + 1) % pictures.length;

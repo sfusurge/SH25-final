@@ -2,17 +2,11 @@
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "../../landing/svgs/RockFilter.svelte";
-    import {
-        gamePaused,
-        toggleGamePause,
-        openInstructions,
-        gamePhase,
-        focusGameCanvas,
-    } from "$lib/components/maze/gameData/MazeGameData";
+    import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
     function togglePlayPause() {
-        toggleGamePause();
-        focusGameCanvas();
+        GameState.togglePause();
+        GameState.focusGameCanvas();
     }
 </script>
 
@@ -34,10 +28,10 @@
         >
             <img
                 data-demon="primary"
-                src={$gamePaused ? "/assets/play.svg" : "/assets/pause.svg"}
+                src={GameState.paused ? "/assets/play.svg" : "/assets/pause.svg"}
                 height="12"
                 width="12"
-                alt={$gamePaused ? "Play" : "Pause"}
+                alt={GameState.paused ? "Play" : "Pause"}
                 style="height: 16px"
             />
         </HoverEffectButton>
@@ -45,9 +39,9 @@
         <HoverEffectButton
             className="h-6 w-15 m-3 px-1 bg-[#06060599] text-[#8A6F6A] text-[12px] inline-flex items-center leading-none"
             onClick={() => {
-                if ($gamePhase === "running") {
-                    openInstructions();
-                    focusGameCanvas();
+                if (GameState.isGameRunning) {
+                    GameState.openInstructions();
+                    GameState.focusGameCanvas();
                 }
             }}
         >

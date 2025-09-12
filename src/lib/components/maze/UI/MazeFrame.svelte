@@ -1,12 +1,9 @@
 <script lang="ts">
-    import MazeBackground from "../MazeBackground.svelte";
+    import MazeBackground from "./MazeBackground.svelte";
     import { global } from "../../../../routes/+layout.svelte";
     import MazePause from "./MazePause.svelte";
     import MazeDesktopHealth from "./MazeDesktopHealth.svelte";
-    import {
-        gamePhase,
-        showInstructionsDuringGame,
-    } from "$lib/components/maze/gameData/MazeGameData";
+    import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 </script>
 
 {#if !global.mobile}
@@ -32,7 +29,8 @@
             <!-- Overlays above the frame image -->
             <div
                 class="absolute top-0 left-0 right-0 z-10 flex justify-between items-start pt-8 px-8 m-5"
-                class:pointer-events-none={$gamePhase !== "running" || $showInstructionsDuringGame}
+                class:pointer-events-none={!GameState.isGameRunning ||
+                    GameState.showInstructionsDuringGame}
             >
                 <MazePause />
                 <MazeDesktopHealth />

@@ -2,12 +2,7 @@
     import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import { global } from "../../../../routes/+layout.svelte";
-    import {
-        gamePhase,
-        gameEndsAt,
-        nowStore,
-        GAME_DURATION_MS,
-    } from "$lib/components/maze/gameData/MazeGameData";
+    import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
     function fmt(ms: number) {
         const s = Math.floor(ms / 1000);
@@ -16,13 +11,7 @@
         return `${mm}:${ss}`;
     }
 
-    let sessionTimeLeftMs = $derived(
-        $gamePhase === "running" && $gameEndsAt
-            ? Math.max(0, $gameEndsAt - $nowStore)
-            : $gamePhase === "ended"
-              ? 0
-              : GAME_DURATION_MS
-    );
+    let sessionTimeLeftMs = $derived(GameState.timeRemaining);
 </script>
 
 {#if !global.mobile}
