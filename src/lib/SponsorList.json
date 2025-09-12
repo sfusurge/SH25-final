@@ -58,15 +58,6 @@
         "padding": "8px"
       }
     ],
-    "gold": [
-      {
-        "name": "Clay",
-        "tier": "Gold",
-        "picture": "/assets/sponsors/Monetary/Logo/Clay/Clay Logo Light.png",
-        "link": "https://clay.com/",
-        "padding": "8px"
-      }
-    ],
     "bronze": [
       {
         "name": "Kardium",
