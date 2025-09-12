@@ -27,7 +27,7 @@
     );
 </script>
 
-<div class="center-strip">
+<div class="center-strip" data-maze-ui>
     <div class="hud">
         <HudBox mode="display" iconSrc="/assets/clock.svg" value={fmt(sessionTimeLeftMs)} />
         <HudBox mode="display" iconSrc="/assets/diamond.svg" value={$scoreStore} />

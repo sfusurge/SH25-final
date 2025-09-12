@@ -15,7 +15,7 @@
     }
 </script>
 
-<div class="modal-backdrop">
+<div class="modal-backdrop" data-maze-ui>
     <div class="modal">
         <div class="content">
             <div class="inner">

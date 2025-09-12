@@ -26,7 +26,7 @@
 </script>
 
 {#if !global.mobile}
-    <div class="mt-auto mb-8 relative border border-border bg-background h-11 z-0">
+    <div class="mt-auto mb-8 relative border border-border bg-background h-11 z-0" data-maze-ui>
         <RockFilter />
         <div class="flex justify-between items-center h-full w-40">
             <BlockPatternVertical className="h-11 mr-2" />

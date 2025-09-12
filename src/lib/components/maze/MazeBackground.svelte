@@ -16,14 +16,15 @@
         setGameCanvas,
         focusGameCanvas,
         pauseGame,
-    } from "$lib/components/maze/gameData/MazeGameData";
+    } from "$lib/components/maze/gameData/MazeGameData.ts";
     import { derived } from "svelte/store";
     import MazeInstructionsModal from "./UI/MazeInstructionsModal.svelte";
     import MazeEndingModal from "./UI/MazeEndingModal.svelte";
     import MazeDesktopTimer from "./UI/MazeDesktopTimer.svelte";
     import MazeDesktopScore from "./UI/MazeDesktopScore.svelte";
     import MazeMobileUI from "./UI/MazeMobileUI.svelte";
-    import { game } from "$lib/components/maze/gameData/MazeGameData";
+    import MazePause from "./UI/MazePause.svelte";
+    import { game } from "$lib/components/maze/gameData/MazeGameData.ts";
 
     let canvas: HTMLCanvasElement | undefined = $state();
     let canvasContainer: HTMLDivElement | undefined = $state();
@@ -56,8 +57,17 @@
                 const target = event.target as Element;
                 console.log("Clicked element:", target);
 
+
                 if (canvasContainer?.contains(target)) {
                     return;
+                }
+
+                let element = target;
+                while (element && element !== document.body) {
+                    if (element.hasAttribute && element.hasAttribute("data-maze-ui")) {
+                        return;
+                    }
+                    element = element.parentElement as Element;
                 }
 
                 pauseGame();
@@ -166,7 +176,7 @@
     </div>
 
     {#if $gamePaused}
-        <div class="pause-overlay"></div>
+        <div class="pause-overlay" data-maze-ui></div>
     {/if}
 
     {#if $gamePhase === "pre" || $showInstructionsDuringGame}
@@ -203,9 +213,11 @@
         <div
             class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[50] flex justify-center items-start pb-0 gap-8"
             class:pointer-events-none={$gamePhase === "pre" || $showInstructionsDuringGame}
+            data-maze-ui
         >
             <MazeDesktopTimer />
             <MazeDesktopScore />
+            <MazePause />
         </div>
     {/if}
 

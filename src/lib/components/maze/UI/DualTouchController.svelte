@@ -206,6 +206,7 @@
 {#if canvasElement}
     <div
         class="touch-overlay"
+        data-maze-ui
         ontouchstart={handleTouchStart}
         ontouchmove={handleTouchMove}
         ontouchend={handleTouchEnd}

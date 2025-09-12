@@ -21,7 +21,10 @@
     class="flex flex-row gap-0 items-center border border-border bg-[#231f1f] w-full py-2 px-3 sm:hidden justify-between relative"
 ></div>
 
-<div class="hidden sm:flex mt-auto mb-8 relative border border-border bg-[#231f1f] h-11">
+<div
+    class="hidden sm:flex mt-auto mb-8 relative border border-border bg-[#231f1f] h-11"
+    data-maze-ui
+>
     <RockFilter />
     <div class="flex justify-between items-center h-full">
         <BlockPatternVertical className="h-11 mr-1.5" />
