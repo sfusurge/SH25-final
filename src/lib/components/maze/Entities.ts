@@ -311,7 +311,7 @@ export class Player extends Entity {
 
         const mag = this.vel.mag();
 
-        const sprites = this.isHurt ? this.playerHurtSprites[this.direction] : this.playerSpites[this.direction];
+        const sprites = this.playerSpites[this.direction];
 
         let sprite = sprites[0];
         if (mag > 0.1) {
@@ -325,7 +325,7 @@ export class Player extends Entity {
 
         ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
         ctx.translate(-sprite.width / 2, -sprite.height);
-        ctx.drawImage(sprite, this.x, this.y);
+        this.renderWithDamageState(ctx, sprite, this.x, this.y, this.isHurt);
 
         ctx.setTransform(trans);
     }

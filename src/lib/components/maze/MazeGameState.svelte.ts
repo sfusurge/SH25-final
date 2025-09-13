@@ -14,9 +14,9 @@ class _GameState {
     enemiesKilled = $state(0);
     health = $state(100);
     phase = $state<GamePhaseType>(GamePhase.PRE);
-    gameEndsAt = $state<number | null>(null);
+    gameEndsAt = $state(-1);
     paused = $state(false);
-    pauseStartTime = $state<number | null>(null);
+    pauseStartTime = $state(-1);
     totalPauseTime = $state(0);
     showInstructionsDuringGame = $state(false);
     now = $state(Date.now());
@@ -31,13 +31,12 @@ class _GameState {
     isGameRunning = $derived(this.phase === GamePhase.RUNNING);
     isGameEnded = $derived(this.phase === GamePhase.ENDED);
     isGamePre = $derived(this.phase === GamePhase.PRE);
-    timeRemaining = $derived(
-        this.isGameRunning && this.gameEndsAt
-            ? Math.max(0, this.gameEndsAt - this.now)
-            : this.isGameEnded
-                ? 0
-                : GAME_DURATION_MS
-    );
+    timeRemaining = $derived.by(() => {
+        if (this.isGameRunning && this.gameEndsAt >= 0) {
+            return Math.max(0, this.gameEndsAt - this.now);
+        }
+        return this.isGameEnded ? 0 : GAME_DURATION_MS;
+    });
 
     constructor() {
         // Initialize timer
@@ -52,7 +51,7 @@ class _GameState {
             });
 
             $effect(() => {
-                if (this.isGameRunning && this.gameEndsAt && this.now >= this.gameEndsAt) {
+                if (this.isGameRunning && this.gameEndsAt >= 0 && this.now >= this.gameEndsAt) {
                     this.phase = GamePhase.ENDED;
                 }
             });
@@ -84,7 +83,7 @@ class _GameState {
     startGame(): void {
         this.resetStats();
         this.paused = false;
-        this.pauseStartTime = null;
+        this.pauseStartTime = -1;
         this.totalPauseTime = 0;
         this.phase = GamePhase.RUNNING;
         this.gameEndsAt = Date.now() + GAME_DURATION_MS;
@@ -140,12 +139,12 @@ class _GameState {
 
     resumeGame(): void {
         const startTime = this.pauseStartTime;
-        if (startTime) {
+        if (startTime >= 0) {
             const pauseDuration = Date.now() - startTime;
             this.totalPauseTime += pauseDuration;
-            this.pauseStartTime = null;
+            this.pauseStartTime = -1;
 
-            if (this.gameEndsAt) {
+            if (this.gameEndsAt >= 0) {
                 this.gameEndsAt += pauseDuration;
             }
         }

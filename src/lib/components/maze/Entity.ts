@@ -168,4 +168,21 @@ export class Entity {
     render(ctx: CanvasRenderingContext2D, time: number) {
         throw new Error('not implemented');
     }
+
+    renderWithDamageState(
+        ctx: CanvasRenderingContext2D,
+        sprite: HTMLCanvasElement | HTMLImageElement,
+        x: number,
+        y: number,
+        showDamage: boolean,
+    ): void {
+        if (!showDamage) {
+            ctx.drawImage(sprite, x, y);
+            return;
+        }
+
+        ctx.filter = 'sepia(60%) saturate(600%) hue-rotate(-25deg) brightness(1)';
+        ctx.drawImage(sprite, x, y);
+        ctx.filter = 'none';
+    }
 }
