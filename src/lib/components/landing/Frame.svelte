@@ -1,5 +1,6 @@
 <script lang="ts">
     import Diamond from "$lib/components/landing/svgs/Diamond.svelte";
+    import type { Snippet } from "svelte";
     import { fade } from "svelte/transition";
 
     interface Props {
@@ -7,6 +8,7 @@
         mobileStyle?: string;
         src: string;
         style?: string;
+        children?: Snippet;
     }
 
     let loading = $state(true);
@@ -15,7 +17,7 @@
             loading = true;
         }
     });
-    let { mobile = false, src, mobileStyle = "", style = "" }: Props = $props();
+    let { mobile = false, src, mobileStyle = "", style = "", children }: Props = $props();
 </script>
 
 <svelte:head>
@@ -30,7 +32,9 @@
             style="opacity: {loading ? 0 : 1};"
             class:mobile
         >
-            {#if src.endsWith("mp4")}
+            {#if children}
+                {@render children()}
+            {:else if src.endsWith("mp4")}
                 <!-- video content -->
                 <video
                     src={src ?? ""}

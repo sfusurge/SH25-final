@@ -271,7 +271,7 @@ export class Player extends Entity {
 
             this.isHurt = true;
             this.hurtDuration = this.hurtDisplayTime;
-
+            
             GameState.reduceHealth(10);
         }
     }
