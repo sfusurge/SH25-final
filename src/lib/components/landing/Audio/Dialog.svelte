@@ -3,7 +3,6 @@
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import { fade } from "svelte/transition";
     import HorizontalDivider from "../HorizontalDivider.svelte";
-    import LeafGame from "$lib/components/leaf/LeafGame.svelte";
 
     interface Props {
         title: string;
@@ -11,7 +10,7 @@
         mobile?: boolean;
         show?: boolean;
         children?: import("svelte").Snippet;
-        offsetDirection?: "center" | "left" | "right";
+        offsetDirection?: "center" | "x-center" | "left" | "right";
     }
 
     let {
@@ -45,6 +44,7 @@
 
 {#if show}
     <div
+        class:xcenter={offsetDirection === "x-center"}
         class:center={offsetDirection === "center"}
         class:left={offsetDirection === "left"}
         class:right={offsetDirection === "right"}
@@ -106,9 +106,15 @@
         transform: translate(0, calc(-100% - 1rem));
     }
 
-    :not(.mobile).center {
+    :not(.mobile).xcenter {
         left: 50%;
         transform: translate(-50%, calc(-100% - 1rem));
+    }
+
+    :not(.mobile).center {
+        left: 50%;
+        top: 50%;
+        transform: (-50%, -50%);
     }
 
     .dialog.mobile {
