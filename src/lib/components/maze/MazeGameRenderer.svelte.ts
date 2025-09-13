@@ -832,7 +832,8 @@ export class MazeGame {
 
                 while (dynamicRenderIdx < currentRoomDynamicEntities.length) {
                     const entity = currentRoomDynamicEntities[dynamicRenderIdx];
-                    const depth = Math.round(entity.y / CELL_SIZE);
+                    const entityBottom = entity.y + entity.height / 2;
+                    const depth = Math.floor(entityBottom / CELL_SIZE);
 
                     if (row > depth) {
                         dynamicRenderIdx += 1;

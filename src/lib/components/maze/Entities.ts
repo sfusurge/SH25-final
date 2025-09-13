@@ -26,15 +26,15 @@ const DOWN = 3;
 
 export class ProjectileEntity extends Entity {
     direction: number;
-    speed: number = 400;
-    distanceBeforeDrop: number = 150;
+    speed: number = 450;
+    distanceBeforeDrop: number = 200;
     distanceTraveled: number = 0;
     initialVelocity: Vector2; // Velocity inherited from player
 
     height: number = 15; // Height above ground
     verticalVelocity: number = 0;
     gravity: number = 250;
-    radius: number = 6;
+    radius: number = 7;
 
     constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO) {
         super(pos, 8, 8);
