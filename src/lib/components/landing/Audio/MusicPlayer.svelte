@@ -12,6 +12,7 @@
     import { tick } from "svelte";
     import Slider from "$lib/components/landing/Audio/Slider.svelte";
     import { global } from "../../../../routes/+layout.svelte";
+    import { updateMusicStats } from "$lib/firebase/api";
 
     let paused = $state(true);
     let audioRef = $state<HTMLAudioElement>();
@@ -41,9 +42,17 @@
     async function play() {
         await tick();
         audioRef?.play();
+        // usage tracking
+        updateMusicStats();
     }
 
-    $inspect(paused, !lock ? currentTrack.file : "");
+    let initialPlay = $state(true);
+    $effect(() => {
+        if (initialPlay && !paused) {
+            initialPlay = false;
+            updateMusicStats();
+        }
+    });
 </script>
 
 <audio

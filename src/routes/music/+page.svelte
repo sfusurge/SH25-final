@@ -1,5 +1,5 @@
 <script lang="ts">
-    import MainView from "$lib/components/landing/views/MusicView.svelte";
+    import MusicView from "$lib/components/landing/views/MusicView.svelte";
 </script>
 
-<MainView />
+<MusicView />

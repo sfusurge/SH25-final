@@ -31,3 +31,12 @@ export async function updateComicUsage(title: string, type: "view" | "finish") {
 
     await setDoc(docRef, payload, { merge: true });
 }
+
+export async function updateMusicStats() {
+    const docRef = doc(db, `site_stats/music`);
+    const payload = {
+        songsPlayed: increment(1)
+    }
+
+    await setDoc(docRef, payload, { merge: true });
+}
