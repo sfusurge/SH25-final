@@ -1,9 +1,7 @@
 <script lang="ts">
     import { global } from "../../../../routes/+layout.svelte";
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
-    import HudBox from "../../leaf/HudBox.svelte";
-    import BlockPatternVertical from "$lib/components/landing/svgs/BlockPatternVertical.svelte";
-    import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
+    import HudContainer from "./HudContainer.svelte";
 
     // Timer formatting function
     function fmt(ms: number) {
@@ -23,13 +21,12 @@
     ]);
 </script>
 
-<!-- having trouble simplifying -->
 {#if global.mobile}
     <!-- Mobile -->
     <div class="center-strip" data-maze-ui>
         <div class="hud">
             {#each hudItems as item}
-                <HudBox mode="display" iconSrc={item.iconSrc} value={item.value} />
+                <HudContainer {...item} mobile={true} />
             {/each}
         </div>
     </div>
@@ -42,38 +39,13 @@
     >
         <!-- Health -->
         <div class="desktop-health">
-            <div class="desktop-hud-item border border-border bg-background">
-                <RockFilter />
-                <div class="flex justify-between items-center h-full w-40">
-                    <BlockPatternVertical className="h-11 mr-2" />
-                    <div class="flex items-center gap-2">
-                        <img
-                            src={hudItems[2].iconSrc}
-                            alt={hudItems[2].alt}
-                            height="15"
-                            width="16"
-                        />
-                        <span class="desktop-value">{hudItems[2].value}</span>
-                    </div>
-                    <BlockPatternVertical className="h-11 rotate-180 ml-2" />
-                </div>
-            </div>
+            <HudContainer {...hudItems[2]} />
         </div>
 
         <!-- Timer and Score -->
         <div class="desktop-bottom">
             {#each hudItems.slice(0, 2) as item}
-                <div class="desktop-hud-item border border-border bg-background">
-                    <RockFilter />
-                    <div class="flex justify-between items-center h-full w-40">
-                        <BlockPatternVertical className="h-11 mr-2" />
-                        <div class="flex items-center gap-2">
-                            <img src={item.iconSrc} alt={item.alt} height="15" width="16" />
-                            <span class="desktop-value">{item.value}</span>
-                        </div>
-                        <BlockPatternVertical className="h-11 rotate-180 ml-2" />
-                    </div>
-                </div>
+                <HudContainer {...item} />
             {/each}
         </div>
     </div>
@@ -135,21 +107,5 @@
         align-items: start;
         padding-bottom: 0;
         gap: 2rem;
-    }
-
-    .desktop-hud-item {
-        margin-top: auto;
-        margin-bottom: 2rem;
-        position: relative;
-        height: 2.75rem;
-        z-index: 0;
-    }
-
-    .desktop-value {
-        color: hsl(var(--primary));
-        font-size: 0.875rem;
-        font-weight: 400;
-        line-height: normal;
-        font-family: var(--font-catriel);
     }
 </style>

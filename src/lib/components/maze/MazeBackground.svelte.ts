@@ -41,6 +41,11 @@ export class MazeBackgroundController {
                     return;
                 }
 
+                // Don't pause on small screens where pause button is not visible
+                if (window.innerWidth < 640) {
+                    return;
+                }
+
                 const target = event.target as Element;
 
                 if (this.canvasContainer?.contains(target)) {
@@ -124,7 +129,15 @@ export class MazeBackgroundController {
     };
 
     get showTouchController(): boolean {
-        return !!(this.gameRenderer && this.gameRenderer.mobileMode);
+        if (!this.gameRenderer) {
+            return false;
+        }
+
+        const hasTouchCapability = 'ontouchstart' in window;
+        const isVerySmallScreen = window.innerWidth < 640;
+        const isTouchDevice = hasTouchCapability || (isVerySmallScreen && navigator.maxTouchPoints > 0);
+
+        return isTouchDevice && this.gameRenderer.mobileMode;
     }
 
     private cleanup() {

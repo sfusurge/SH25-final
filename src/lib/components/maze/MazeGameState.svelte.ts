@@ -131,6 +131,11 @@ class _GameState {
         }
     }
 
+    private canPause(): boolean {
+        // Pause is only available when the pause button is visible
+        return window.innerWidth >= 640;
+    }
+
     pauseGame(): void {
         this.paused = true;
         this.pauseStartTime = Date.now();
@@ -153,6 +158,10 @@ class _GameState {
     }
 
     togglePause(): void {
+        // Only allow pause/unpause if pause controls are available
+        if (!this.canPause() && !this.paused) {
+            return; // Cannot pause when pause button is not visible
+        }
         this.paused ? this.resumeGame() : this.pauseGame();
     }
 }

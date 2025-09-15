@@ -287,7 +287,9 @@ export class MazeGame {
     }
 
     detectMobileMode() {
-        this.mobileMode = 'ontouchstart' in window || window.innerWidth <= 768;
+        const isTouchDevice = 'ontouchstart' in window;
+        const isSmallScreen = window.innerWidth < 640;
+        this.mobileMode = isTouchDevice || isSmallScreen;
     }
 
     handleCanvasResize(width: number, height: number) {
