@@ -24,10 +24,6 @@
 </div>
 
 <style>
-    * {
-        --mazeGameHeight: 80vh;
-    }
-
     .background {
         position: absolute; /* fill the parent area */
         inset: 0;

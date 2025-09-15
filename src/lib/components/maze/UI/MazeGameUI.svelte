@@ -3,9 +3,7 @@
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
     import MazeInstructionsModal from "./MazeInstructionsModal.svelte";
     import MazeEndingModal from "./MazeEndingModal.svelte";
-    import MazeDesktopTimer from "./MazeDesktopTimer.svelte";
-    import MazeDesktopScore from "./MazeDesktopScore.svelte";
-    import MazeMobileUI from "./MazeMobileUI.svelte";
+    import MazeHud from "./MazeHUD.svelte";
 
     // Props
     interface Props {
@@ -48,20 +46,7 @@
     />
 {/if}
 
-{#if !global.mobile}
-    <div
-        class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[50] flex justify-center items-start pb-0 gap-8"
-        class:pointer-events-none={GameState.isGamePre || GameState.showInstructionsDuringGame}
-        data-maze-ui
-    >
-        <MazeDesktopTimer />
-        <MazeDesktopScore />
-    </div>
-{/if}
-
-{#if global.mobile}
-    <MazeMobileUI />
-{/if}
+<MazeHud />
 
 <style>
     .pause-overlay {
