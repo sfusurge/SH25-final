@@ -19,6 +19,7 @@ class _GameState {
     pauseStartTime = $state(-1);
     totalPauseTime = $state(0);
     showInstructionsDuringGame = $state(false);
+    showCloseButtonInInstructions = $state(false);
     now = $state(Date.now());
 
     // Canvas management
@@ -85,13 +86,16 @@ class _GameState {
         this.paused = false;
         this.pauseStartTime = -1;
         this.totalPauseTime = 0;
+        this.showInstructionsDuringGame = false;
+        this.showCloseButtonInInstructions = false;
         this.phase = GamePhase.RUNNING;
         this.gameEndsAt = Date.now() + GAME_DURATION_MS;
         this.startTimers();
     }
 
-    openInstructions(): void {
+    openInstructions(showCloseButton: boolean = false): void {
         this.showInstructionsDuringGame = true;
+        this.showCloseButtonInInstructions = showCloseButton;
         this.pauseGame();
     }
 

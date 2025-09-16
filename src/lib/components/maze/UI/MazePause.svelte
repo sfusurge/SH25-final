@@ -40,7 +40,7 @@
             className="h-6 w-15 m-3 px-1 bg-[#06060599] text-[#8A6F6A] text-[12px] inline-flex items-center leading-none"
             onClick={() => {
                 if (GameState.isGameRunning) {
-                    GameState.openInstructions();
+                    GameState.openInstructions(true);
                     GameState.focusGameCanvas();
                 }
             }}

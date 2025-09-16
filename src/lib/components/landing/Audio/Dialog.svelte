@@ -11,6 +11,7 @@
         show?: boolean;
         children?: import("svelte").Snippet;
         offsetDirection?: "center" | "x-center" | "left" | "right";
+        dataMazeUi?: boolean; // For maze game pausing stuff
     }
 
     let {
@@ -20,6 +21,7 @@
         children,
         mobile,
         offsetDirection = "center",
+        dataMazeUi = false,
     }: Props = $props();
 
     function handleBackdropClick(e: PointerEvent | MouseEvent) {
@@ -52,6 +54,7 @@
         class:mobile
         transition:fade={{ duration: 200 }}
         use:clickedOutside
+        data-maze-ui={dataMazeUi ? true : undefined}
     >
         <RockFilter />
 
@@ -60,7 +63,9 @@
 
         <div class="titleBar">
             <p class="title">{title}</p>
-            <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
+            {#if onClose}
+                <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
+            {/if}
         </div>
         <HorizontalDivider />
         {@render children?.()}
@@ -114,7 +119,7 @@
     :not(.mobile).center {
         left: 50%;
         top: 50%;
-        transform: (-50%, -50%);
+        transform: translate(-50%, -50%);
     }
 
     .dialog.mobile {

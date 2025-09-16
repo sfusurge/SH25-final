@@ -19,6 +19,7 @@
 {#if GameState.isGamePre || GameState.showInstructionsDuringGame}
     <MazeInstructionsModal
         isRunning={GameState.isGameRunning}
+        showCloseButton={GameState.showCloseButtonInInstructions}
         onStart={() => {
             if (GameState.isGameRunning) {
                 GameState.showInstructionsDuringGame = false;
@@ -26,6 +27,12 @@
             } else {
                 GameState.startGame();
             }
+            GameState.focusGameCanvas();
+        }}
+        onClose={() => {
+            GameState.showInstructionsDuringGame = false;
+            GameState.showCloseButtonInInstructions = false;
+            GameState.resumeGame();
             GameState.focusGameCanvas();
         }}
     />
