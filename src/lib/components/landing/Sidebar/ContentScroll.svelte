@@ -78,7 +78,7 @@
                     text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
             />
         </div>
-        <LockedTile release="Releases [09/15/2025]" />
+        <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
@@ -119,7 +119,7 @@
                     text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
             />
         </div>
-        <LockedTile release="Releases [09/15/2025]" />
+        <LockedTile release="Releases [09/17/2025]" />
         <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [09/29/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
