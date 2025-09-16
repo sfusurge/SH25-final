@@ -103,7 +103,7 @@ export class MazeGame {
         this.verWallSprite.src = "/maze/wall_ver_short.webp";
         this.verWallCapSprite.src = "/maze/wall_ver_cap.webp";
         this.horWallPillar.src = "/maze/wall_pillar.webp";
-        this.rockSprite.src = "/maze/rock_PLACEHOLDER.webp";
+        this.rockSprite.src = "/maze/rock.webp";
         this.trapSprite.src = "/maze/trap.webp";
         this.scrollSprite.src = "/maze/scroll.webp";
 

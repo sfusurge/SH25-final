@@ -271,7 +271,7 @@ export class Player extends Entity {
 
             this.isHurt = true;
             this.hurtDuration = this.hurtDisplayTime;
-            
+
             GameState.reduceHealth(10);
         }
     }
@@ -331,7 +331,7 @@ export class Player extends Entity {
     }
 }
 
-const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.webp", 40, false, 0);
+const RockSprite = loadImageToCanvas("/maze/rock.webp", 40, false, 0);
 const ScrollSprite = loadImageToCanvas("/maze/scroll.webp", 40, false, 0);
 const TrapSprite = loadImageToCanvas("/maze/trap.webp", 50, false, 0);
 

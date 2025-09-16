@@ -25,7 +25,7 @@ export type RoomTemplate = {
 };
 
 
-const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.webp", 50, false, 10);
+const RockSprite = loadImageToCanvas("/maze/rock.webp", 50, false, 10);
 
 export class RoomLayout {
     width: number;
