@@ -1,4 +1,9 @@
+type state = 'idle' | 'running' | 'paused' | 'ended';
+
 class LeafGame {
+
+    gamestate = $state<state>('idle');
+    score = $state<number>(0);
 
     // customer and order data
     customer = $state([
@@ -8,6 +13,7 @@ class LeafGame {
     ]);
 
     // inventory to track deliveries 
+    // TODO: in the UI, if inventory: 0, automatically set as OOS
     inventory = $state({
         monstera: 0,
         vine: 0,
@@ -26,6 +32,26 @@ class LeafGame {
         carrot: false,
         dandelion: false
     })
+
+    // base score for each plant
+    baseScore = {
+        monstera: 100,
+        vine: 3000,
+        tomato: 20,
+        stick: 5,
+        carrot: 99999,
+        dandelion: 250
+    }
+
+    // score multiplier
+    multiplier = {
+        monstera: 1,
+        vine: 1,
+        tomato: 1,
+        stick: 1,
+        carrot: 1,
+        dandelion: 1
+    }
 
     //currently selected plant
     pending = $state<string>('');
@@ -67,43 +93,64 @@ class LeafGame {
     }
 
     unlockPlant(plant: keyof typeof this.shop) {
+        if(this.gamestate != 'running'){
+            return;
+        }
+
         this.shop[plant] = true;
         this.inventory[plant] = 10;
     }
 
     restockPlant(plant: keyof typeof this.inventory) {
+        if(this.gamestate != 'running'){
+            return;
+        }
+
         this.inventory[plant] += 10;
     }
 
     // clicking plant -> set it to pending to be delivered 
     clickPlant(plant: keyof typeof this.inventory) {
-        // no effect if inventory <= 0
-        if(!(this.inventory[plant] <= 0)){
+        if(this.gamestate != 'running'){
+            return;
+        }
+
+        if (this.inventory[plant] == 0) {
             return;
         }
 
         this.pending = plant;
     }
 
-    // index: customer index in the array
-    deliverPlant(index: number){
-        const customer = this.customer[index];
-
-        // if no pending, no effect
-        if(!this.pending){
+    //index: customer index
+    deliverOrder(index: number) {
+        if(this.gamestate != 'running'){
             return;
         }
 
-        // if pending plant not in order, no effect
-        const plant = this.pending;
-        if (!(plant in customer.order || customer.order[plant] <= 0)){
-            return; 
+        const cust = this.customer[index];
+        if (!cust.available || Object.keys(cust.order).length == 0 || this.pending == '') {
+            return;
         }
-        
-        // todo: 
-        // 1. update inventory levels and customer orders
-        // 2. check user remaining orders
-        // 3. clear pending
-    }
 
+        const plant = this.pending as keyof typeof this.inventory;
+        if (plant && plant in cust.order) {
+            cust.order[plant] -= 1;
+            // update score
+            this.score += this.baseScore[plant] * this.multiplier[plant];
+            // inventory
+            this.inventory[plant] -= 1;
+
+            if (cust.order[plant] == 0) {
+                delete cust.order[plant];
+            }
+
+            if(Object.keys(cust.order).length == 0){
+                cust.available = true;
+                cust.patience = 100;
+            }
+
+            this.pending = '';
+        }
+    }
 }
