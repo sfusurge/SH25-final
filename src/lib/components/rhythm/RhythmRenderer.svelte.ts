@@ -26,7 +26,7 @@ interface rhythmNote{
     duration: number;
 }
 
-const testSong = 
+const testSong =
 `test
 1
 0, 50
@@ -67,6 +67,7 @@ export class RhythmRenderer{
     constructor(canvas: HTMLCanvasElement){
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
+
         this.canvas.addEventListener("keydown", (e) => {
             console.log("test")
             switch(e.key.toLowerCase()){
@@ -80,16 +81,16 @@ export class RhythmRenderer{
                     this.keyDown(trackIds.bottom);
                     break;
             }
-        })
+        }, {capture:true})
         this.pkg = {
-            ctx: this.ctx, 
-            w: canvas.width, 
+            ctx: this.ctx,
+            w: canvas.width,
             h: canvas.height
         }
 
         this.songData = beatsList; //default
         this.resetStats();
-        
+
         this.init();
     }
 
@@ -172,7 +173,7 @@ export class RhythmRenderer{
         // let line = Math.floor((trackLength - cloudSpawnPos) / (cloudDespawnPos - cloudSpawnPos) * animFrames);
         // let lBound = line - boundSize;
         // let rBound = line + boundSize;
-        
+
         let hit:boolean = false;
 
         // this.cloudObjs.forEach((c) => {

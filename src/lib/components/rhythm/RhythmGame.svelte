@@ -31,7 +31,7 @@
     //     }
     //     cntx = ctx!;
 
-    //     let testSong = 
+    //     let testSong =
     //     `
     //     test
     //     1
@@ -59,11 +59,11 @@
     //         cntx.fillStyle = "black";
     //         cntx.globalAlpha = 0.4;
     //         cntx.fillRect(xStd(0.1), yStd(0.58), xStd(0.8), yStd(0.37));
-            
+
     //         const trackWidth = 0.065;
     //         const trackLength = 0.75;
     //         const xPos = 0.125;
-            
+
     //         cntx.strokeStyle = "white";
     //         cntx.lineWidth = 1.5;
     //         trackPositions.forEach(yPos => {
@@ -144,7 +144,7 @@
         >
             <div id="rhythmGame">
                 <Background/>
-                <canvas height={innerHeight * 1.3} width={innerWidth} bind:this={canvas}></canvas>
+                <canvas tabindex="1" height={innerHeight * 1.3} width={innerWidth} bind:this={canvas}></canvas>
             </div>
         </div>
         <img
@@ -174,7 +174,7 @@
         height: 96%;
         width: 100%;
         margin: 1% 0;
-        
+
         background: #AADCFF;
     }
 
