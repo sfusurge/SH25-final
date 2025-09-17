@@ -36,20 +36,18 @@
 </div>
 
 <style>
-    *{
-        --rhythmViewportHeight: 80vh;
-    }
-
     .rhythmBg{
-        height: var(--rhythmViewportHeight);
-        width: 100vw;
+        height: 98%;
+        width: 100%;
         position: absolute;
+        z-index: 0;
     }
 
     .movingBg{
         background-size:cover;
         background-repeat: repeat-x;
         position: absolute;
+        height: 98%;
     }
 
     @keyframes -global-scroll {

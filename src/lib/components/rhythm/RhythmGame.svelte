@@ -84,7 +84,6 @@
             setTimeout(() => {
                 let cloud = new Image();
                 cloud.src = `/rhythm/${cloudSprites[trackNo]}.webp`;
-                // cntx.drawImage(cloud, xStd(0.2), yStd(trackPositions[trackNo]));
                 spawnCloud(trackNo, cloud)
                 feedTrack(note + 1)
             }, duration)
@@ -111,14 +110,34 @@
     }
 
     function yStd(size: number){
-        return size * 0.8 * innerHeight
+        return size * innerHeight * 1.2
     }
 </script>
 
 <svelte:window bind:innerHeight bind:innerWidth/>
-<div id="rhythmGame">
-    <Background/>
-    <canvas height={innerHeight * 0.8} width={innerWidth} bind:this={rhythmTrack}></canvas>
+<div class="relative w-screen h-screen grid place-items-center">
+    <div class="frame-container">
+        <div
+            class="absolute z-10 overflow-hidden"
+            style="
+                top: var(--inset-top, 2.87%);
+                right: var(--inset-right, 2.87%);
+                bottom: var(--inset-bottom, 2.87%);
+                left: var(--inset-left, 2.87%);
+                "
+        >
+            <div id="rhythmGame">
+                <Background/>
+                <canvas height={innerHeight * 1.2} width={innerWidth} bind:this={rhythmTrack}></canvas>
+            </div>
+        </div>
+        <img
+            src="/assets/frame.svg"
+            alt=""
+            class="absolute inset-0 z-30 w-full h-full pointer-events-none"
+            loading="eager"
+        />
+    </div>
 </div>
 
 <style>
@@ -126,18 +145,26 @@
         --rhythmViewportHeight: 80vh;
     }
 
+    .frame-container {
+        /* Match MainView Frame sizing exactly for desktop */
+        position: relative;
+        height: 80%;
+        width: auto;
+        max-width: 100%;
+        aspect-ratio: 872 / 511;
+    }
+
     #rhythmGame{
-        height: var(--rhythmViewportHeight);
-        border: 1px solid;
-        width: calc(100vw  - 2px);
+        height: 96%;
+        width: 100%;
+        margin: 1% 0;
         
-        overflow-x: hidden;
         background: #AADCFF;
     }
 
     canvas{
         position: absolute;
-        height: var(--rhythmViewportHeight);
-        width: 100vw;
+        height: 100%;
+        width: 100%;
     }
 </style>
