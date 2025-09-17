@@ -83,7 +83,7 @@ export class cImg extends component{
         this.currentSprite = currentId;
         this.spriteForms = spriteLocations.map(loc => {
             let s: HTMLImageElement = new Image();
-            s.src = `/${loc}.webp`;
+            s.src = `/rhythm/${loc}.webp`;
             return s;
         })
     }

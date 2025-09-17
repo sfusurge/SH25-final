@@ -16,7 +16,7 @@
     })
 
     $effect(() => {
-        renderer?.setCanvasDimensions(innerWidth, innerHeight);
+        renderer;
     })
 
     // onMount(() => {
@@ -121,13 +121,13 @@
     // });
 
     //all props are rendered based on a certain aspect ratio
-    function xStd(size: number){
-        return size * innerWidth
-    }
+    // function xStd(size: number){
+    //     return size * innerWidth
+    // }
 
-    function yStd(size: number){
-        return size * innerHeight * 1.2
-    }
+    // function yStd(size: number){
+    //     return size * innerHeight * 1.2
+    // }
 </script>
 
 <svelte:window bind:innerHeight bind:innerWidth/>
@@ -144,7 +144,7 @@
         >
             <div id="rhythmGame">
                 <Background/>
-                <canvas height={innerHeight * 1.2} width={innerWidth} bind:this={canvas}></canvas>
+                <canvas height={innerHeight * 1.3} width={innerWidth} bind:this={canvas}></canvas>
             </div>
         </div>
         <img

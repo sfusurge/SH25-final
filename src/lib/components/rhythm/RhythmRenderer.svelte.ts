@@ -1,9 +1,24 @@
 import { component, cQuad, cCricle, cImg, type renderPkg } from "./CanvasTools";
 
+enum trackIds{
+    top = 0,
+    middle = 1,
+    bottom = 2
+}
+
 const trackXPos = 0.125;
-const trackYPos = [0.625, 0.725, 0.825]
+const trackYPositions = [0.625, 0.725, 0.825]
 const trackWidth = 0.065;
 const trackLength = 0.75;
+
+const btnPos = 0.75;
+const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
+
+const cloudSpawnPos:number = 0.2;
+const cloudDespawnPos: number = 0.8;
+
+const interactionThreshold = 280;
+const vfxDuration = 200;
 
 interface rhythmNote{
     trackNo: number;
@@ -40,15 +55,32 @@ export class RhythmRenderer{
     ctx: CanvasRenderingContext2D;
 
     pkg: renderPkg;
+    startTime: number = 0;
 
     songData: rhythmNote[];
+    beatIndex: number = 0;
 
     staticObjs: component[] = [];
     cloudObjs: component[] = [];
+    vfxObjs: component[] = [];
 
     constructor(canvas: HTMLCanvasElement){
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
+        this.canvas.addEventListener("keydown", (e) => {
+            console.log("test")
+            switch(e.key.toLowerCase()){
+                case "a":
+                    this.keyDown(trackIds.top);
+                    break;
+                case "s":
+                    this.keyDown(trackIds.middle);
+                    break;
+                case "d":
+                    this.keyDown(trackIds.bottom);
+                    break;
+            }
+        })
         this.pkg = {
             ctx: this.ctx, 
             w: canvas.width, 
@@ -56,6 +88,7 @@ export class RhythmRenderer{
         }
 
         this.songData = beatsList; //default
+        this.resetStats();
         
         this.init();
     }
@@ -63,23 +96,42 @@ export class RhythmRenderer{
     renderHandle = -1
     init(){
         this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
-        this.setupEnv()
+        this.setupEnvironment()
+        this.setupEvents()
     }
 
     setSong(data: rhythmNote[]){
         this.songData = data;
     }
 
-    setCanvasDimensions(w: number, h: number){
-        // this.cHeight = h;
-        // this.cWidth = w;
-    }
-
     resetStats(){
-        this.songData = beatsList;
+        this.startTime = Date.now();
+        this.beatIndex = 0;
     }
 
-    setupEnv(){
+    getTime(){
+        return Date.now() - this.startTime;
+    }
+
+    setupEvents(){
+        this.canvas.addEventListener("keypress", (e) => {
+            console.log("test")
+            switch(e.key.toLowerCase()){
+                case "a":
+                    this.keyDown(trackIds.top);
+                    break;
+                case "s":
+                    this.keyDown(trackIds.middle);
+                    break;
+                case "d":
+                    this.keyDown(trackIds.bottom);
+                    break;
+            }
+        })
+    }
+
+    setupEnvironment(){
+        //backboard
         this.staticObjs.push(
             new cQuad(this.pkg, 0.1, 0.58, 0.8, 0.37, "fill", ()=>{
                 this.ctx.fillStyle = "black";
@@ -87,7 +139,8 @@ export class RhythmRenderer{
             })
         );
 
-        trackYPos.forEach(pos => {
+        //tracks
+        trackYPositions.forEach(pos => {
             this.staticObjs.push(
                 new cQuad(this.pkg, trackXPos, pos, trackLength, trackWidth, "fill", () => {
                     this.ctx.strokeStyle = "white";
@@ -101,11 +154,37 @@ export class RhythmRenderer{
                 })
             )
         });
+
+        //button indicators
+        trackYPositions.forEach((yPos, i) => {
+            this.staticObjs.push(
+                new cCricle(this.pkg, btnPos, yPos + trackWidth/2, trackWidth/2 - .01, () => {
+                    this.ctx.lineWidth = 0.1;
+                    this.ctx.fillStyle = "#" + btnColors[i];
+                    this.ctx.globalAlpha = 1;
+                })
+            )
+        });
     }
 
-    lastTime = 0;
-    delta = 0;
-    eventLoop(currentTime: number){
+    keyDown(index: number){
+        const boundSize = interactionThreshold / 2;
+        // let line = Math.floor((trackLength - cloudSpawnPos) / (cloudDespawnPos - cloudSpawnPos) * animFrames);
+        // let lBound = line - boundSize;
+        // let rBound = line + boundSize;
+        
+        let hit:boolean = false;
+
+        // this.cloudObjs.forEach((c) => {
+
+        // })
+
+        this.vfxObjs.push(new cImg(this.pkg, trackLength - .02, trackYPositions[index], [hit ? "hit" : "miss"]))
+    }
+
+    // lastTime = 0;
+    // delta = 0;
+    eventLoop(){
         this.clearScreen();
         this.render();
         this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
@@ -119,7 +198,6 @@ export class RhythmRenderer{
         this.staticObjs.forEach(obj => {
             obj.update();
         });
-        // console.log(this.staticObjs[0].update())
     }
 
     clearScreen(){
