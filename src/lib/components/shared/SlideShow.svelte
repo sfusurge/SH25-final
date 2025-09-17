@@ -15,8 +15,17 @@
         className?: string;
     }
 
+    // Game result types for win/lose conditions
+    type GameResult = "win" | "lose" | null;
+
+    interface ResultSlidesConfig {
+        win?: Slide[];
+        lose?: Slide[];
+        default?: Slide[]; // fallback or third option idk lol
+    }
+
     interface Props {
-        slides: Slide[];
+        slides: Slide[] | ResultSlidesConfig; // can just use simple array for instructions
         title?: string;
         show?: boolean;
         onClose?: () => void;
@@ -24,6 +33,7 @@
         showScore?: number; // optional score display
         showCloseButton?: boolean;
         dataMazeUi?: boolean; // for maze, ignore
+        gameResult?: GameResult; // determines which slides to show from the config
     }
 
     let {
@@ -35,25 +45,45 @@
         showScore,
         showCloseButton = false,
         dataMazeUi = false,
+        gameResult = null,
     }: Props = $props();
 
     // Current slide state
     let currentSlideIndex = $state(0);
 
+    const slidesToDisplay = $derived.by(() => {
+
+        if (Array.isArray(slides)) {
+            return slides;
+        }
+
+        const config = slides as ResultSlidesConfig;
+        if (gameResult === "win" && config.win) {
+            return config.win;
+        }
+        if (gameResult === "lose" && config.lose) {
+            return config.lose;
+        }
+        return config.default || [];
+    });
+
     // Computed properties
-    const hasMultipleSlides = $derived(slides.length > 1);
-    const currentSlide = $derived(slides[currentSlideIndex] || { imageSrc: "", content: "" });
+    const hasMultipleSlides = $derived(slidesToDisplay.length > 1);
+    const currentSlide = $derived(
+        slidesToDisplay[currentSlideIndex] || { imageSrc: "", content: "" }
+    );
 
     // Navigation functions
     function nextSlide() {
         if (hasMultipleSlides) {
-            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            currentSlideIndex = (currentSlideIndex + 1) % slidesToDisplay.length;
         }
     }
 
     function prevSlide() {
         if (hasMultipleSlides) {
-            currentSlideIndex = currentSlideIndex > 0 ? currentSlideIndex - 1 : slides.length - 1;
+            currentSlideIndex =
+                currentSlideIndex > 0 ? currentSlideIndex - 1 : slidesToDisplay.length - 1;
         }
     }
 
@@ -101,7 +131,7 @@
             <!-- Pagination dots -->
             <div class="pagination-dots">
                 {#if hasMultipleSlides}
-                    {#each slides as _, index}
+                    {#each slidesToDisplay as _, index}
                         <button
                             class="pagination-dot"
                             class:active={index === currentSlideIndex}

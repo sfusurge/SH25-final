@@ -10,13 +10,24 @@ export interface GameSlideConfig {
     ending: {
         title: string;
         slides: {
-            imageSrc: string;
-            content: string;
-        }[];
+            win?: {
+                imageSrc: string;
+                content: string;
+            }[];
+            lose?: {
+                imageSrc: string;
+                content: string;
+            }[];
+            default?: {
+                imageSrc: string;
+                content: string;
+            }[];
+        };
     };
 }
 
-// Maze game configuration
+// Maze game configuration 
+// TODO: Replace with actual images/text
 export const mazeGameConfig: GameSlideConfig = {
     instructions: {
         title: "Maze Instructions",
@@ -40,12 +51,26 @@ export const mazeGameConfig: GameSlideConfig = {
     },
     ending: {
         title: "Maze Complete!",
-        slides: [
-            {
-                imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
-                content: `<strong>Congratulations!</strong><br><br>You successfully navigated the maze and completed your adventure! Well done on reaching the exit.`,
-            },
-        ],
+        slides: {
+            win: [
+                {
+                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
+                    content: `<strong>Congratulations!</strong><br><br>You successfully navigated the maze and completed your adventure! Well done on reaching the exit.`,
+                },
+            ],
+            lose: [
+                {
+                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
+                    content: `<strong>Game Over!</strong><br><br>You didn't make it through the maze this time. Don't worry - every great explorer faces setbacks. Try again!`,
+                },
+            ],
+            default: [
+                {
+                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
+                    content: `<strong>Maze Adventure Complete!</strong><br><br>Your journey through the maze has ended. Thanks for playing!`,
+                },
+            ],
+        },
     },
 };
 
@@ -96,11 +121,13 @@ export const exampleGameConfig: GameSlideConfig = {
     },
     ending: {
         title: "Game Over!",
-        slides: [
-            {
-                imageSrc: "/path/to/ending/image.png",
-                content: "<strong>Game completed!</strong><br><br>Congratulations!",
-            },
-        ],
+        slides: {
+            default: [
+                {
+                    imageSrc: "/path/to/ending/image.png",
+                    content: "<strong>Game completed!</strong><br><br>Congratulations!",
+                },
+            ],
+        },
     },
 };

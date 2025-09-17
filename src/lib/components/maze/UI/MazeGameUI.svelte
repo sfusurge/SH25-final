@@ -2,10 +2,7 @@
     import { global } from "$lib/../routes/+layout.svelte";
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
     import SlideShow from "$lib/components/shared/SlideShow.svelte";
-    import {
-        mazeGameConfig,
-        createGameActionButton,
-    } from "$lib/components/shared/gameSlideConfigs";
+    import { mazeGameConfig, createGameActionButton } from "$lib/components/shared/slideshowConfig";
     import MazeHud from "./MazeHUD.svelte";
 
     // Props
@@ -54,6 +51,7 @@
         title={mazeGameConfig.ending.title}
         show={true}
         showScore={GameState.score}
+        gameResult={"win"}
         actionButton={createGameActionButton("restart", () => {
             // Reset the game world (new maze, entities, player position)
             if (gameRenderer) {
