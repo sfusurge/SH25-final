@@ -11,7 +11,7 @@ export abstract class component{
     w: number;
     h: number;
 
-    runtime: number = 0;
+    startTime: number = 0;
     
     SpecialSetup: ()=>void;
 

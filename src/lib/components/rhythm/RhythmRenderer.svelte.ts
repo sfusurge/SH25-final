@@ -20,6 +20,10 @@ const cloudDespawnPos: number = 0.8;
 const interactionThreshold = 280;
 const vfxDuration = 200;
 
+function getTime(time: number = 0){
+    return Date.now() - time;
+}
+
 interface rhythmNote{
     trackNo: number;
     timing: number;
@@ -67,21 +71,6 @@ export class RhythmRenderer{
     constructor(canvas: HTMLCanvasElement){
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
-
-        this.canvas.addEventListener("keydown", (e) => {
-            console.log("test")
-            switch(e.key.toLowerCase()){
-                case "a":
-                    this.keyDown(trackIds.top);
-                    break;
-                case "s":
-                    this.keyDown(trackIds.middle);
-                    break;
-                case "d":
-                    this.keyDown(trackIds.bottom);
-                    break;
-            }
-        }, {capture:true})
         this.pkg = {
             ctx: this.ctx,
             w: canvas.width,
@@ -110,13 +99,8 @@ export class RhythmRenderer{
         this.beatIndex = 0;
     }
 
-    getTime(){
-        return Date.now() - this.startTime;
-    }
-
     setupEvents(){
         this.canvas.addEventListener("keypress", (e) => {
-            console.log("test")
             switch(e.key.toLowerCase()){
                 case "a":
                     this.keyDown(trackIds.top);
@@ -128,7 +112,7 @@ export class RhythmRenderer{
                     this.keyDown(trackIds.bottom);
                     break;
             }
-        })
+        }, {capture:true})
     }
 
     setupEnvironment(){
@@ -180,7 +164,9 @@ export class RhythmRenderer{
 
         // })
 
-        this.vfxObjs.push(new cImg(this.pkg, trackLength - .02, trackYPositions[index], [hit ? "hit" : "miss"]))
+        let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[index] + .0125, [hit ? "hit" : "miss"])
+        vfx.startTime = getTime(0);
+        this.vfxObjs.push(vfx);
     }
 
     // lastTime = 0;
@@ -199,6 +185,12 @@ export class RhythmRenderer{
         this.staticObjs.forEach(obj => {
             obj.update();
         });
+        this.vfxObjs.forEach(obj => {
+            obj.update();
+        });
+        this.vfxObjs = this.vfxObjs.filter(v => {
+            return getTime(v.startTime) < vfxDuration
+        })
     }
 
     clearScreen(){
