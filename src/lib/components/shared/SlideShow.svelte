@@ -1,34 +1,40 @@
 <script lang="ts">
     import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
-    import { global } from "../../../../routes/+layout.svelte";
+    import { global } from "$lib/../routes/+layout.svelte";
 
-    // Props interface following the suggested structure
+    // Main slide interface
+    interface Slide {
+        imageSrc: string;
+        content: string; // HTML content that can be rendered with {@html}
+    }
+
+    interface ActionButton {
+        text: string;
+        action: () => void;
+        className?: string;
+    }
+
     interface Props {
-        slides: {
-            imageSrc: string;
-            content: string; // can render raw html with {@html}
-        }[];
+        slides: Slide[];
         title?: string;
         show?: boolean;
         onClose?: () => void;
-        onAction?: () => void; // main action button (Start Game/Play Again)
-        actionText?: string; // text for the main action button
-        mode?: "instructions" | "ending"; // determines layout and behavior
-        score?: number; // for ending modal
-        isRunning?: boolean; // for instructions modal - affects action button text
+        actionButton?: ActionButton;
+        showScore?: number; // optional score display
+        showCloseButton?: boolean;
+        dataMazeUi?: boolean; // for maze, ignore
     }
 
     let {
         slides,
-        title = "Maze Game",
+        title = "Game",
         show = true,
         onClose,
-        onAction,
-        actionText,
-        mode = "instructions",
-        score,
-        isRunning = false,
+        actionButton,
+        showScore,
+        showCloseButton = false,
+        dataMazeUi = false,
     }: Props = $props();
 
     // Current slide state
@@ -37,17 +43,6 @@
     // Computed properties
     const hasMultipleSlides = $derived(slides.length > 1);
     const currentSlide = $derived(slides[currentSlideIndex] || { imageSrc: "", content: "" });
-
-    // Determine action button text based on mode and state
-    const finalActionText = $derived.by(() => {
-        if (actionText) return actionText;
-
-        if (mode === "ending") {
-            return "Play Again";
-        } else {
-            return isRunning ? "Continue Game" : "Start Game";
-        }
-    });
 
     // Navigation functions
     function nextSlide() {
@@ -70,43 +65,42 @@
 <Dialog
     {title}
     {show}
-    {onClose}
+    onClose={showCloseButton ? onClose : undefined}
     mobile={global.mobile}
     offsetDirection={global.mobile ? "center" : "center"}
-    dataMazeUi={true}
+    {dataMazeUi}
 >
-    <div class="slideshow-content" data-maze-ui>
-        <!-- Score display for ending mode -->
-        {#if mode === "ending" && score !== undefined}
+    <div class="slideshow-content" class:data-maze-ui={dataMazeUi}>
+        {#if showScore !== undefined}
             <div class="score-display">
                 <span class="score-label">Score:</span>
-                <span class="score-value">{score}</span>
+                <span class="score-value">{showScore}</span>
             </div>
         {/if}
 
-        <!-- Main slide image -->
-        {#if currentSlide.imageSrc}
-            <div class="slide-image-container">
+        <!-- Main slide image (fixed height) -->
+        <div class="slide-image-container">
+            {#if currentSlide.imageSrc}
                 <img
                     src={currentSlide.imageSrc}
                     alt="Slide {currentSlideIndex + 1}"
                     class="slide-image"
                 />
-            </div>
-        {/if}
+            {/if}
+        </div>
 
         <!-- Slide content -->
         <div class="slide-content">
             {@html currentSlide.content}
         </div>
 
-        <!-- Navigation controls (only if multiple slides) -->
-        {#if hasMultipleSlides}
-            <div class="navigation-controls">
-                <HoverEffectButton onClick={prevSlide} square>←</HoverEffectButton>
+        <!-- Nav controls (fixed height) -->
+        <div class="navigation-controls" class:visible={hasMultipleSlides}>
+            <HoverEffectButton onClick={prevSlide} square>←</HoverEffectButton>
 
-                <!-- Pagination dots -->
-                <div class="pagination-dots">
+            <!-- Pagination dots -->
+            <div class="pagination-dots">
+                {#if hasMultipleSlides}
                     {#each slides as _, index}
                         <button
                             class="pagination-dot"
@@ -114,18 +108,28 @@
                             onclick={() => goToSlide(index)}
                         ></button>
                     {/each}
-                </div>
-
-                <HoverEffectButton onClick={nextSlide} square>→</HoverEffectButton>
+                {:else}
+                    <!-- Reserved space for at least 3 dots -->
+                    {#each Array(3) as _, index}
+                        <div class="pagination-dot placeholder"></div>
+                    {/each}
+                {/if}
             </div>
-        {/if}
+
+            <HoverEffectButton onClick={nextSlide} square>→</HoverEffectButton>
+        </div>
 
         <!-- Action button -->
-        <div class="action-section">
-            <HoverEffectButton onClick={onAction} className="action-button">
-                {finalActionText}
-            </HoverEffectButton>
-        </div>
+        {#if actionButton}
+            <div class="action-section">
+                <HoverEffectButton
+                    onClick={actionButton.action}
+                    className={actionButton.className || "action-button"}
+                >
+                    {actionButton.text}
+                </HoverEffectButton>
+            </div>
+        {/if}
     </div>
 </Dialog>
 
@@ -134,9 +138,9 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
-        max-width: 400px;
-        width: 100%;
+        gap: 0.5rem;
+        width: 500px;
+        height: 50vh;
     }
 
     .score-display {
@@ -154,18 +158,19 @@
     }
 
     .slide-image-container {
-        width: 100%;
-        max-width: 300px;
+        width: fit-content;
         aspect-ratio: 16/9;
         overflow: hidden;
         border-radius: 4px;
         border: 1px solid var(--color-border);
+        background-color: var(--color-background-secondary, #f5f5f5);
     }
 
     .slide-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center;
         display: block;
     }
 
@@ -175,6 +180,10 @@
         line-height: 1.4;
         text-align: center;
         max-width: 100%;
+        flex: 1;
+        padding: 0.5rem 0;
+        display: table-cell;
+        vertical-align: middle;
     }
 
     .navigation-controls {
@@ -182,12 +191,20 @@
         align-items: center;
         gap: 1rem;
         margin-top: 0.5rem;
+        height: 2rem;
+        visibility: hidden;
+    }
+
+    .navigation-controls.visible {
+        visibility: visible;
     }
 
     .pagination-dots {
         display: flex;
         gap: 0.3rem;
         align-items: center;
+        min-width: 80px;
+        justify-content: center;
     }
 
     .pagination-dot {
@@ -198,6 +215,11 @@
         background-color: var(--color-border);
         cursor: pointer;
         transition: background-color 0.2s ease;
+    }
+
+    .pagination-dot.placeholder {
+        opacity: 0;
+        cursor: default;
     }
 
     .pagination-dot:hover {
@@ -226,8 +248,10 @@
     /* Mobile specific styling */
     @media (max-width: 768px) {
         .slideshow-content {
-            max-width: 90vw;
+            width: 90vw;
+            max-width: 350px;
             gap: 0.8rem;
+            height: 480px;
         }
 
         .slide-image-container {

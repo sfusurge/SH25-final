@@ -1,8 +1,11 @@
 <script lang="ts">
-    import { global } from "../../../../routes/+layout.svelte";
+    import { global } from "$lib/../routes/+layout.svelte";
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
-    import MazeInstructionsModal from "./MazeInstructionsModal.svelte";
-    import MazeEndingModal from "./MazeEndingModal.svelte";
+    import SlideShow from "$lib/components/shared/SlideShow.svelte";
+    import {
+        mazeGameConfig,
+        createGameActionButton,
+    } from "$lib/components/shared/gameSlideConfigs";
     import MazeHud from "./MazeHUD.svelte";
 
     // Props
@@ -17,31 +20,41 @@
 {/if}
 
 {#if GameState.isGamePre || GameState.showInstructionsDuringGame}
-    <MazeInstructionsModal
-        isRunning={GameState.isGameRunning}
+    <SlideShow
+        slides={mazeGameConfig.instructions.slides}
+        title={mazeGameConfig.instructions.title}
+        show={true}
+        actionButton={createGameActionButton(
+            "start",
+            () => {
+                if (GameState.isGameRunning) {
+                    GameState.showInstructionsDuringGame = false;
+                    GameState.resumeGame();
+                } else {
+                    GameState.startGame();
+                }
+                GameState.focusGameCanvas();
+            },
+            GameState.isGameRunning
+        )}
         showCloseButton={GameState.showCloseButtonInInstructions}
-        onStart={() => {
-            if (GameState.isGameRunning) {
-                GameState.showInstructionsDuringGame = false;
-                GameState.resumeGame();
-            } else {
-                GameState.startGame();
-            }
-            GameState.focusGameCanvas();
-        }}
         onClose={() => {
             GameState.showInstructionsDuringGame = false;
             GameState.showCloseButtonInInstructions = false;
             GameState.resumeGame();
             GameState.focusGameCanvas();
         }}
+        dataMazeUi={true}
     />
 {/if}
 
 {#if GameState.isGameEnded}
-    <MazeEndingModal
-        score={GameState.score}
-        onRestart={() => {
+    <SlideShow
+        slides={mazeGameConfig.ending.slides}
+        title={mazeGameConfig.ending.title}
+        show={true}
+        showScore={GameState.score}
+        actionButton={createGameActionButton("restart", () => {
             // Reset the game world (new maze, entities, player position)
             if (gameRenderer) {
                 gameRenderer.reset();
@@ -49,7 +62,8 @@
             // Reset the game state (score, health, timer)
             GameState.startGame();
             GameState.focusGameCanvas();
-        }}
+        })}
+        dataMazeUi={true}
     />
 {/if}
 
