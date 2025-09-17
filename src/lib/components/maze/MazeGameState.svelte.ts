@@ -40,6 +40,7 @@ class _GameState {
     });
 
     constructor() {
+        this.paused = true;
         this.startTimers();
         $effect.root(() => {
             // ends game at health 0 or time ended
