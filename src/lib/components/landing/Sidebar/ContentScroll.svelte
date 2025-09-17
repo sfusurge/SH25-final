@@ -5,8 +5,19 @@
     import WebtoonTile from "$lib/components/landing/Sidebar/WebtoonTile.svelte";
     import InformationTile from "$lib/components/landing/Sidebar/InformationTile.svelte";
     import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
     import { global } from "../../../../routes/+layout.svelte";
     import Socials from "$lib/components/landing/Socials.svelte";
+
+    $: currentPath = $page.url.pathname;
+    $: currentHash = $page.url.hash;
+
+    function isActiveTile(path: string, hash?: string): boolean {
+        if (hash) {
+            return currentPath === path && currentHash === hash;
+        }
+        return currentPath === path;
+    }
 </script>
 
 <div
@@ -47,23 +58,27 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             Interactive Experiences
         </h1>
-        <ExperienceTile
-            imageSrc="/assets/experiences/garden.webp"
-            imageAlt="Stumpy's Community Garden"
-            imageClass="w-full h-32 object-cover p-2"
-            onClick={() => goto("/garden")}
-            header="Stumpy's Community Garden"
-            text="Tend to your garden and its visitors, expanding your plant shop's catalogue and handling challenges as they arise."
-        />
-        <ExperienceTile
-            imageSrc="/assets/experiences/lofi.webp"
-            imageAlt="Lofi Player"
-            imageClass="w-full h-32 object-cover p-2"
-            onClick={() => goto("/music")}
-            header="Lofi Player"
-            text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
-        />
-        <LockedTile release="Releases [09/15/2025]" />
+        <div class:active-tile={isActiveTile("/garden")}>
+            <ExperienceTile
+                    imageSrc="/assets/experiences/garden.webp"
+                    imageAlt="Stumpy's Community Garden"
+                    imageClass="w-full h-32 object-cover p-2"
+                    onClick={() => goto("/garden")}
+                    header="Stumpy's Community Garden"
+                    text="Tend to your garden and its visitors, expanding your plant shop's catalogue and handling challenges as they arise."
+            />
+        </div>
+        <div class:active-tile={isActiveTile("/music") || isActiveTile("/")}>
+            <ExperienceTile
+                    imageSrc="/assets/experiences/lofi.webp"
+                    imageAlt="Lofi Player"
+                    imageClass="w-full h-32 object-cover p-2"
+                    onClick={() => goto("/music")}
+                    header="Lofi Player"
+                    text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
+            />
+        </div>
+        <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
@@ -71,18 +86,22 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             Information
         </h1>
-        <InformationTile
-                className="p-2"
-                onClick={() => goto("/faq")}
-                header="Frequently Asked Questions"
-                text="Confused about anything related to StormHacks? Check out our curated list of questions and answers."
-        />
-        <InformationTile
-                className="p-2"
-                onClick={() => goto("/partners")}
-                header="Our Sponsors"
-                text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
-        />
+        <div class:active-tile={isActiveTile("/faq")}>
+            <InformationTile
+                    className="p-2"
+                    onClick={() => goto("/faq")}
+                    header="Frequently Asked Questions"
+                    text="Confused about anything related to StormHacks? Check out our curated list of questions and answers."
+            />
+        </div>
+        <div class:active-tile={isActiveTile("/partners")}>
+            <InformationTile
+                    className="p-2"
+                    onClick={() => goto("/partners")}
+                    header="Our Sponsors"
+                    text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
+            />
+        </div>
         <LockedTile release="Coming Soon..." />
     </div>
 
@@ -90,16 +109,17 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             WebToon Series
         </h1>
-        <WebtoonTile
-                imageSrc="/assets/ig.svg"
-                imageAlt="[Ch 1] Who are you...?"
-                imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
-                className="mt-4"
-                onClick={() => goto("/webtoon#1")}
-                header="[Ch 1] Who are you...?"
-                text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
-        />
-        <LockedTile release="Releases [09/15/2025]" />
+        <div class:active-tile={isActiveTile("/webtoon", "#1")}>
+            <WebtoonTile
+                    imageSrc="/assets/ig.svg"
+                    imageAlt="[Ch 1] Who are you...?"
+                    imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
+                    onClick={() => goto("/webtoon#1")}
+                    header="[Ch 1] Who are you...?"
+                    text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
+            />
+        </div>
+        <LockedTile release="Releases [09/17/2025]" />
         <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [09/29/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
@@ -131,5 +151,9 @@
         width: auto;
         margin: .5rem .5rem;
         overflow-y:auto;
+    }
+
+    .contentContainer:not(.mobile) .active-tile {
+        outline: 1px solid #F1ECEB;
     }
 </style>

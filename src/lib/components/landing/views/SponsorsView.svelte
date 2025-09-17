@@ -29,21 +29,21 @@
             Our Sponsors
         </h1>
 
-        <div class="flex">
-            <div class="flex flex-col gap-4 w-full">
-                {#each companies.monetary.gold as company}
-                    <SponsorFrame
-                            height={height}
-                            width={width}
-                            src={company.picture}
-                            alt={company.name}
-                            href={company.link}
-                            padding={company.padding}
-                    />
-                {/each}
-            </div>
+<!--        <div class="flex">-->
+<!--            <div class="flex flex-col gap-4 w-full">-->
+<!--                {#each companies.monetary.gold as company}-->
+<!--                    <SponsorFrame-->
+<!--                            height={height}-->
+<!--                            width={width}-->
+<!--                            src={company.picture}-->
+<!--                            alt={company.name}-->
+<!--                            href={company.link}-->
+<!--                            padding={company.padding}-->
+<!--                    />-->
+<!--                {/each}-->
+<!--            </div>-->
 
-        </div>
+<!--        </div>-->
 
         <div class="flex">
             <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-x-15 gap-y-10 w-full">
