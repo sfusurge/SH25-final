@@ -37,8 +37,6 @@ var beatsList:rhythmNote[] = beatMap.map(note => {
 export class RhythmRenderer{
 
     canvas: HTMLCanvasElement;
-    cHeight: number = 0;
-    cWidth: number = 0;
     ctx: CanvasRenderingContext2D;
 
     pkg: renderPkg;
@@ -125,6 +123,6 @@ export class RhythmRenderer{
     }
 
     clearScreen(){
-        this.ctx.clearRect(0, 0, this.cWidth, this.cHeight);
+        this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
     }
 }
