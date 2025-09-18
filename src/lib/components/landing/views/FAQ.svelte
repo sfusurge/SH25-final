@@ -48,17 +48,17 @@ Within just 36 hours, teams bring their ideas to life. We empower and enable tea
 </script>
 
 <div class="w-full flex items-center justify-center">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 place-items-center py-0 p-10 lg:p-12 w-full max-h-[100dvh] overflow-y-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center py-0 p-10 lg:p-12 w-full max-h-[100dvh] overflow-y-auto">
         {#each faqData as faq, index}
             <div
-                class="flip-card w-full max-w-xs md:max-w-sm h-80 cursor-pointer"
+                class="flip-card w-full max-w-xs lg:max-w-sm h-80 cursor-pointer"
                 role="button"
                 tabindex="0"
                 onclick={() => toggleFlip(index)}
                 onkeydown={(e) => e.key === 'Enter' || e.key === ' ' ? toggleFlip(index) : null}
             >
                 <div class="flip-card-inner w-full h-full" class:flipped={flippedCards[index]}>
-                    <div class="flip-card-front flex px-5 md:px-8 flex-col justify-center items-center gap-2.5 flex-shrink-0 w-full h-full text-pretty">
+                    <div class="flip-card-front flex px-5 lg:px-8 flex-col justify-center items-center gap-2.5 flex-shrink-0 w-full h-full text-pretty">
                         <p class="text-[#F1ECEB] text-center text-[15px] italic font-bold leading-normal">
                             {faq.question}
                         </p>

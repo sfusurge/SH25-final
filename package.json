@@ -31,5 +31,8 @@
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]
+	},
+	"dependencies": {
+		"firebase": "^12.2.1"
 	}
 }
