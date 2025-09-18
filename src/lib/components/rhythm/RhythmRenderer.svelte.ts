@@ -203,16 +203,24 @@ export class RhythmRenderer {
         this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
         this.ctx.scale(1 / this.dpr, 1 / this.dpr);
 
+        this.renderEnv();
+        this.renderVfx();
+
+        this.ctx.restore();
+    }
+
+    renderEnv(){
         this.staticObjs.forEach(obj => {
             obj.update();
         });
+    }
+
+    renderVfx(){
         this.vfxObjs.forEach(obj => {
             obj.update();
         });
         this.vfxObjs = this.vfxObjs.filter(v => {
             return this.getTimeSince(v.startTime) < vfxDuration
         })
-
-        this.ctx.restore();
     }
 }
