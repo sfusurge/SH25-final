@@ -1,3 +1,6 @@
+import type RhythmGame from "$lib/components/rhythm/RhythmGame.svelte";
+import type { RhythmNote } from "$lib/components/rhythm/RhythmRenderer.svelte";
+
 export interface RenderPkg {
     ctx: CanvasRenderingContext2D;
     w: number;
@@ -90,5 +93,38 @@ export class cImg extends component {
     update() {
         this.SpecialSetup();
         this.ctx.drawImage(this.spriteForms[this.currentSprite], this.xStd(this.x), this.yStd(this.y));
+    }
+}
+
+
+export  function parseBeatMap(beatMapString: string) {
+    const out: RhythmNote[] = [];
+    let title: string = "", difficulty: string = "";
+    try {
+        const lines =beatMapString.split("\n");
+
+        title = lines[0];
+        title = title.slice(title.indexOf("#"));
+        difficulty = lines[1];
+        difficulty = difficulty.slice(difficulty.indexOf("#"));
+
+        for (let i = 2; i < lines.length; i++) {
+            const [_trackNo, _time, _duration] = lines[i].split(",");
+
+            out.push({
+                trackNo: parseFloat(_trackNo),
+                timing: parseFloat(_time),
+                duration: _duration ? parseFloat(_duration) : undefined
+            })
+        }
+
+    } catch (e) {
+        console.log("beatmap parse error: ", e);
+    }
+
+    return {
+        notes: out,
+        title,
+        difficulty
     }
 }

@@ -1,3 +1,4 @@
+import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
 import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg } from "./CanvasTools";
 
 enum trackIds {
@@ -20,55 +21,37 @@ const cloudDespawnPos: number = 0.8;
 const interactionThreshold = 280;
 const vfxDuration = 200;
 
-function getTime(time: number = 0) {
-    return Date.now() - time;
-}
 
-interface RhythmNote {
+
+export interface RhythmNote {
     trackNo: number;
     timing: number;
-    duration: number;
+    duration: number | undefined;
 }
 
-const testSong =
-    `test
-1
-0, 50
-0, 75
-0, 100
-1, 100
-2, 100`
 
-let beatMap = testSong.split("\n")
-beatMap = beatMap.filter((_, i) => {
-    return i > 1
-})
-var beatsList: RhythmNote[] = beatMap.map(note => {
-    let nInfo = note.split(", ")
-    const n: RhythmNote = {
-        trackNo: parseInt(nInfo[0]),
-        timing: parseInt(nInfo[1]),
-        duration: nInfo.length > 2 ? parseInt(nInfo[2]) : 0
-    }
-    return n;
-})
 
 export class RhythmRenderer {
-
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
     pkg: RenderPkg;
     startTime: number = 0;
 
-    songData: RhythmNote[];
+    songData: RhythmNote[] = $state([]);
     beatIndex: number = 0;
 
     staticObjs: Component[] = [];
     cloudObjs: Component[] = [];
     vfxObjs: Component[] = [];
 
+    currentTime = 0;
+    delta = 0;
+
     dpr = 1;
+    resizeObserver: ResizeObserver | undefined;
+
+    musicPlayer: GameMusicPlayer = new GameMusicPlayer();
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -78,8 +61,6 @@ export class RhythmRenderer {
             w: canvas.width,
             h: canvas.height
         }
-
-        this.songData = beatsList; //default
         this.resetStats();
 
         this.init();
@@ -92,8 +73,28 @@ export class RhythmRenderer {
         this.setupEvents();
     }
 
-    setSong(data: RhythmNote[]) {
-        this.songData = data;
+    getTimeSince(time: number) {
+        return this.currentTime - time;
+    }
+
+    eventLoop(time: number) {
+        this.delta = (time - this.currentTime) / 1000;
+        this.currentTime = time;
+
+        this.render();
+        this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
+    }
+
+    setSong(notes: RhythmNote[], song: AudioBuffer) {
+        this.musicPlayer.song = song;
+        this.songData = notes;
+
+
+        // TODO, debug, remove this
+        setTimeout(() => {
+            console.log($state.snapshot(notes));
+            this.musicPlayer.play();
+        }, 1000)
     }
 
     resetStats() {
@@ -127,12 +128,12 @@ export class RhythmRenderer {
             this.canvas.height = this.pkg.h;
         }
 
-        const resizeObserver = new ResizeObserver((entries) => {
+        this.resizeObserver = new ResizeObserver((entries) => {
             for (const e of entries) {
                 handleResize();
             }
         });
-        resizeObserver.observe(this.canvas);
+        this.resizeObserver.observe(this.canvas);
         handleResize();
 
     }
@@ -187,22 +188,14 @@ export class RhythmRenderer {
         // })
 
         let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[index] + .0125, [hit ? "hit" : "miss"])
-        vfx.startTime = getTime(0);
+        vfx.startTime = this.currentTime;
         this.vfxObjs.push(vfx);
     }
 
-    lastTime = 0;
-    delta = 0;
-    eventLoop(time: number) {
-        this.delta = time - this.lastTime;
-
-        this.render();
-        this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
-        this.lastTime = time;
-    }
 
     destroy() {
         cancelAnimationFrame(this.renderHandle);
+        this.resizeObserver?.disconnect();
     }
 
     render() {
@@ -217,7 +210,7 @@ export class RhythmRenderer {
             obj.update();
         });
         this.vfxObjs = this.vfxObjs.filter(v => {
-            return getTime(v.startTime) < vfxDuration
+            return this.getTimeSince(v.startTime) < vfxDuration
         })
 
         this.ctx.restore();
