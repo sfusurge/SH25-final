@@ -1,10 +1,11 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { Vector2 } from "$lib/Vector2";
 import { AABB } from "$lib/Vector2";
-import { debug, type MazeGame } from "$lib/components/maze/MazeGame.svelte.ts";
+import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 import { AStar, lineOfSight } from "$lib/components/maze/PathFind";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
-import type { Room, RoomLayout } from "$lib/components/maze/Room";
+import type { RoomLayout } from "$lib/components/maze/Room";
+import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 export const ENTITY_TYPE = Object.freeze({
     player: -1,
@@ -25,15 +26,15 @@ const DOWN = 3;
 
 export class ProjectileEntity extends Entity {
     direction: number;
-    speed: number = 400;
-    distanceBeforeDrop: number = 150;
+    speed: number = 450;
+    distanceBeforeDrop: number = 200;
     distanceTraveled: number = 0;
     initialVelocity: Vector2; // Velocity inherited from player
 
     height: number = 15; // Height above ground
     verticalVelocity: number = 0;
     gravity: number = 250;
-    radius: number = 6;
+    radius: number = 7;
 
     constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO) {
         super(pos, 8, 8);
@@ -88,7 +89,10 @@ export class ProjectileEntity extends Entity {
         const entityType = other.metadata?.entityType;
 
         // Destroy projectile on collision with solid objects
-        if (entityType === ENTITY_TYPE.rock || entityType === ENTITY_TYPE.enemy) {
+        if (
+            entityType === ENTITY_TYPE.rock ||
+            (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
+        ) {
             this.metadata.destroyed = true;
         }
     }
@@ -139,11 +143,16 @@ export class Player extends Entity {
 
     direction = DOWN;
     playerSpites: { [key: number]: HTMLCanvasElement[] };
+    playerHurtSprites: { [key: number]: HTMLCanvasElement[] };
 
     immuneDuration = 0;
     // Shooting cooldown
     shootCooldown = 0;
-    shootCooldownTime = 0.4; // 400ms
+    shootCooldownTime = 0.4; // seconds
+
+    isHurt = false;
+    hurtDuration = 0;
+    hurtDisplayTime = 0.5; // seconds
 
 
     constructor(pos: Vector2) {
@@ -171,6 +180,30 @@ export class Player extends Entity {
                 loadImageToCanvas("/maze/player_sprites/player_down_neutral.webp", this.renderWidth),
                 loadImageToCanvas("/maze/player_sprites/player_down_walk_1.webp", this.renderWidth),
                 loadImageToCanvas("/maze/player_sprites/player_down_walk_2.webp", this.renderWidth),
+            ]
+        };
+
+        // Load hurt sprites (red-tinted versions)
+        this.playerHurtSprites = {
+            [LEFT]: [
+                loadImageToCanvas("/maze/player_sprites/player_left_neutral_hurt.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_1_hurt.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_2_hurt.webp", this.renderWidth),
+            ],
+            [RIGHT]: [
+                loadImageToCanvas("/maze/player_sprites/player_left_neutral_hurt.webp", this.renderWidth, true),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_1_hurt.webp", this.renderWidth, true),
+                loadImageToCanvas("/maze/player_sprites/player_left_walk_2_hurt.webp", this.renderWidth, true),
+            ],
+            [UP]: [
+                loadImageToCanvas("/maze/player_sprites/player_up_neutral_hurt.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_up_walk_1_hurt.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_up_walk_2_hurt.webp", this.renderWidth),
+            ],
+            [DOWN]: [
+                loadImageToCanvas("/maze/player_sprites/player_down_neutral_hurt.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_down_walk_1_hurt.webp", this.renderWidth),
+                loadImageToCanvas("/maze/player_sprites/player_down_walk_2_hurt.webp", this.renderWidth),
             ]
         };
     }
@@ -219,13 +252,27 @@ export class Player extends Entity {
         if (this.immuneDuration > 0) {
             this.immuneDuration -= dt;
         }
+
+        // Update hurt state timer
+        if (this.isHurt && this.hurtDuration > 0) {
+            this.hurtDuration -= dt;
+            if (this.hurtDuration <= 0) {
+                this.isHurt = false;
+                this.hurtDuration = 0;
+            }
+        }
     }
 
     onCollision(other: Entity, game?: any): void {
 
         if (other.metadata.entityType === ENTITY_TYPE.enemy && this.immuneDuration <= 0) {
-            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(500));
+            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(800));
             this.immuneDuration = 1;
+
+            this.isHurt = true;
+            this.hurtDuration = this.hurtDisplayTime;
+
+            GameState.reduceHealth(10);
         }
     }
 
@@ -253,7 +300,7 @@ export class Player extends Entity {
         }
 
 
-        const inheritedVelocity = this.vel.mul(0.6);
+        const inheritedVelocity = this.vel.mul(0.3);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
         game.addProjectile(projectile);
     }
@@ -263,6 +310,7 @@ export class Player extends Entity {
         const trans = ctx.getTransform();
 
         const mag = this.vel.mag();
+
         const sprites = this.playerSpites[this.direction];
 
         let sprite = sprites[0];
@@ -277,13 +325,13 @@ export class Player extends Entity {
 
         ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
         ctx.translate(-sprite.width / 2, -sprite.height);
-        ctx.drawImage(sprite, this.x, this.y);
+        this.renderWithDamageState(ctx, sprite, this.x, this.y, this.isHurt);
 
         ctx.setTransform(trans);
     }
 }
 
-const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.webp", 40, false, 0);
+const RockSprite = loadImageToCanvas("/maze/rock.webp", 40, false, 0);
 const ScrollSprite = loadImageToCanvas("/maze/scroll.webp", 40, false, 0);
 const TrapSprite = loadImageToCanvas("/maze/trap.webp", 50, false, 0);
 
@@ -373,9 +421,18 @@ export class WalkerEntity extends Entity {
     static: boolean = false;
 
     sprite: HTMLCanvasElement;
+    hurtSprite: HTMLCanvasElement;
+    deadSprite: HTMLCanvasElement;
+
+    spriteLeft: HTMLCanvasElement;
+    hurtSpriteLeft: HTMLCanvasElement;
+    deadSpriteLeft: HTMLCanvasElement;
 
     maxVel: number = 150;
     accel: number = 2000;
+
+    // Facing direction (LEFT = 0, RIGHT = 2 to match player consts)
+    facingDirection: number = RIGHT;
 
     // drawing for debug
     pathFinds: { x: number, y: number }[] = [];
@@ -384,29 +441,80 @@ export class WalkerEntity extends Entity {
     playerLoc?: Vector2;
     directTarget = false;
     health: number = 3;
+    maxHealth: number = 3;
+
+    // Visual state management
+    isHurt: boolean = false;
+    hurtDuration: number = 0;
+    hurtDisplayTime: number = 0.5; // seconds to show hurt sprite
+    isDead: boolean = false;
+    deathTime: number = 0;
+    fadeOutDuration: number = 1.0; // seconds to fade out
 
     constructor(pos: Vector2, health?: number) {
         super(pos, 25, 25);
 
+        // Right-facing 
         this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
+        this.hurtSprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1_hurt.webp", 50, false, 0);
+        this.deadSprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1_dead.webp", 50, false, 0);
+
+        // Left-facing 
+        this.spriteLeft = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, true, 0);
+        this.hurtSpriteLeft = loadImageToCanvas("/maze/enemy_sprites/enemy_1_hurt.webp", 50, true, 0);
+        this.deadSpriteLeft = loadImageToCanvas("/maze/enemy_sprites/enemy_1_dead.webp", 50, true, 0);
+
         this.metadata.entityType = ENTITY_TYPE.enemy;
         this.health = health ?? 3;
+        this.maxHealth = this.health;
     }
 
     onCollision(other: Entity, game?: any): void {
+        // Dead entities don't participate in any collisions
+        if (this.isDead) {
+            return;
+        }
+
         if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy) {
             this.resolveCollision(other.aabb, other.vel);
         }
         if (other.metadata.entityType === ENTITY_TYPE.projectile) {
             this.health -= 1;
-            if (this.health <= 0) {
-                this.metadata.destroyed = true;
+
+            // Set hurt state when hit
+            this.isHurt = true;
+            this.hurtDuration = this.hurtDisplayTime;
+
+            if (this.health <= 0 && !this.isDead) {
+                this.isDead = true;
+                this.deathTime = 0; // Reset death timer
+                // Award points and increment counter when enemy dies
+                GameState.incrementEnemiesKilled();
             }
-            this.applyImpulse(this.pos.sub(other.pos).normalize().mul(400));
+            this.applyImpulse(this.pos.sub(other.pos).normalize().mul(600));
         }
     }
 
     update(game: MazeGame, dt: number): void {
+        // Update hurt state timer
+        if (this.isHurt && this.hurtDuration > 0) {
+            this.hurtDuration -= dt;
+            if (this.hurtDuration <= 0) {
+                this.isHurt = false;
+                this.hurtDuration = 0;
+            }
+        }
+
+        // Handle death animation completion
+        if (this.isDead) {
+            this.deathTime += dt;
+            if (this.deathTime >= this.fadeOutDuration) {
+                this.metadata.destroyed = true;
+            }
+            // Don't process other logic when dead
+            return;
+        }
+
         if (game.currentRoomId === 0) {
             return;
         }
@@ -450,7 +558,11 @@ export class WalkerEntity extends Entity {
             if (clear) {
                 // if close enough and have clear los, then head straight to player.
                 this.directTarget = true;
-                this.move(player.pos.sub(this.pos), dt);
+                const moveVector = player.pos.sub(this.pos);
+
+                this.facingDirection = moveVector.x > 0 ? RIGHT : LEFT;
+
+                this.move(moveVector, dt);
                 this.playerLoc = player.pos;
                 this.pathFinds = [];
                 return;
@@ -483,10 +595,13 @@ export class WalkerEntity extends Entity {
         }
         const pathFind = pathFinds?.at(-1);
         if (pathFind) {
-            this.move(Vector2.of(
+            const targetPos = Vector2.of(
                 halfCell * pathFind.x + room.left * CELL_SIZE + halfCell / 2,
                 halfCell * pathFind.y + room.top * CELL_SIZE + halfCell / 2
-            ).sub(this.pos), dt);
+            );
+            const moveVector = targetPos.sub(this.pos);
+            this.facingDirection = moveVector.x > 0 ? RIGHT : LEFT;
+            this.move(moveVector, dt);
         }
     }
 
@@ -554,7 +669,24 @@ export class WalkerEntity extends Entity {
         ctx.rotate(angleOffset);
         ctx.translate(-this.sprite.width / 2, -this.sprite.height);
 
-        ctx.drawImage(this.sprite, 0, 0);
+        let currentSprite;
+        if (this.isDead) {
+            currentSprite = this.facingDirection === LEFT ? this.deadSpriteLeft : this.deadSprite;
+
+            // Calculate fade alpha based on time since death
+            const fadeProgress = Math.min(this.deathTime / this.fadeOutDuration, 1);
+            const alpha = 1 - fadeProgress;
+            ctx.globalAlpha = alpha;
+        } else if (this.isHurt) {
+            currentSprite = this.facingDirection === LEFT ? this.hurtSpriteLeft : this.hurtSprite;
+        } else {
+            currentSprite = this.facingDirection === LEFT ? this.spriteLeft : this.sprite;
+        }
+
+        ctx.drawImage(currentSprite, 0, 0);
+
+        // Reset canvas properties
+        ctx.globalAlpha = 1;
 
         ctx.setTransform(transform);
 

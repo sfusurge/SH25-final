@@ -25,7 +25,7 @@ export type RoomTemplate = {
 };
 
 
-const RockSprite = loadImageToCanvas("/maze/rock_PLACEHOLDER.webp", 50, false, 10);
+const RockSprite = loadImageToCanvas("/maze/rock.webp", 50, false, 10);
 
 export class RoomLayout {
     width: number;
@@ -480,4 +480,15 @@ export const ROOM_TEMPLATES: RoomTemplate[] = [
             [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
         ],
     },
+    {
+        id: 19, description: "Small Square w/ Scroll", width: 3, height: 3,
+        obstacleMap: [
+            [0, 0, 0, 0, 1, 0],
+            [1, 2, 0, 0, 0, 1],
+            [1, 3, ENTITY_TYPE.enemy, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2, 1],
+            [0, 0, 0, 0, 1, 1]
+        ]
+    }
 ];
