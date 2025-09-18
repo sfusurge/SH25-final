@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Background from "./Background.svelte";
+    import Background from "./new/Background.svelte";
     import LeafGame from "./LeafGame.svelte";
     import { global } from "../../../routes/+layout.svelte";
     import Pause from "./Pause.svelte";
