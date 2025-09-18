@@ -3,7 +3,7 @@
         {
             question: "What is StormHacks?",
             answer: `StormHacks is one of Canada's largest student hackathons, where participants from different backgrounds and all skill levels come together to collaborate, innovate, and create unique design, software or hardware projects from the ground up. \n
-Within just 36 hours, teams bring their ideas to life. We empower and enable teams by providing an abundance of workshops, mentors, sponsors, and hardware. StormHacks fosters creativity, learning, and teamwork in an energetic, inclusive environment.`
+Within just 24 hours, teams bring their ideas to life. We empower and enable teams by providing an abundance of workshops, mentors, sponsors, and hardware. StormHacks fosters creativity, learning, and teamwork in an energetic, inclusive environment.`
         },
         {
             question: "Who can participate?",
