@@ -1,23 +1,20 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import { RhythmRenderer } from "$lib/components/rhythm/RhythmRenderer.svelte";
     import Background from "$lib/components/rhythm/Background.svelte";
+    import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
 
-    var canvas: HTMLCanvasElement | undefined;
-
-    let innerWidth = $state(0);
-    let innerHeight = $state(0);
+    let canvas: HTMLCanvasElement | undefined;
 
     const renderer = $derived.by(() => {
         if (!canvas) {
             return undefined;
         }
         return new RhythmRenderer(canvas);
-    })
+    });
 
     $effect(() => {
         renderer;
-    })
+    });
 
     // onMount(() => {
     //     new RhythmRenderer(canvas!);
@@ -130,57 +127,17 @@
     // }
 </script>
 
-<svelte:window bind:innerHeight bind:innerWidth/>
-<div class="relative w-screen h-screen grid place-items-center">
-    <div class="frame-container">
-        <div
-            class="absolute z-10 overflow-hidden"
-            style="
-                top: var(--inset-top, 2.87%);
-                right: var(--inset-right, 2.87%);
-                bottom: var(--inset-bottom, 2.87%);
-                left: var(--inset-left, 2.87%);
-                "
-        >
-            <div id="rhythmGame">
-                <Background/>
-                <canvas tabindex="1" height={innerHeight * 1.3} width={innerWidth} bind:this={canvas}></canvas>
-            </div>
-        </div>
-        <img
-            src="/assets/frame.svg"
-            alt=""
-            class="absolute inset-0 z-30 w-full h-full pointer-events-none"
-            loading="eager"
-        />
-    </div>
-</div>
+<ScalableFrame style="flex:1;">
+    <Background />
+    <canvas tabindex="1" bind:this={canvas} ></canvas>
+</ScalableFrame>
 
 <style>
-    *{
-        --rhythmViewportHeight: 80vh;
-    }
-
-    .frame-container {
-        /* Match MainView Frame sizing exactly for desktop */
-        position: relative;
-        height: 80%;
-        width: auto;
-        max-width: 100%;
-        aspect-ratio: 872 / 511;
-    }
-
-    #rhythmGame{
-        height: 96%;
+    canvas {
         width: 100%;
-        margin: 1% 0;
-
-        background: #AADCFF;
-    }
-
-    canvas{
-        position: absolute;
         height: 100%;
-        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
     }
 </style>

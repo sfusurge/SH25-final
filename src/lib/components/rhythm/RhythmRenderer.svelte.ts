@@ -1,6 +1,6 @@
-import { component, cQuad, cCricle, cImg, type renderPkg } from "./CanvasTools";
+import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg } from "./CanvasTools";
 
-enum trackIds{
+enum trackIds {
     top = 0,
     middle = 1,
     bottom = 2
@@ -14,24 +14,24 @@ const trackLength = 0.75;
 const btnPos = 0.75;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 
-const cloudSpawnPos:number = 0.2;
+const cloudSpawnPos: number = 0.2;
 const cloudDespawnPos: number = 0.8;
 
 const interactionThreshold = 280;
 const vfxDuration = 200;
 
-function getTime(time: number = 0){
+function getTime(time: number = 0) {
     return Date.now() - time;
 }
 
-interface rhythmNote{
+interface RhythmNote {
     trackNo: number;
     timing: number;
     duration: number;
 }
 
 const testSong =
-`test
+    `test
 1
 0, 50
 0, 75
@@ -43,9 +43,9 @@ let beatMap = testSong.split("\n")
 beatMap = beatMap.filter((_, i) => {
     return i > 1
 })
-var beatsList:rhythmNote[] = beatMap.map(note => {
+var beatsList: RhythmNote[] = beatMap.map(note => {
     let nInfo = note.split(", ")
-    const n: rhythmNote = {
+    const n: RhythmNote = {
         trackNo: parseInt(nInfo[0]),
         timing: parseInt(nInfo[1]),
         duration: nInfo.length > 2 ? parseInt(nInfo[2]) : 0
@@ -53,22 +53,24 @@ var beatsList:rhythmNote[] = beatMap.map(note => {
     return n;
 })
 
-export class RhythmRenderer{
+export class RhythmRenderer {
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
-    pkg: renderPkg;
+    pkg: RenderPkg;
     startTime: number = 0;
 
-    songData: rhythmNote[];
+    songData: RhythmNote[];
     beatIndex: number = 0;
 
-    staticObjs: component[] = [];
-    cloudObjs: component[] = [];
-    vfxObjs: component[] = [];
+    staticObjs: Component[] = [];
+    cloudObjs: Component[] = [];
+    vfxObjs: Component[] = [];
 
-    constructor(canvas: HTMLCanvasElement){
+    dpr = 1;
+
+    constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
         this.pkg = {
@@ -84,24 +86,24 @@ export class RhythmRenderer{
     }
 
     renderHandle = -1
-    init(){
+    init() {
         this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
-        this.setupEnvironment()
-        this.setupEvents()
+        this.setupEnvironment();
+        this.setupEvents();
     }
 
-    setSong(data: rhythmNote[]){
+    setSong(data: RhythmNote[]) {
         this.songData = data;
     }
 
-    resetStats(){
+    resetStats() {
         this.startTime = Date.now();
         this.beatIndex = 0;
     }
 
-    setupEvents(){
+    setupEvents() {
         this.canvas.addEventListener("keypress", (e) => {
-            switch(e.key.toLowerCase()){
+            switch (e.key.toLowerCase()) {
                 case "a":
                     this.keyDown(trackIds.top);
                     break;
@@ -112,13 +114,33 @@ export class RhythmRenderer{
                     this.keyDown(trackIds.bottom);
                     break;
             }
-        }, {capture:true})
+        }, { capture: true });
+
+        const handleResize = () => {
+            const box = this.canvas.getBoundingClientRect();
+            this.dpr = window.devicePixelRatio;
+            this.pkg.ctx = this.ctx;
+            this.pkg.w = box.width * this.dpr;
+            this.pkg.h = box.height * this.dpr;
+
+            this.canvas.width = this.pkg.w;
+            this.canvas.height = this.pkg.h;
+        }
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const e of entries) {
+                handleResize();
+            }
+        });
+        resizeObserver.observe(this.canvas);
+        handleResize();
+
     }
 
-    setupEnvironment(){
+    setupEnvironment() {
         //backboard
         this.staticObjs.push(
-            new cQuad(this.pkg, 0.1, 0.58, 0.8, 0.37, "fill", ()=>{
+            new cQuad(this.pkg, 0.1, 0.58, 0.8, 0.37, "fill", () => {
                 this.ctx.fillStyle = "black";
                 this.ctx.globalAlpha = 0.4;
             })
@@ -143,7 +165,7 @@ export class RhythmRenderer{
         //button indicators
         trackYPositions.forEach((yPos, i) => {
             this.staticObjs.push(
-                new cCricle(this.pkg, btnPos, yPos + trackWidth/2, trackWidth/2 - .01, () => {
+                new cCricle(this.pkg, btnPos, yPos + trackWidth / 2, trackWidth / 2 - .01, () => {
                     this.ctx.lineWidth = 0.1;
                     this.ctx.fillStyle = "#" + btnColors[i];
                     this.ctx.globalAlpha = 1;
@@ -152,13 +174,13 @@ export class RhythmRenderer{
         });
     }
 
-    keyDown(index: number){
+    keyDown(index: number) {
         const boundSize = interactionThreshold / 2;
         // let line = Math.floor((trackLength - cloudSpawnPos) / (cloudDespawnPos - cloudSpawnPos) * animFrames);
         // let lBound = line - boundSize;
         // let rBound = line + boundSize;
 
-        let hit:boolean = false;
+        let hit: boolean = false;
 
         // this.cloudObjs.forEach((c) => {
 
@@ -169,19 +191,25 @@ export class RhythmRenderer{
         this.vfxObjs.push(vfx);
     }
 
-    // lastTime = 0;
-    // delta = 0;
-    eventLoop(){
-        this.clearScreen();
+    lastTime = 0;
+    delta = 0;
+    eventLoop(time: number) {
+        this.delta = time - this.lastTime;
+
         this.render();
         this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
+        this.lastTime = time;
     }
 
     destroy() {
         cancelAnimationFrame(this.renderHandle);
     }
 
-    render(){
+    render() {
+        this.ctx.save();
+        this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
+        this.ctx.scale(1 / this.dpr, 1 / this.dpr);
+
         this.staticObjs.forEach(obj => {
             obj.update();
         });
@@ -191,9 +219,7 @@ export class RhythmRenderer{
         this.vfxObjs = this.vfxObjs.filter(v => {
             return getTime(v.startTime) < vfxDuration
         })
-    }
 
-    clearScreen(){
-        this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
+        this.ctx.restore();
     }
 }

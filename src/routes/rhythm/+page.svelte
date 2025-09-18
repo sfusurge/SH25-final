@@ -2,11 +2,19 @@
     import RhythmGame from "$lib/components/rhythm/RhythmGame.svelte";
 </script>
 
-<div></div>
-<RhythmGame/>
+<div class="gameParent">
+
+    <RhythmGame/>
+</div>
 
 <style>
-    div{
-        height: 100px;
+    .gameParent {
+        width: 100%;
+        height: 100dvh;
+
+        padding: 5rem;
+        box-sizing: border-box;
+
+        display: flex;
     }
 </style>
