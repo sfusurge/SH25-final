@@ -195,7 +195,7 @@
 
     .container {
         position: relative;
-        width: min(889px, 100%);
+        width: min(85%, 100%);
         height: min(750px, calc(100vh - 20px));
         height: min(750px, calc(100dvh - 20px));
         max-width: calc(100vw - 20px);

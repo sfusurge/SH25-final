@@ -43,14 +43,40 @@
         </div>
 
         <HoverEffectButton
-            className="flex h-[32px] px-[10px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
+            className="flex text-sm h-[32px] px-[10px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
             onClick={() =>
                 window.open(
                     "https://portal.sfusurge.com/application",
                     "_blank",
                 )}
         >
-            Apply Now
+            Hacker Application
+        </HoverEffectButton>
+    </div>
+
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
+        <h1 class="text-header italic self-stretch leading-normal font-bold">
+            Get Involved
+        </h1>
+        <HoverEffectButton
+                className="flex text-sm h-[32px] px-[10px] transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] s-P75MBUpy42vL"
+                onClick={() =>
+                window.open(
+                    "https://forms.gle/EjCnrSwdFTuKnaiP9",
+                    "_blank",
+                )}
+        >
+            Volunteer Form
+        </HoverEffectButton>
+        <HoverEffectButton
+                className="flex text-sm h-[32px] px-[10px] transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] s-P75MBUpy42vL"
+                onClick={() =>
+                window.open(
+                    "https://forms.gle/uJQp3Yb1VG44BTtH6",
+                    "_blank",
+                )}
+        >
+            Mentor Form
         </HoverEffectButton>
     </div>
 
