@@ -15,10 +15,10 @@ const trackLength = 0.75;
 const btnPos = 0.75;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 
-const cloudSpawnPos: number = 0.2;
-const cloudDespawnPos: number = 0.8;
+const cloudSpawnPercent: number = 0.1;
+const cloudDespawnPercent: number = 0.9;
 const cloudPresenceDuration = 3000;
-const cloudBufferFraction = 8/9;
+
 const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
 const cloudSprites = spriteNames.map(sN => {
     let s: HTMLImageElement = new Image();
@@ -97,12 +97,7 @@ export class RhythmRenderer {
         this.musicPlayer.song = song;
         this.songData = notes;
         this.resetStats();
-
-        // TODO, debug, remove this
-        setTimeout(() => {
-            // console.log($state.snapshot(notes));
-            this.musicPlayer.play();
-        }, 1000)
+        this.musicPlayer.play();
     }
 
     resetStats() {
@@ -217,34 +212,58 @@ export class RhythmRenderer {
         this.ctx.restore();
     }
 
-    renderEnv(){
+    renderEnv() {
         this.staticObjs.forEach(obj => {
             obj.update();
         });
     }
 
-    renderClouds(){
+    renderClouds() {
         let cTime = this.currentTime - this.startTime;
 
-        let dist = cloudDespawnPos - cloudSpawnPos;
-        let cBuffer = Math.floor(cloudPresenceDuration * cloudBufferFraction);
-        let lowBound = (cBuffer > cTime) ? 0 : cTime - cBuffer;
-        let highBound = cTime + cloudPresenceDuration - cBuffer;
+        // pos/percent of btn to screen, relative to length of track
+        const btnTrackPercent = ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
 
-        let visibleClouds:RhythmNote[] = this.songData.filter(n => {
-            return n.timing >= lowBound && n.timing <= highBound;
+        // portion time to percentage after the btns, make that lower bound
+        const lowTime = cTime - cloudPresenceDuration * ( 1 - btnTrackPercent); 
+        const highTime = cTime + cloudPresenceDuration * btnTrackPercent;
+
+        const timeRange = highTime - lowTime;
+
+        let visibleClouds: RhythmNote[] = this.songData.filter(n => {
+            return n.timing >= lowTime && n.timing <= highTime; // TODO maybe binary search start and end of visible region. LC medium lol.
         })
-        visibleClouds.forEach(v => {
-            let prog = highBound - (v.timing - lowBound) / highBound;
+        this.ctx.lineWidth = 2;
+
+        visibleClouds.forEach((v, idx) => {
+            let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
+            this.ctx.strokeStyle = "orange";
+            this.ctx.strokeRect(
+                this.canvas.width * cloudSpawnPercent + prog * this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent)  - cloudSprites[v.trackNo].width / 2,
+                trackYPositions[v.trackNo] * this.canvas.height,
+                cloudSprites[v.trackNo].width,
+                cloudSprites[v.trackNo].height,
+            )
+
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
-                (cloudSpawnPos + (dist * prog)) * this.canvas.width,
+                this.canvas.width * cloudSpawnPercent + prog * this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent) - cloudSprites[v.trackNo].width / 2,
                 trackYPositions[v.trackNo] * this.canvas.height
             )
         });
+
+        this.ctx.strokeStyle = 'red';
+        this.ctx.strokeRect(this.canvas.width * cloudSpawnPercent, trackYPositions[0] * this.canvas.height,
+            this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent),
+            (trackYPositions[2] - trackYPositions[0]) * this.canvas.height
+        );
+
+        this.ctx.strokeStyle = 'green';
+        this.ctx.strokeRect(btnPos * this.canvas.width - 5, trackYPositions[0] * this.canvas.height, 10, (trackYPositions[2] - trackYPositions[0]) * this.canvas.height)
+
     }
 
-    renderVfx(){
+    renderVfx() {
         this.vfxObjs.forEach(obj => {
             obj.update();
         });
