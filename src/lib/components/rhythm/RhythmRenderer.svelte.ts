@@ -17,6 +17,14 @@ const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 
 const cloudSpawnPos: number = 0.2;
 const cloudDespawnPos: number = 0.8;
+const cloudPresenceDuration = 3000;
+const cloudBufferFraction = 8/9;
+const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
+const cloudSprites = spriteNames.map(sN => {
+    let s: HTMLImageElement = new Image();
+    s.src = `/rhythm/${sN}.webp`;
+    return s;
+})
 
 const interactionThreshold = 280;
 const vfxDuration = 200;
@@ -27,6 +35,7 @@ export interface RhythmNote {
     trackNo: number;
     timing: number;
     duration: number | undefined;
+    caught: boolean;
 }
 
 
@@ -39,7 +48,6 @@ export class RhythmRenderer {
     startTime: number = 0;
 
     songData: RhythmNote[] = $state([]);
-    beatIndex: number = 0;
 
     staticObjs: Component[] = [];
     cloudObjs: Component[] = [];
@@ -88,18 +96,17 @@ export class RhythmRenderer {
     setSong(notes: RhythmNote[], song: AudioBuffer) {
         this.musicPlayer.song = song;
         this.songData = notes;
-
+        this.resetStats();
 
         // TODO, debug, remove this
         setTimeout(() => {
-            console.log($state.snapshot(notes));
+            // console.log($state.snapshot(notes));
             this.musicPlayer.play();
         }, 1000)
     }
 
     resetStats() {
-        this.startTime = Date.now();
-        this.beatIndex = 0;
+        this.startTime = this.currentTime;
     }
 
     setupEvents() {
@@ -204,6 +211,7 @@ export class RhythmRenderer {
         this.ctx.scale(1 / this.dpr, 1 / this.dpr);
 
         this.renderEnv();
+        this.renderClouds();
         this.renderVfx();
 
         this.ctx.restore();
@@ -212,6 +220,27 @@ export class RhythmRenderer {
     renderEnv(){
         this.staticObjs.forEach(obj => {
             obj.update();
+        });
+    }
+
+    renderClouds(){
+        let cTime = this.currentTime - this.startTime;
+
+        let dist = cloudDespawnPos - cloudSpawnPos;
+        let cBuffer = Math.floor(cloudPresenceDuration * cloudBufferFraction);
+        let lowBound = (cBuffer > cTime) ? 0 : cTime - cBuffer;
+        let highBound = cTime + cloudPresenceDuration - cBuffer;
+
+        let visibleClouds:RhythmNote[] = this.songData.filter(n => {
+            return n.timing >= lowBound && n.timing <= highBound;
+        })
+        visibleClouds.forEach(v => {
+            let prog = highBound - (v.timing - lowBound) / highBound;
+            this.ctx.drawImage(
+                cloudSprites[v.trackNo],
+                (cloudSpawnPos + (dist * prog)) * this.canvas.width,
+                trackYPositions[v.trackNo] * this.canvas.height
+            )
         });
     }
 

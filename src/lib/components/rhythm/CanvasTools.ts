@@ -108,13 +108,15 @@ export  function parseBeatMap(beatMapString: string) {
         difficulty = lines[1];
         difficulty = difficulty.slice(difficulty.indexOf("#"));
 
+        const msPerSec = 1000;
         for (let i = 2; i < lines.length; i++) {
             const [_trackNo, _time, _duration] = lines[i].split(",");
 
             out.push({
                 trackNo: parseFloat(_trackNo),
-                timing: parseFloat(_time),
-                duration: _duration ? parseFloat(_duration) : undefined
+                timing: Math.floor(parseFloat(_time) * msPerSec),
+                duration: _duration ? Math.floor(parseFloat(_duration) * msPerSec): undefined,
+                caught: false
             })
         }
 
