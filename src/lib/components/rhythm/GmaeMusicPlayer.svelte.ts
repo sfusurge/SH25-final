@@ -24,7 +24,8 @@ export class GameMusicPlayer {
                 this.offsetTime = 0;
                 this.isPlaying = false;
             }
-        })
+        });
+        this.init();
     }
 
     createSource() {
@@ -45,14 +46,16 @@ export class GameMusicPlayer {
     update(t: number) {
         // update audio time
         if (this.isPlaying) {
-            this.currentTime = this.actx.currentTime - this.lastPlayTime + this.offsetTime;
+            this.currentTime = (this.actx.currentTime - this.lastPlayTime + this.offsetTime) * 1000;
         } else {
-            this.currentTime = this.offsetTime;
+            this.currentTime = this.offsetTime * 1000;
         }
 
-        if (this.currentTime > (this.song?.duration ?? 0)) {
+        if (this.currentTime > (this.song?.duration ?? 0) * 1000) {
             this.isPlaying = false;
         }
+
+
 
         requestAnimationFrame(this.update.bind(this))
     }

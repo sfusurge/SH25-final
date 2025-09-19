@@ -219,7 +219,7 @@ export class RhythmRenderer {
     }
 
     renderClouds() {
-        let cTime = this.currentTime - this.startTime;
+        let cTime = this.musicPlayer.currentTime ;
 
         // pos/percent of btn to screen, relative to length of track
         const btnTrackPercent = ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
