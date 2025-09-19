@@ -235,7 +235,7 @@ export class RhythmRenderer {
             return n.timing >= lowBound && n.timing <= highBound;
         })
         visibleClouds.forEach(v => {
-            let prog = highBound - (v.timing - lowBound) / highBound;
+            let prog = (highBound - v.timing) / highBound;
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
                 (cloudSpawnPos + (dist * prog)) * this.canvas.width,
