@@ -1,5 +1,5 @@
 import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
-import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg } from "./CanvasTools";
+import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg, getSrc } from "./CanvasTools";
 
 enum trackIds {
     top = 0,
@@ -10,7 +10,13 @@ enum trackIds {
 export enum noteState {
     untouched = 0,
     caught = 1,
-    missed = 2
+    held = 2,
+    missed = 3
+}
+
+interface boundRange {
+    min: number,
+    max: number
 }
 
 const trackXPos = 0.125;
@@ -28,7 +34,7 @@ const cloudPresenceDuration = 3000;
 const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
 const cloudSprites = spriteNames.map(sN => {
     let s: HTMLImageElement = new Image();
-    s.src = `/rhythm/${sN}.webp`;
+    s.src = getSrc(sN);
     return s;
 })
 
@@ -55,7 +61,8 @@ export class RhythmRenderer {
 
     songData: RhythmNote[] = $state([]);
 
-    heldKeys: number[] = [];
+    empty = -1
+    heldKeys: number[] = [this.empty, this.empty, this.empty];
     //tracks hold keys by index
     holdKeyTracker: number[] = [];
 
@@ -79,6 +86,7 @@ export class RhythmRenderer {
             h: canvas.height
         }
 
+        this.reset();
         this.init();
     }
 
@@ -105,6 +113,13 @@ export class RhythmRenderer {
         this.musicPlayer.song = song;
         this.songData = notes;
         this.musicPlayer.play();
+    }
+
+    reset(){
+        this.holdKeyTracker = [];
+        this.heldKeys = [this.empty, this.empty, this.empty];
+        this.holdKeyTracker = [];
+        this.vfxObjs = [];
     }
 
     setupEvents() {
@@ -181,30 +196,44 @@ export class RhythmRenderer {
     }
 
     keyDown(index: number) {
-        const boundSize = interactionThreshold / 2;
+        if(this.heldKeys[index] != this.empty){
+            return;
+        }
+        let bounds: boundRange = this.getBounds(interactionThreshold);
         //bounds of button interact registration
-        let lBound = this.musicPlayer.currentTime - boundSize;
-        let rBound = this.musicPlayer.currentTime + boundSize;
 
         let hit: boolean = false;
 
-        let i = 0;
-        while(i < this.songData.length && this.songData[i].timing < rBound){
+        for(let i = 0; i < this.songData.length && this.songData[i].timing < bounds.max; i++){
             let n = this.songData[i];
-            if(n.timing < lBound || n.noteState == noteState.caught || n.trackNo != index){
-                i++;
+            if(n.timing < bounds.min || n.noteState == noteState.caught || n.trackNo != index){
                 continue;
             }
-            n.noteState = noteState.caught;
+            if(n.duration != undefined){
+                this.heldKeys[n.trackNo] = i;
+            }
+            n.noteState = noteState.held;
             hit = true;
             break;
         }
 
-        let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[index] + .0125, [hit ? "hit" : "miss"])
-        vfx.startTime = this.musicPlayer.currentTime;
-        this.vfxObjs.push(vfx);
+        this.addBtnVfx(index, hit);
     }
 
+    keyUp(track: number){
+        if(this.heldKeys[track] == this.empty){
+            return;
+        }
+        let bound = this.getBounds(interactionThreshold);
+        let note = this.songData[this.heldKeys[track]];
+        if((note.timing + note.duration!) > bound.min && (note.timing + note.duration!) < bound.max){
+            console.log("BONUS")
+            note.noteState = noteState.caught;
+        }else{
+            note.noteState = noteState.missed;
+        }
+        this.heldKeys[track] = this.empty;
+    }
 
     destroy() {
         cancelAnimationFrame(this.renderHandle);
@@ -252,6 +281,7 @@ export class RhythmRenderer {
         this.ctx.lineWidth = 10;
         const vDisplace = 0.045;
         //hold cloud rendering
+        this.heldKeyCheck();
         for(let h = 0; h < this.holdKeyTracker.length; h++){
             let n = this.songData[this.holdKeyTracker[h]];
 
@@ -272,13 +302,13 @@ export class RhythmRenderer {
             let lPercent = n.timing + n.duration! > highTime ? 0 : 1 - ((n.timing + n.duration! - lowTime) / timeRange);
             let leftLineAnchor = calcXByProgress(lPercent);
         
-            this.ctx.strokeStyle = `#${btnColors[n.trackNo]}`;
+            const lineOpacity = ['DD', 'FF', 'EE', '88'];
+            this.ctx.strokeStyle = `#${btnColors[n.trackNo]}${lineOpacity[n.noteState]}`;
             this.ctx.beginPath()
             let lineY = this.yStd(trackYPositions[n.trackNo] + vDisplace);
             this.ctx.moveTo(leftLineAnchor, lineY);
             this.ctx.lineTo(rightLineAnchor, lineY);
             this.ctx.stroke();
-
         }
 
         this.ctx.lineWidth = 1;
@@ -325,6 +355,29 @@ export class RhythmRenderer {
 
     }
 
+    heldKeyCheck(){
+        let hitVfx = new Image();
+        hitVfx.src = getSrc("hit");
+        this.heldKeys.forEach((k, i) => {
+            if(k == this.empty){
+                return;
+            }
+            let n = this.songData[k];
+            let bound = this.getBounds(interactionThreshold);
+            if(bound.min > (n.timing + n.duration!)){
+                n.noteState = noteState.missed;
+                this.heldKeys[i] = this.empty;
+                this.addBtnVfx(i, false);
+            }else{
+                this.ctx.drawImage(
+                    hitVfx,
+                    this.xStd(trackLength - .025),
+                    this.yStd(trackYPositions[i] + .0125)
+                )
+            }
+        });
+    }
+
     renderVfx() {
         this.vfxObjs.forEach(obj => {
             obj.update();
@@ -346,11 +399,29 @@ export class RhythmRenderer {
     //     }
     // }
 
+    /**
+     * returns the low and high bound of the current musicplayer time
+     * @param size 
+     * @returns 
+     */
+    getBounds(size: number){
+        return {
+            min: this.musicPlayer.currentTime - (size / 2), 
+            max: this.musicPlayer.currentTime + (size / 2)
+        }
+    }
+
     xStd(x: number) {
         return x * this.canvas.width;
     }
 
     yStd(y: number) {
         return y * this.canvas.height;
+    }
+
+    addBtnVfx(track: number, hit: boolean){
+        let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[track] + .0125, [hit ? "hit" : "miss"])
+        vfx.startTime = this.musicPlayer.currentTime;
+        this.vfxObjs.push(vfx);
     }
 }

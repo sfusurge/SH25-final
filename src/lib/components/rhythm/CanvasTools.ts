@@ -7,6 +7,10 @@ export interface RenderPkg {
     h: number;
 }
 
+export function getSrc(file: string){
+    return `/rhythm/${file}.webp`
+}
+
 export abstract class component {
     x: number;
     y: number;
@@ -85,7 +89,7 @@ export class cImg extends component {
         this.currentSprite = currentId;
         this.spriteForms = spriteLocations.map(loc => {
             let s: HTMLImageElement = new Image();
-            s.src = `/rhythm/${loc}.webp`;
+            s.src = getSrc(loc);
             return s;
         })
     }
