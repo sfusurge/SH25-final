@@ -21,8 +21,8 @@ const trackLength = 0.75;
 const btnPos = 0.75;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 
-const cloudSpawnPercent: number = 0.1;
-const cloudDespawnPercent: number = 0.9;
+const cloudSpawnPercent: number = 0.125;
+const cloudDespawnPercent: number = 0.85;
 const cloudPresenceDuration = 3000;
 
 const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
@@ -249,39 +249,54 @@ export class RhythmRenderer {
             return this.xStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
         }
 
-        // let hKeyIdx = 0;
-        // this.ctx.lineWidth = 10;
-        // while(hKeyIdx < this.holdKeyTracker.length){
-        //     let n = this.songData[hKeyIdx];
-        //     if((n.duration! + n.timing) > highTime){
-        //         this.holdKeyTracker.splice(hKeyIdx, 1);
-        //         continue;
-        //     }
-        //     this.ctx.strokeStyle = `#${btnColors[n.trackNo]}`;
-        //     let rPercent = n.timing < lowTime ? 1 : 1 - ((n.timing - lowTime) / timeRange);
-        //     let rLineAnchor = calcXByProgress(rPercent);
-        //     this.ctx.beginPath()
-        //     let lineY = trackYPositions[n.trackNo] * this.canvas.height;
-        //     this.ctx.moveTo(this.xStd(0.2), lineY);
-        //     this.ctx.lineTo(rLineAnchor, lineY);
-        //     this.ctx.stroke();
-        //     hKeyIdx++;
-        // }
-        // this.ctx.lineWidth = 1;
+        this.ctx.lineWidth = 10;
+        const vDisplace = 0.045;
+        //hold cloud rendering
+        for(let h = 0; h < this.holdKeyTracker.length; h++){
+            let n = this.songData[this.holdKeyTracker[h]];
 
-        let visibleClouds: RhythmNote[] = this.songData.filter((n, i) => {
-            return withinTimeRange(n.timing) && !this.holdKeyTracker.includes(i); // TODO maybe binary search start and end of visible region. LC medium lol.
-        })
-        this.ctx.lineWidth = 2;
+            const boundSize = interactionThreshold / 2;
+            if(n.noteState == noteState.untouched && (n.timing + boundSize) < lowTime){
+                n.noteState = noteState.missed;
+            }
+            
+            if((n.timing + n.duration!) < lowTime){
+                this.holdKeyTracker.splice(h, 1);
+                h--;
+                continue;
+            }
+            
+            let rPercent = n.timing < lowTime ? 1 : 1 - ((n.timing - lowTime) / timeRange);
+            let rightLineAnchor = calcXByProgress(rPercent);
 
-        visibleClouds.forEach((v, i) => {
-            if(v.duration != undefined){
+            let lPercent = n.timing + n.duration! > highTime ? 0 : 1 - ((n.timing + n.duration! - lowTime) / timeRange);
+            let leftLineAnchor = calcXByProgress(lPercent);
+        
+            this.ctx.strokeStyle = `#${btnColors[n.trackNo]}`;
+            this.ctx.beginPath()
+            let lineY = this.yStd(trackYPositions[n.trackNo] + vDisplace);
+            this.ctx.moveTo(leftLineAnchor, lineY);
+            this.ctx.lineTo(rightLineAnchor, lineY);
+            this.ctx.stroke();
+
+        }
+
+        this.ctx.lineWidth = 1;
+        //single cloud rendering
+        for(let i = 0; i < this.songData.length; i++){
+            if(!withinTimeRange(this.songData[i].timing)){
+                continue;
+            }
+            let v = this.songData[i];
+
+            if(v.duration != undefined && v.noteState != noteState.missed && !this.holdKeyTracker.includes(i) && v.timing > lowTime){
                 this.holdKeyTracker.push(i);
-                return;
+                continue;
             }
             if(v.noteState == noteState.caught){
-                return;
+                continue;
             }
+
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             this.ctx.strokeStyle = "orange";
             let progDist = calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
@@ -297,7 +312,7 @@ export class RhythmRenderer {
                 progDist,
                 trackYPositions[v.trackNo] * this.canvas.height
             )
-        });
+        }
 
         this.ctx.strokeStyle = 'red';
         this.ctx.strokeRect(this.xStd(cloudSpawnPercent), this.yStd(trackYPositions[0]),
