@@ -1,5 +1,5 @@
 import type RhythmGame from "$lib/components/rhythm/RhythmGame.svelte";
-import type { RhythmNote } from "$lib/components/rhythm/RhythmRenderer.svelte";
+import { noteState, type RhythmNote } from "$lib/components/rhythm/RhythmRenderer.svelte";
 
 export interface RenderPkg {
     ctx: CanvasRenderingContext2D;
@@ -116,7 +116,7 @@ export  function parseBeatMap(beatMapString: string) {
                 trackNo: parseFloat(_trackNo),
                 timing: Math.floor(parseFloat(_time) * msPerSec),
                 duration: _duration ? Math.floor(parseFloat(_duration) * msPerSec): undefined,
-                caught: false
+                noteState: noteState.untouched
             })
         }
 

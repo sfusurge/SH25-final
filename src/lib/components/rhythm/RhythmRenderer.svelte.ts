@@ -7,6 +7,12 @@ enum trackIds {
     bottom = 2
 }
 
+export enum noteState {
+    untouched = 0,
+    caught = 1,
+    missed = 2
+}
+
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
 const trackWidth = 0.065;
@@ -35,7 +41,7 @@ export interface RhythmNote {
     trackNo: number;
     timing: number;
     duration: number | undefined;
-    caught: boolean;
+    noteState: noteState;
 }
 
 
@@ -48,6 +54,10 @@ export class RhythmRenderer {
     startTime: number = 0;
 
     songData: RhythmNote[] = $state([]);
+
+    heldKeys: number[] = [];
+    //tracks hold keys by index
+    holdKeyTracker: number[] = [];
 
     staticObjs: Component[] = [];
     vfxObjs: Component[] = [];
@@ -181,11 +191,11 @@ export class RhythmRenderer {
         let i = 0;
         while(i < this.songData.length && this.songData[i].timing < rBound){
             let n = this.songData[i];
-            if(n.timing < lBound || n.caught || n.trackNo != index){
+            if(n.timing < lBound || n.noteState == noteState.caught || n.trackNo != index){
                 i++;
                 continue;
             }
-            n.caught = true;
+            n.noteState = noteState.caught;
             hit = true;
             break;
         }
@@ -231,18 +241,50 @@ export class RhythmRenderer {
 
         const timeRange = highTime - lowTime;
 
-        let visibleClouds: RhythmNote[] = this.songData.filter(n => {
-            return n.timing >= lowTime && n.timing <= highTime; // TODO maybe binary search start and end of visible region. LC medium lol.
+        const withinTimeRange = (t: number) => {
+            return t <= highTime && t >= lowTime;
+        }
+
+        const calcXByProgress = (prog: number, additionalShift: number = 0) => {
+            return this.xStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
+        }
+
+        // let hKeyIdx = 0;
+        // this.ctx.lineWidth = 10;
+        // while(hKeyIdx < this.holdKeyTracker.length){
+        //     let n = this.songData[hKeyIdx];
+        //     if((n.duration! + n.timing) > highTime){
+        //         this.holdKeyTracker.splice(hKeyIdx, 1);
+        //         continue;
+        //     }
+        //     this.ctx.strokeStyle = `#${btnColors[n.trackNo]}`;
+        //     let rPercent = n.timing < lowTime ? 1 : 1 - ((n.timing - lowTime) / timeRange);
+        //     let rLineAnchor = calcXByProgress(rPercent);
+        //     this.ctx.beginPath()
+        //     let lineY = trackYPositions[n.trackNo] * this.canvas.height;
+        //     this.ctx.moveTo(this.xStd(0.2), lineY);
+        //     this.ctx.lineTo(rLineAnchor, lineY);
+        //     this.ctx.stroke();
+        //     hKeyIdx++;
+        // }
+        // this.ctx.lineWidth = 1;
+
+        let visibleClouds: RhythmNote[] = this.songData.filter((n, i) => {
+            return withinTimeRange(n.timing) && !this.holdKeyTracker.includes(i); // TODO maybe binary search start and end of visible region. LC medium lol.
         })
         this.ctx.lineWidth = 2;
 
-        visibleClouds.forEach((v, idx) => {
-            if(v.caught){
+        visibleClouds.forEach((v, i) => {
+            if(v.duration != undefined){
+                this.holdKeyTracker.push(i);
+                return;
+            }
+            if(v.noteState == noteState.caught){
                 return;
             }
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             this.ctx.strokeStyle = "orange";
-            let progDist = this.canvas.width * cloudSpawnPercent + prog * this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent)  - cloudSprites[v.trackNo].width / 2;
+            let progDist = calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
             this.ctx.strokeRect(
                 progDist,
                 trackYPositions[v.trackNo] * this.canvas.height,
@@ -258,13 +300,13 @@ export class RhythmRenderer {
         });
 
         this.ctx.strokeStyle = 'red';
-        this.ctx.strokeRect(this.canvas.width * cloudSpawnPercent, trackYPositions[0] * this.canvas.height,
-            this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent),
-            (trackYPositions[2] - trackYPositions[0]) * this.canvas.height
+        this.ctx.strokeRect(this.xStd(cloudSpawnPercent), this.yStd(trackYPositions[0]),
+            this.xStd(cloudDespawnPercent - cloudSpawnPercent),
+            this.yStd(trackYPositions[2] - trackYPositions[0])
         );
 
         this.ctx.strokeStyle = 'green';
-        this.ctx.strokeRect(btnPos * this.canvas.width - 5, trackYPositions[0] * this.canvas.height, 10, (trackYPositions[2] - trackYPositions[0]) * this.canvas.height)
+        this.ctx.strokeRect(this.xStd(btnPos) - 5, this.yStd(trackYPositions[0]), 10, this.yStd(trackYPositions[2] - trackYPositions[0]))
 
     }
 
@@ -275,5 +317,25 @@ export class RhythmRenderer {
         this.vfxObjs = this.vfxObjs.filter(v => {
             return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
         })
+    }
+
+    // getRightEdge(timing: number){
+    //     if(this.songData[0].timing > timing){
+    //         return -1;
+    //     }
+    //     let i = Math.floor(this.songData.length / 2);
+    //     while(true){
+    //         if(this.songData[i].timing <= timing && (i + 1 >= this.songData.length || this.songData[i + 1].timing > timing)){
+
+    //         }
+    //     }
+    // }
+
+    xStd(x: number) {
+        return x * this.canvas.width;
+    }
+
+    yStd(y: number) {
+        return y * this.canvas.height;
     }
 }
