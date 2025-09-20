@@ -156,6 +156,13 @@ export class MazeGame {
         ArrowRight: false
     };
 
+    clearAllKeys() {
+        for (const key in this.keyMem) {
+            // @ts-ignore
+            this.keyMem[key] = false;
+        }
+    }
+
     init() {
 
         this.canvas.focus();
@@ -222,8 +229,14 @@ export class MazeGame {
         });
 
         // Ensure canvas stays focused when clicked
-        this.canvas.addEventListener("click", () => {
+        this.canvas.addEventListener("click", (e) => {
+            e.stopPropagation();
             this.canvas.focus();
+        });
+
+        // prevent stuck keys
+        this.canvas.addEventListener("blur", () => {
+            this.clearAllKeys();
         });
 
         // start update loop
@@ -399,7 +412,15 @@ export class MazeGame {
 
     lastTime = 0;
     deltaTime = 0;
+    wasLastFramePaused = false; // Track pause state changes
+
     update(time: number) {
+        // Check if pause state changed, clear keys if just got paused
+        if (GameState.paused && !this.wasLastFramePaused) {
+            this.clearAllKeys();
+        }
+        this.wasLastFramePaused = GameState.paused;
+
         // Skip game updates if paused or not in running phase, but continue the animation loop
         if (GameState.paused || !GameState.isGameRunning) {
             this.lastTime = time;

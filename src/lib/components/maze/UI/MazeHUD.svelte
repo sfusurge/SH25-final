@@ -86,6 +86,7 @@
         position: absolute;
         inset: 0;
         z-index: 10;
+        pointer-events: none;
     }
 
     .desktop-health {
@@ -94,6 +95,7 @@
         right: 0;
         padding: 2rem 2rem 0 0;
         margin: 1.25rem;
+        pointer-events: auto;
     }
 
     .desktop-bottom {
@@ -107,5 +109,6 @@
         align-items: start;
         padding-bottom: 0;
         gap: 2rem;
+        pointer-events: auto;
     }
 </style>
