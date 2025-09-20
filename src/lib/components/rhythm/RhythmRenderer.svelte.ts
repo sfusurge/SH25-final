@@ -50,7 +50,6 @@ export class RhythmRenderer {
     songData: RhythmNote[] = $state([]);
 
     staticObjs: Component[] = [];
-    cloudObjs: Component[] = [];
     vfxObjs: Component[] = [];
 
     currentTime = 0;
@@ -69,7 +68,6 @@ export class RhythmRenderer {
             w: canvas.width,
             h: canvas.height
         }
-        this.resetStats();
 
         this.init();
     }
@@ -96,12 +94,7 @@ export class RhythmRenderer {
     setSong(notes: RhythmNote[], song: AudioBuffer) {
         this.musicPlayer.song = song;
         this.songData = notes;
-        this.resetStats();
         this.musicPlayer.play();
-    }
-
-    resetStats() {
-        this.startTime = this.currentTime;
     }
 
     setupEvents() {
@@ -179,18 +172,26 @@ export class RhythmRenderer {
 
     keyDown(index: number) {
         const boundSize = interactionThreshold / 2;
-        // let line = Math.floor((trackLength - cloudSpawnPos) / (cloudDespawnPos - cloudSpawnPos) * animFrames);
-        // let lBound = line - boundSize;
-        // let rBound = line + boundSize;
+        //bounds of button interact registration
+        let lBound = this.musicPlayer.currentTime - boundSize;
+        let rBound = this.musicPlayer.currentTime + boundSize;
 
         let hit: boolean = false;
 
-        // this.cloudObjs.forEach((c) => {
-
-        // })
+        let i = 0;
+        while(i < this.songData.length && this.songData[i].timing < rBound){
+            let n = this.songData[i];
+            if(n.timing < lBound || n.caught || n.trackNo != index){
+                i++;
+                continue;
+            }
+            n.caught = true;
+            hit = true;
+            break;
+        }
 
         let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[index] + .0125, [hit ? "hit" : "miss"])
-        vfx.startTime = this.currentTime;
+        vfx.startTime = this.musicPlayer.currentTime;
         this.vfxObjs.push(vfx);
     }
 
@@ -219,7 +220,7 @@ export class RhythmRenderer {
     }
 
     renderClouds() {
-        let cTime = this.musicPlayer.currentTime ;
+        let cTime = this.musicPlayer.currentTime;
 
         // pos/percent of btn to screen, relative to length of track
         const btnTrackPercent = ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
@@ -236,10 +237,14 @@ export class RhythmRenderer {
         this.ctx.lineWidth = 2;
 
         visibleClouds.forEach((v, idx) => {
+            if(v.caught){
+                return;
+            }
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             this.ctx.strokeStyle = "orange";
+            let progDist = this.canvas.width * cloudSpawnPercent + prog * this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent)  - cloudSprites[v.trackNo].width / 2;
             this.ctx.strokeRect(
-                this.canvas.width * cloudSpawnPercent + prog * this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent)  - cloudSprites[v.trackNo].width / 2,
+                progDist,
                 trackYPositions[v.trackNo] * this.canvas.height,
                 cloudSprites[v.trackNo].width,
                 cloudSprites[v.trackNo].height,
@@ -247,7 +252,7 @@ export class RhythmRenderer {
 
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
-                this.canvas.width * cloudSpawnPercent + prog * this.canvas.width * (cloudDespawnPercent - cloudSpawnPercent) - cloudSprites[v.trackNo].width / 2,
+                progDist,
                 trackYPositions[v.trackNo] * this.canvas.height
             )
         });
@@ -268,7 +273,7 @@ export class RhythmRenderer {
             obj.update();
         });
         this.vfxObjs = this.vfxObjs.filter(v => {
-            return this.getTimeSince(v.startTime) < vfxDuration
+            return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
         })
     }
 }
