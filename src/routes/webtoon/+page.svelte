@@ -27,7 +27,6 @@
             "/assets/webtoons/2/2.10.png",
             "/assets/webtoons/2/2.11.png",
             "/assets/webtoons/2/2.12.png",
-            "/assets/webtoons/2/2.12.png",
             "/assets/webtoons/2/2.13.png",
             "/assets/webtoons/2/2.14.png",
             "/assets/webtoons/2/2.15.png"
