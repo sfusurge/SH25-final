@@ -6,7 +6,7 @@
     import Background from "$lib/components/rhythm/Background.svelte";
     import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
     import { onDestroy, untrack } from "svelte";
-    import { parseBeatMap } from "$lib/components/rhythm/CanvasTools";
+    import { cImg, parseBeatMap } from "$lib/components/rhythm/CanvasTools";
     import {
         rhythmGameConfig,
         createGameActionButton,
@@ -19,6 +19,7 @@
     let musicFile: FileList | undefined | null = $state();
     let beatmapFile: FileList | undefined | null  = $state();
     let songTestMode: boolean = $state(false);
+
 
     const testSongUpload = () => {
         // musicFile?.item(0)
