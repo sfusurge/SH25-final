@@ -207,6 +207,7 @@
     .beatMapInput{
         top: 250px;
         left: 10%;
+        font-size: 0.75vw;
 
         ::file-selector-button{
             border: 1px white solid;
@@ -218,6 +219,7 @@
     .songFileInput{
         top: 250px;
         left: 40%;
+        font-size: 0.75vw;
 
         ::file-selector-button{
             border: 1px white solid;
@@ -230,6 +232,7 @@
         top: 250px;
         left: 70%;
         cursor: pointer;
+        font-size: 0.75vw;
     }
 
     .songSelection{
