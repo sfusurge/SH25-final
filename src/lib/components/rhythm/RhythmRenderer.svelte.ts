@@ -19,6 +19,8 @@ interface boundRange {
     max: number
 }
 
+const basePoints = 5;
+
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
 const trackWidth = 0.065;
@@ -68,6 +70,12 @@ export class RhythmRenderer {
 
     staticObjs: Component[] = [];
     vfxObjs: Component[] = [];
+
+    points: number = 0;
+    addPoints(bonusMulti: number = 1) {
+        this.points += basePoints * bonusMulti;
+        console.log(this.points)
+    }
 
     currentTime = 0;
     delta = 0;
@@ -232,6 +240,7 @@ export class RhythmRenderer {
             }else{
                 n.noteState = noteState.caught;
             }
+            this.addPoints();
             hit = true;
             break;
         }
@@ -246,7 +255,7 @@ export class RhythmRenderer {
         let bound = this.getBounds(interactionThreshold);
         let note = this.songData[this.heldKeys[track]];
         if((note.timing + note.duration!) > bound.min && (note.timing + note.duration!) < bound.max){
-            console.log("BONUS")
+            this.addPoints(4)
             note.noteState = noteState.caught;
         }else{
             note.noteState = noteState.missed;
