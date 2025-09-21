@@ -225,8 +225,10 @@ export class RhythmRenderer {
             }
             if(n.duration != undefined){
                 this.heldKeys[n.trackNo] = i;
+                n.noteState = noteState.held;
+            }else{
+                n.noteState = noteState.caught;
             }
-            n.noteState = noteState.held;
             hit = true;
             break;
         }
