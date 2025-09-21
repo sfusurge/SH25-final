@@ -16,6 +16,15 @@
 
     let canvas: HTMLCanvasElement | undefined;
 
+    let musicFile: FileList | undefined | null = $state();
+    let beatmapFile: FileList | undefined | null  = $state();
+    let songTestMode: boolean = $state(false);
+
+    const testSongUpload = () => {
+        // musicFile?.item(0)
+        songTestMode = true;
+    }
+
     const renderer = $derived.by(() => {
         if (!canvas) {
             return undefined;
@@ -67,7 +76,36 @@
 
                         const ctx = new window.AudioContext();
                         const music = await songRes.blob();
+                        // console.log(music)
                         const buffer = await music.arrayBuffer();
+                        console.log(buffer)
+                        song.song = await ctx.decodeAudioData(buffer);
+                    })
+                    .then(() => {
+                        renderer?.setSong(song.notes!, song.song!);
+                    });
+            });
+        }
+        if (musicFile && beatmapFile && songTestMode == true){
+            console.log("test")
+            untrack(() => {
+                // impure state skill diffed 😔
+                let song: {notes?: RhythmNote[], song?: AudioBuffer} = {
+                    notes: undefined,
+                    song: undefined
+                }
+                Promise.all([beatmapFile?.item(0)!, musicFile?.item(0)!])
+                    .then(async ([notesRes, songRes]) => {
+                        const text = await notesRes.text();
+                        // TODO, do something with title, difficulty
+                        const { notes, difficulty, title } = parseBeatMap(text);
+                        song.notes = notes;
+
+                        const ctx = new window.AudioContext();
+                        const buffer = await songRes.arrayBuffer();
+                        console.log(buffer)
+                        // console.log(music)
+                        // const buffer = await music.arrayBuffer();
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
@@ -120,7 +158,31 @@
             })}
         />
     {/if}
-    <div class="uistuff">
+    <div class="uistuff beatMapInput">
+        <label>
+            <!-- TODO: placeholder, remove -->
+
+            Beatmap:
+            <input accept=".beatmap" bind:files={beatmapFile} type='file'/>
+        </label>
+    </div>
+
+    <div class="uistuff songFileInput">
+        <label>
+            <!-- TODO: placeholder, remove -->
+
+            SongMp3:
+            <input accept=".mp3" bind:files={musicFile} type='file'/>
+        </label>
+    </div>
+
+    {#if beatmapFile && musicFile}
+        <div class="uistuff testSong" on:click={testSongUpload}>
+            Test
+        </div>
+    {/if}
+
+    <div class="uistuff songSelection">
         <label for="songOption">
             <!-- TODO: placeholder, remove -->
 
@@ -142,13 +204,43 @@
 </ScalableFrame>
 
 <style>
-    .uistuff {
-        position: absolute;
+    .beatMapInput{
+        top: 250px;
+        left: 10%;
+
+        ::file-selector-button{
+            border: 1px white solid;
+            padding: 0 5px;
+            cursor: pointer;
+        }
+    }
+
+    .songFileInput{
+        top: 250px;
+        left: 40%;
+
+        ::file-selector-button{
+            border: 1px white solid;
+            padding: 0 5px;
+            cursor: pointer;
+        }
+    }
+
+    .testSong{
+        top: 250px;
+        left: 70%;
+        cursor: pointer;
+    }
+
+    .songSelection{
         top: 100px;
         left: 50%;
 
         transform: translate(-50%, 0);
+    }
 
+    .uistuff {
+        position: absolute;
         background-color: var(--color-background);
         padding: 1rem;
     }

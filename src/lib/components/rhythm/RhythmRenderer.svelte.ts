@@ -74,7 +74,6 @@ export class RhythmRenderer {
     points: number = 0;
     addPoints(bonusMulti: number = 1) {
         this.points += basePoints * bonusMulti;
-        console.log(this.points)
     }
 
     currentTime = 0;
