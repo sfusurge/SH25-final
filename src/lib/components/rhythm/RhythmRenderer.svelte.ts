@@ -137,6 +137,20 @@ export class RhythmRenderer {
             }
         }, { capture: true });
 
+        this.canvas.addEventListener("keyup", (e) => {
+            switch (e.key.toLowerCase()) {
+                case "a":
+                    this.keyUp(trackIds.top);
+                    break;
+                case "s":
+                    this.keyUp(trackIds.middle);
+                    break;
+                case "d":
+                    this.keyUp(trackIds.bottom);
+                    break;
+            }
+        }, { capture: true });
+
         const handleResize = () => {
             const box = this.canvas.getBoundingClientRect();
             this.dpr = window.devicePixelRatio;
