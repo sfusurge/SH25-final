@@ -131,7 +131,7 @@ export function createGameActionButton(
             return {
                 text: isRunning ? "Continue Game" : "Start Game",
                 action,
-                className: "acti2on-button",
+                className: "action-button",
             };
         case "continue":
             return {
