@@ -112,6 +112,9 @@ export class RhythmRenderer {
     setSong(notes: RhythmNote[], song: AudioBuffer) {
         this.musicPlayer.song = song;
         this.songData = notes;
+    }
+
+    startSong() {
         this.musicPlayer.play();
     }
 

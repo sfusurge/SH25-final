@@ -22,6 +22,8 @@
     const staticImgNames: string[] = ["sun1", "sun2"];
 </script>
 
+
+
 <div id="rhythmBg" class="rhythmBg">
     {#each backgrounds as bg, idx}
         <div
