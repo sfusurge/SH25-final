@@ -243,7 +243,6 @@ export class RhythmRenderer {
     render() {
         this.ctx.save();
         this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
-        this.ctx.scale(1 / this.dpr, 1 / this.dpr);
 
         this.renderEnv();
         this.renderClouds();
@@ -343,16 +342,6 @@ export class RhythmRenderer {
                 trackYPositions[v.trackNo] * this.canvas.height
             )
         }
-
-        this.ctx.strokeStyle = 'red';
-        this.ctx.strokeRect(this.xStd(cloudSpawnPercent), this.yStd(trackYPositions[0]),
-            this.xStd(cloudDespawnPercent - cloudSpawnPercent),
-            this.yStd(trackYPositions[2] - trackYPositions[0])
-        );
-
-        this.ctx.strokeStyle = 'green';
-        this.ctx.strokeRect(this.xStd(btnPos) - 5, this.yStd(trackYPositions[0]), 10, this.yStd(trackYPositions[2] - trackYPositions[0]))
-
     }
 
     heldKeyCheck(){
