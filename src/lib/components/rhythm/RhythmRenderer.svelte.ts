@@ -73,6 +73,7 @@ export class RhythmRenderer {
 
     otter_index = -1;
     otter_timer = 0;
+    otter_idle = 0;
 
     points: number = 0;
     addPoints(bonusMulti: number = 1) {
@@ -195,6 +196,18 @@ export class RhythmRenderer {
             })
         );
 
+        // otter
+        this.otter_index = this.staticObjs.push(
+            new cImg(this.pkg, 0.45, 0.3 - (7 / this.canvas.height), [...OTTER_IMG], 0)
+        ) - 1;
+
+        this.otter_idle = window.setInterval(() => {
+            if (this.otter_index < 0) return;
+            const cur = this.staticObjs[this.otter_index] as cImg;
+            if (cur.currentSprite === 0) cur.currentSprite = 1;
+            else if (cur.currentSprite === 1) cur.currentSprite = 0;
+        }, 1000);
+
         //backboard
         this.staticObjs.push(
             new cQuad(this.pkg, 0.1, 0.58, 0.8, 0.37, "fill", () => {
@@ -232,8 +245,7 @@ export class RhythmRenderer {
             )
         });
 
-        const otter = new cImg(this.pkg, 0.45, 0.2, [...OTTER_IMG], 0);
-        this.otter_index = this.staticObjs.push(otter) - 1;
+
     }
 
     keyDown(index: number) {
@@ -284,6 +296,7 @@ export class RhythmRenderer {
 
     destroy() {
         cancelAnimationFrame(this.renderHandle);
+        clearInterval(this.otter_timer);
         this.resizeObserver?.disconnect();
     }
 
