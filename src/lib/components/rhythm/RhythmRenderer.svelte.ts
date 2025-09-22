@@ -23,8 +23,14 @@ interface boundRange {
 const basePoints = 5;
 const scoreBoundsPercentage: boundRange = {min: 0.4, max: 0.75};
 
-const mobileSizing = {
-    // trackXPos = 
+const mobileSz = {
+    trackXs: [0.095, 0.38, 0.665], //track space: 0.72, between space: 0.045, board space: 0.9
+    trackYPos: 0.325,
+    trackWidth: 0.24,
+    trackLength: 0.625,
+
+    btnPos: 0.825,
+    btnPad: 0.07
 }
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
@@ -32,6 +38,7 @@ const trackWidth = 0.065;
 const trackLength = 0.75;
 
 const btnPos = 0.75;
+const btnPad = 0.1;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 const btnLabels = ["A", "S", "D"];
 
@@ -242,27 +249,47 @@ export class RhythmRenderer {
         //tracks
         trackYPositions.forEach((yPos, i) => {
             this.staticObjs.push(
-                new cQuad(this.pkg, trackXPos, yPos, trackLength, trackWidth, "fill", () => {
-
-                    this.ctx.strokeStyle = "white";
-                    this.ctx.lineWidth = 1.5;
-                    this.ctx.globalAlpha = 0.4;
+                new cQuad(this.pkg, 
+                    this.mobileView ? mobileSz.trackXs[i] : trackXPos,
+                    this.mobileView ? mobileSz.trackYPos : yPos, 
+                    this.mobileView ? mobileSz.trackWidth : trackLength, 
+                    this.mobileView ? mobileSz.trackLength : trackWidth, 
+                    "fill", 
+                    () => {
+                        this.ctx.fillStyle = "black";
+                        this.ctx.globalAlpha = 0.4;
                 }),
-                new cQuad(this.pkg, trackXPos, yPos, trackLength, trackWidth, "stroke", () => {
-                    this.ctx.strokeStyle = "white";
-                    this.ctx.lineWidth = 1.5;
-                    this.ctx.globalAlpha = 1;
+                new cQuad(this.pkg, 
+                    this.mobileView ? mobileSz.trackXs[i] : trackXPos,
+                    this.mobileView ? mobileSz.trackYPos : yPos, 
+                    this.mobileView ? mobileSz.trackWidth : trackLength, 
+                    this.mobileView ? mobileSz.trackLength : trackWidth, 
+                    "stroke", 
+                    () => {
+                        this.ctx.strokeStyle = "white";
+                        this.ctx.lineWidth = 2;
+                        this.ctx.globalAlpha = 1;
                 }),
                 //button indicators
-                new cCricle(this.pkg, btnPos, yPos + trackWidth / 2, trackWidth / 2 - .01, () => {
-                    this.ctx.lineWidth = 0.1;
-                    this.ctx.fillStyle = "#" + btnColors[i];
-                    this.ctx.globalAlpha = 1;
-                }),
-                //button labels
-                new cText(this.pkg, btnPos, yPos + trackWidth / 2 + .002, btnLabels[i])
+                new cCricle(this.pkg, 
+                    this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 : btnPos, 
+                    this.mobileView ? mobileSz.btnPos : yPos + trackWidth / 2, 
+                    (this.mobileView ? mobileSz.trackWidth : trackWidth) / 2 - 
+                        (this.mobileView ? mobileSz.btnPad : btnPad), 
+                    () => {
+                        this.ctx.lineWidth = 0.1;
+                        this.ctx.fillStyle = "#" + btnColors[i];
+                        this.ctx.globalAlpha = 1;
+                })
             )
         });
+
+        //button labels
+        if(!this.mobileView){
+            trackYPositions.forEach((yPos, i) => {
+                this.staticObjs.push(new cText(this.pkg, btnPos, yPos + trackWidth / 2 + .002, btnLabels[i]))
+            })
+        }
     }
 
     keyDown(index: number) {
