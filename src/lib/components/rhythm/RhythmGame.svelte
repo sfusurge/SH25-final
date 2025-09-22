@@ -13,17 +13,17 @@
     } from "$lib/components/shared/slideshowConfig";
     import { GameState } from "$lib/components/rhythm/RhythmGameState.svelte";
     import SlideShow from "../shared/SlideShow.svelte";
+    import HoverEffectButton from "../landing/HoverEffectButton.svelte";
 
     let canvas: HTMLCanvasElement | undefined;
 
     let musicFile: FileList | undefined | null = $state();
-    let beatmapFile: FileList | undefined | null  = $state();
+    let beatmapFile: FileList | undefined | null = $state();
     let songTestMode: boolean = $state(false);
-
 
     const testSongUpload = () => {
         songTestMode = true;
-    }
+    };
 
     const renderer = $derived.by(() => {
         if (!canvas) {
@@ -82,18 +82,26 @@
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
-                        renderer?.setSong(song.notes!, song.song!, song.duration!);
+                        renderer?.setSong(
+                            song.notes!,
+                            song.song!,
+                            song.duration!,
+                        );
                     });
             });
         }
-        if (musicFile && beatmapFile && songTestMode == true){
+        if (musicFile && beatmapFile && songTestMode == true) {
             untrack(() => {
                 // impure state skill diffed 😔
-                let song: {notes?: RhythmNote[], song?: AudioBuffer, duration?: number} = {
+                let song: {
+                    notes?: RhythmNote[];
+                    song?: AudioBuffer;
+                    duration?: number;
+                } = {
                     notes: undefined,
                     song: undefined,
-                    duration: undefined
-                }
+                    duration: undefined,
+                };
                 Promise.all([beatmapFile?.item(0)!, musicFile?.item(0)!])
                     .then(async ([notesRes, songRes]) => {
                         const text = await notesRes.text();
@@ -107,7 +115,11 @@
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
-                        renderer?.setSong(song.notes!, song.song!, song.duration!);
+                        renderer?.setSong(
+                            song.notes!,
+                            song.song!,
+                            song.duration!,
+                        );
                     });
             });
         }
@@ -125,10 +137,35 @@
             renderer.startSong();
         }
     });
+
+    function pause() {
+        renderer?.pauseGame();
+        GameState.pauseGame();
+    }
+
+    function resume() {
+        renderer?.resumeGame();
+    }
 </script>
 
 <ScalableFrame style="flex:1;">
-    {#if GameState.isGamePre}
+    <div class="pause">
+        <HoverEffectButton
+            className="h-11"
+            onClick={() => {
+                if (GameState.isGameRunning) {
+                    pause();
+                    GameState.openInstructions(true);
+                }
+            }}
+            square
+            large
+        >
+            <img class="icon" src="/rhythm/pause.png" alt="?" />
+        </HoverEffectButton>
+    </div>
+
+    {#if GameState.isGamePre || GameState.showInstructionsDuringGame}
         <SlideShow
             slides={rhythmGameConfig.instructions.slides}
             title={rhythmGameConfig.instructions.title}
@@ -136,11 +173,23 @@
             actionButton={createGameActionButton(
                 "start",
                 () => {
-                    GameState.startGame();
+                    if (GameState.isGameRunning) {
+                        GameState.showInstructionsDuringGame = false;
+                        GameState.resumeGame();
+                        resume();
+                    } else {
+                        GameState.startGame();
+                    }
                 },
                 GameState.isGameRunning,
             )}
-            showCloseButton={false}
+            showCloseButton={GameState.showCloseButtonInInstructions}
+            onClose={() => {
+                GameState.showInstructionsDuringGame = false;
+                GameState.showCloseButtonInInstructions = false;
+                GameState.resumeGame();
+                resume();
+            }}
         />
     {/if}
 
@@ -151,8 +200,8 @@
             show={true}
             showScore={GameState.score}
             gameResult={"win"}
-            actionButton={createGameActionButton("restart", () => {               
-                GameState.startGame();   
+            actionButton={createGameActionButton("restart", () => {
+                GameState.startGame();
             })}
         />
     {/if}
@@ -161,7 +210,7 @@
             <!-- TODO: placeholder, remove -->
 
             Beatmap:
-            <input accept=".beatmap" bind:files={beatmapFile} type='file'/>
+            <input accept=".beatmap" bind:files={beatmapFile} type="file" />
         </label>
     </div>
 
@@ -170,14 +219,12 @@
             <!-- TODO: placeholder, remove -->
 
             SongMp3:
-            <input accept=".mp3" bind:files={musicFile} type='file'/>
+            <input accept=".mp3" bind:files={musicFile} type="file" />
         </label>
     </div>
 
     {#if beatmapFile && musicFile}
-        <div class="uistuff testSong" on:click={testSongUpload}>
-            Test
-        </div>
+        <div class="uistuff testSong" on:click={testSongUpload}>Test</div>
     {/if}
 
     <div class="uistuff songSelection">
@@ -202,38 +249,38 @@
 </ScalableFrame>
 
 <style>
-    .beatMapInput{
+    .beatMapInput {
         top: 250px;
         left: 10%;
         font-size: 0.75vw;
 
-        ::file-selector-button{
+        ::file-selector-button {
             border: 1px white solid;
             padding: 0 5px;
             cursor: pointer;
         }
     }
 
-    .songFileInput{
+    .songFileInput {
         top: 250px;
         left: 40%;
         font-size: 0.75vw;
 
-        ::file-selector-button{
+        ::file-selector-button {
             border: 1px white solid;
             padding: 0 5px;
             cursor: pointer;
         }
     }
 
-    .testSong{
+    .testSong {
         top: 250px;
         left: 70%;
         cursor: pointer;
         font-size: 0.75vw;
     }
 
-    .songSelection{
+    .songSelection {
         top: 100px;
         left: 50%;
 
@@ -257,5 +304,9 @@
         position: absolute;
         left: 0;
         top: 0;
+    }
+
+    .pause {
+        margin: 1%;
     }
 </style>

@@ -308,7 +308,7 @@ export class RhythmRenderer {
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
-        if(this.musicPlayer.currentTime > this.duration){
+        if (this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
         }
@@ -403,7 +403,7 @@ export class RhythmRenderer {
             // )
 
             this.ctx.globalAlpha = 1;
-            if(prog < cloudFadePercentage || prog > (1 - cloudFadePercentage)){
+            if (prog < cloudFadePercentage || prog > (1 - cloudFadePercentage)) {
                 this.ctx.globalAlpha = (prog < cloudFadePercentage) ? (prog / cloudFadePercentage) : ((1 - prog) / cloudFadePercentage);
             }
             this.ctx.drawImage(
@@ -485,5 +485,13 @@ export class RhythmRenderer {
             if (def) def.currentSprite = 0;
         }, ms);
 
+    }
+
+    pauseGame() {
+        this.musicPlayer.pause();
+    }
+
+    resumeGame() {
+        this.musicPlayer.play();
     }
 }
