@@ -1,5 +1,6 @@
 import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
 import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
+import { GamePhase, GameState } from "$lib/components/rhythm/RhythmGameState.svelte";
 
 enum trackIds {
     top = 0,
@@ -89,6 +90,7 @@ export class RhythmRenderer {
     resizeObserver: ResizeObserver | undefined;
 
     musicPlayer: GameMusicPlayer = new GameMusicPlayer();
+    duration: number = 0;
 
     constructor(canvas: HTMLCanvasElement, mobileView: boolean) {
         this.canvas = canvas;
@@ -123,9 +125,10 @@ export class RhythmRenderer {
         this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
     }
 
-    setSong(notes: RhythmNote[], song: AudioBuffer) {
+    setSong(notes: RhythmNote[], song: AudioBuffer, duration: number) {
         this.musicPlayer.song = song;
         this.songData = notes;
+        this.duration = duration;
     }
 
     startSong() {
@@ -305,6 +308,10 @@ export class RhythmRenderer {
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
+        if(this.musicPlayer.currentTime > this.duration){
+            this.musicPlayer.pause();
+            GameState.phase = GamePhase.ENDED;
+        }
 
         this.ctx.restore();
     }

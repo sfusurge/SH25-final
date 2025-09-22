@@ -46,6 +46,7 @@
             songSrc: string;
             notes?: RhythmNote[];
             song?: AudioBuffer;
+            duration?: number;
         };
     } = $state({
         "BAD APPLE": {
@@ -62,8 +63,8 @@
                 // impure state skill diffed 😔
                 const song = songs[selectedSongTitle];
 
-                if (song.notes && song.song) {
-                    renderer?.setSong(song.notes!, song.song!);
+                if (song.notes && song.song && song.duration) {
+                    renderer?.setSong(song.notes!, song.song!, song.duration!);
                     return;
                 }
 
@@ -71,8 +72,9 @@
                     .then(async ([notesRes, songRes]) => {
                         const text = await notesRes.text();
                         // TODO, do something with title, difficulty
-                        const { notes, difficulty, title } = parseBeatMap(text);
+                        const { notes, duration, title } = parseBeatMap(text);
                         song.notes = notes;
+                        song.duration = duration;
 
                         const ctx = new window.AudioContext();
                         const music = await songRes.blob();
@@ -80,30 +82,32 @@
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
-                        renderer?.setSong(song.notes!, song.song!);
+                        renderer?.setSong(song.notes!, song.song!, song.duration!);
                     });
             });
         }
         if (musicFile && beatmapFile && songTestMode == true){
             untrack(() => {
                 // impure state skill diffed 😔
-                let song: {notes?: RhythmNote[], song?: AudioBuffer} = {
+                let song: {notes?: RhythmNote[], song?: AudioBuffer, duration?: number} = {
                     notes: undefined,
-                    song: undefined
+                    song: undefined,
+                    duration: undefined
                 }
                 Promise.all([beatmapFile?.item(0)!, musicFile?.item(0)!])
                     .then(async ([notesRes, songRes]) => {
                         const text = await notesRes.text();
                         // TODO, do something with title, difficulty
-                        const { notes, difficulty, title } = parseBeatMap(text);
+                        const { notes, duration, title } = parseBeatMap(text);
                         song.notes = notes;
+                        song.duration = duration;
 
                         const ctx = new window.AudioContext();
                         const buffer = await songRes.arrayBuffer();
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
-                        renderer?.setSong(song.notes!, song.song!);
+                        renderer?.setSong(song.notes!, song.song!, song.duration!);
                     });
             });
         }

@@ -123,14 +123,13 @@ export class cText extends component {
 
 export  function parseBeatMap(beatMapString: string) {
     const out: RhythmNote[] = [];
-    let title: string = "", difficulty: string = "";
+    let title: string = "", duration: number = 0;
     try {
         const lines =beatMapString.split("\n");
 
         title = lines[0];
         title = title.slice(title.indexOf("#"));
-        difficulty = lines[1];
-        difficulty = difficulty.slice(difficulty.indexOf("#"));
+        duration = parseInt(lines[1]);
 
         const msPerSec = 1000;
         for (let i = 2; i < lines.length; i++) {
@@ -151,6 +150,6 @@ export  function parseBeatMap(beatMapString: string) {
     return {
         notes: out,
         title,
-        difficulty
+        duration
     }
 }
