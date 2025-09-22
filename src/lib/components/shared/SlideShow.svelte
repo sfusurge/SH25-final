@@ -52,7 +52,6 @@
     let currentSlideIndex = $state(0);
 
     const slidesToDisplay = $derived.by(() => {
-
         if (Array.isArray(slides)) {
             return slides;
         }
@@ -70,20 +69,23 @@
     // Computed properties
     const hasMultipleSlides = $derived(slidesToDisplay.length > 1);
     const currentSlide = $derived(
-        slidesToDisplay[currentSlideIndex] || { imageSrc: "", content: "" }
+        slidesToDisplay[currentSlideIndex] || { imageSrc: "", content: "" },
     );
 
     // Navigation functions
     function nextSlide() {
         if (hasMultipleSlides) {
-            currentSlideIndex = (currentSlideIndex + 1) % slidesToDisplay.length;
+            currentSlideIndex =
+                (currentSlideIndex + 1) % slidesToDisplay.length;
         }
     }
 
     function prevSlide() {
         if (hasMultipleSlides) {
             currentSlideIndex =
-                currentSlideIndex > 0 ? currentSlideIndex - 1 : slidesToDisplay.length - 1;
+                currentSlideIndex > 0
+                    ? currentSlideIndex - 1
+                    : slidesToDisplay.length - 1;
         }
     }
 
@@ -193,7 +195,7 @@
         overflow: hidden;
         border-radius: 4px;
         border: 1px solid var(--color-border);
-        background-color: var(--color-background-secondary, #f5f5f5);
+        /* background-color: var(--color-background-secondary, #f5f5f5); */
     }
 
     .slide-image {

@@ -78,7 +78,8 @@ export class RhythmRenderer {
     otter_timer = 0;
     otter_idle = 0;
 
-    points: number = 0;
+    points = $state(0);
+
     addPoints(bonusMulti: number = 1) {
         this.points += basePoints * bonusMulti;
     }
@@ -494,4 +495,11 @@ export class RhythmRenderer {
     resumeGame() {
         this.musicPlayer.play();
     }
+
+    resetGame() {
+        //TODO: modify this. DOESN'T WORK YET 
+        this.reset();
+        this.init();
+    }
+
 }

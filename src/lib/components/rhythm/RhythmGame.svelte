@@ -198,8 +198,14 @@
             slides={rhythmGameConfig.ending.slides}
             title={rhythmGameConfig.ending.title}
             show={true}
-            showScore={GameState.score}
-            gameResult={"win"}
+            showScore={renderer?.points}
+            gameResult={!renderer
+                ? null
+                : renderer.points < 20
+                  ? "lose"
+                  : renderer.points > 100
+                    ? "win"
+                    : null}
             actionButton={createGameActionButton("restart", () => {
                 GameState.startGame();
             })}

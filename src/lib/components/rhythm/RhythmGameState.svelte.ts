@@ -10,12 +10,12 @@ export const NOW_TICK_MS = 100;
 export const GAME_DURATION_MS = 180_000; // 3 min
 
 class _GameState {
-    score = $state(0);
+
     phase = $state<GamePhaseType>(GamePhase.PRE);
     paused = $state(false);
     showInstructionsDuringGame = $state(false);
     showCloseButtonInInstructions = $state(false);
-    
+
     // Derived states
     isGameRunning = $derived(this.phase === GamePhase.RUNNING);
     isGameEnded = $derived(this.phase === GamePhase.ENDED);
@@ -33,9 +33,6 @@ class _GameState {
         });
     }
 
-    addScore(points: number): void {
-        //TODO: to be modified
-    }
 
     openInstructions(showCloseButton: boolean = false): void {
         this.showInstructionsDuringGame = true;
@@ -43,13 +40,12 @@ class _GameState {
         this.pauseGame();
     }
 
-    resetScore(): void {
-        this.score = 0;
-    }
 
     startGame(): void {
-        this.resetScore();
+        this.paused = false;
         this.phase = GamePhase.RUNNING;
+        this.showInstructionsDuringGame = false;
+        this.showCloseButtonInInstructions = false;
     }
 
     pauseGame(): void {

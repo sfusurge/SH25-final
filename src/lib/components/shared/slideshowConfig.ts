@@ -100,20 +100,20 @@ export const rhythmGameConfig: GameSlideConfig = {
         slides: {
             win: [
                 {
-                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
+                    imageSrc: "/rhythm/best.png",
                     content: `Nice work! Your timing was on point.`,
                 },
             ],
             lose: [
                 {
-                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
+                    imageSrc: "/rhythm/lose.png",
                     content: `The audience was left unmoved, better luck next time ...`,
                 },
             ],
             default: [
                 {
-                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
-                    content: `The audience is enchanted!! You nailed the rhythm like a true legend!`,
+                    imageSrc: "/rhythm/neutral.png",
+                    content: `Nice work! Your timing was on point.`,
                 },
             ],
         },
