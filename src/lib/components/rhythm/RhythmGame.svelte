@@ -205,6 +205,7 @@
             })}
         />
     {/if}
+
     <div class="uistuff beatMapInput">
         <label>
             <!-- TODO: placeholder, remove -->

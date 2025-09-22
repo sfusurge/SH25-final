@@ -23,6 +23,9 @@ interface boundRange {
 const basePoints = 5;
 const scoreBoundsPercentage: boundRange = {min: 0.4, max: 0.75};
 
+const mobileSizing = {
+    // trackXPos = 
+}
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
 const trackWidth = 0.065;
@@ -223,10 +226,16 @@ export class RhythmRenderer {
 
         //backboard
         this.staticObjs.push(
-            new cQuad(this.pkg, 0.1, 0.58, 0.8, 0.37, "fill", () => {
-                this.ctx.restore();
-                this.ctx.fillStyle = "black";
-                this.ctx.globalAlpha = 0.4;
+            new cQuad(this.pkg, 
+                this.mobileView ? 0.05 : 0.1, 
+                this.mobileView ? 0.3 : 0.58, 
+                this.mobileView ? 0.9 : 0.8, 
+                this.mobileView ? 0.675 : 0.37, 
+                "fill", 
+                () => {
+                    this.ctx.restore();
+                    this.ctx.fillStyle = "black";
+                    this.ctx.globalAlpha = 0.4;
             })
         );
 
