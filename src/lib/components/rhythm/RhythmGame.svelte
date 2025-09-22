@@ -76,9 +76,7 @@
 
                         const ctx = new window.AudioContext();
                         const music = await songRes.blob();
-                        // console.log(music)
                         const buffer = await music.arrayBuffer();
-                        console.log(buffer)
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
@@ -87,7 +85,6 @@
             });
         }
         if (musicFile && beatmapFile && songTestMode == true){
-            console.log("test")
             untrack(() => {
                 // impure state skill diffed 😔
                 let song: {notes?: RhythmNote[], song?: AudioBuffer} = {
@@ -103,9 +100,6 @@
 
                         const ctx = new window.AudioContext();
                         const buffer = await songRes.arrayBuffer();
-                        console.log(buffer)
-                        // console.log(music)
-                        // const buffer = await music.arrayBuffer();
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
