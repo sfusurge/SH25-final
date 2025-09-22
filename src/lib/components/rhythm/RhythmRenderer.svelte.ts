@@ -308,7 +308,7 @@ export class RhythmRenderer {
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
-        if(this.musicPlayer.currentTime > this.duration){
+        if (this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
         }
@@ -397,19 +397,19 @@ export class RhythmRenderer {
             let progDist = calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
             // this.ctx.strokeRect(
             //     progDist,
-            //     trackYPositions[v.trackNo] * this.canvas.height,
+            //     (trackYPositions[v.trackNo] + trackWidth / 2) * this.canvas.height -  cloudSprites[v.trackNo].height / 2,
             //     cloudSprites[v.trackNo].width,
             //     cloudSprites[v.trackNo].height,
             // )
 
             this.ctx.globalAlpha = 1;
-            if(prog < cloudFadePercentage || prog > (1 - cloudFadePercentage)){
+            if (prog < cloudFadePercentage || prog > (1 - cloudFadePercentage)) {
                 this.ctx.globalAlpha = (prog < cloudFadePercentage) ? (prog / cloudFadePercentage) : ((1 - prog) / cloudFadePercentage);
             }
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
                 progDist,
-                trackYPositions[v.trackNo] * this.canvas.height
+                (trackYPositions[v.trackNo] + trackWidth / 2) * this.canvas.height -  cloudSprites[v.trackNo].height / 2
             )
             this.ctx.globalAlpha = 1;
         }
