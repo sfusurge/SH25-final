@@ -112,7 +112,7 @@ export class cText extends component {
         this.SpecialSetup();
         this.ctx.fillStyle = "black";
         this.ctx.strokeStyle = "white";
-        this.ctx.font = "bold 16px Arial";
+        this.ctx.font = "bold 20px Arial";
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
         this.ctx.lineWidth = 2

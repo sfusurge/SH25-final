@@ -28,7 +28,7 @@ const trackLength = 0.75;
 
 const btnPos = 0.75;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
-const btnLabels = ["a", "s", "d"];
+const btnLabels = ["A", "S", "D"];
 
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
@@ -99,7 +99,6 @@ export class RhythmRenderer {
             h: canvas.height
         }
         this.mobileView = mobileView;
-        console.log(mobileView)
 
         this.reset();
         this.init();
@@ -242,7 +241,7 @@ export class RhythmRenderer {
                     this.ctx.globalAlpha = 1;
                 }),
                 //button labels
-                new cText(this.pkg, btnPos, yPos + trackWidth / 2, btnLabels[i])
+                new cText(this.pkg, btnPos, yPos + trackWidth / 2 + .002, btnLabels[i])
             )
         });
     }
