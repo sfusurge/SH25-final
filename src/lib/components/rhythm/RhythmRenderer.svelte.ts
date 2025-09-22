@@ -409,7 +409,7 @@ export class RhythmRenderer {
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
                 progDist,
-                (trackYPositions[v.trackNo] + trackWidth / 2) * this.canvas.height -  cloudSprites[v.trackNo].height / 2
+                this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) -  cloudSprites[v.trackNo].height / 2
             )
             this.ctx.globalAlpha = 1;
         }
