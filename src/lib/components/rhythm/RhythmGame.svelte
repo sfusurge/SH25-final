@@ -14,6 +14,8 @@
     import { GameState } from "$lib/components/rhythm/RhythmGameState.svelte";
     import SlideShow from "../shared/SlideShow.svelte";
     import HoverEffectButton from "../landing/HoverEffectButton.svelte";
+    import BlockPatternVertical from "../landing/svgs/BlockPatternVertical.svelte";
+    import RockFilter from "../landing/svgs/RockFilter.svelte";
 
     let canvas: HTMLCanvasElement | undefined;
 
@@ -30,6 +32,15 @@
             return undefined;
         }
         return new RhythmRenderer(canvas, window.innerWidth <= 800);
+    });
+
+    let displayScore = $state(0);
+
+    // Update score separately with an effect
+    $effect(() => {
+        if (renderer?.points !== undefined) {
+            displayScore = renderer.points;
+        }
     });
 
     onDestroy(() => {
@@ -80,10 +91,7 @@
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
-                        renderer?.setSong(
-                            song.notes!,
-                            song.song!
-                        );
+                        renderer?.setSong(song.notes!, song.song!);
                     });
             });
         }
@@ -109,10 +117,7 @@
                         song.song = await ctx.decodeAudioData(buffer);
                     })
                     .then(() => {
-                        renderer?.setSong(
-                            song.notes!,
-                            song.song!,
-                        );
+                        renderer?.setSong(song.notes!, song.song!);
                     });
             });
         }
@@ -142,22 +147,6 @@
 </script>
 
 <ScalableFrame style="flex:1;">
-    <div class="pause">
-        <HoverEffectButton
-            className="h-11"
-            onClick={() => {
-                if (GameState.isGameRunning) {
-                    pause();
-                    GameState.openInstructions(true);
-                }
-            }}
-            square
-            large
-        >
-            <img class="icon" src="/rhythm/pause.png" alt="?" />
-        </HoverEffectButton>
-    </div>
-
     {#if GameState.isGamePre || GameState.showInstructionsDuringGame}
         <SlideShow
             slides={rhythmGameConfig.instructions.slides}
@@ -190,7 +179,7 @@
         <SlideShow
             slides={rhythmGameConfig.ending.slides}
             title={rhythmGameConfig.ending.title}
-            show={true}
+            show={GameState.isGameEnded}
             showScore={renderer?.points}
             gameResult={!renderer
                 ? null
@@ -200,7 +189,7 @@
                     ? "win"
                     : null}
             actionButton={createGameActionButton("restart", () => {
-                GameState.startGame();
+                window.location.reload();
             })}
         />
     {/if}
@@ -245,6 +234,47 @@
 
     <Background />
     <canvas tabindex="1" bind:this={canvas}></canvas>
+
+    <div style="position: absolute; left: 20px; top: 20px;;">
+        <HoverEffectButton
+            className="h-11"
+            onClick={() => {
+                if (GameState.isGameRunning) {
+                    pause();
+                    GameState.openInstructions(true);
+                }
+            }}
+            square
+            large
+        >
+            <img class="icon" src="/rhythm/pause.png" alt="?" />
+        </HoverEffectButton>
+    </div>
+  a
+    <div style="position: absolute; right: 20px; top: 20px;;">
+        <div
+            class="mt-auto mb-8 relative border border-border bg-background h-11"
+        >
+            <RockFilter />
+            <div class="flex justify-between items-center h-full w-40">
+                <BlockPatternVertical className="h-11 mr-2" />
+                <div class="flex items-center gap-2">
+                    <img
+                        src="/assets/experiences/leaf/leafIcon.png"
+                        alt="Score Icon"
+                        height="15"
+                        width="16"
+                    />
+                    <span
+                        class="text-primary text-sm font-normal leading-normal opacity-100"
+                        style="font-family: var(--font-catriel);"
+                        >{displayScore}</span
+                    >
+                </div>
+                <BlockPatternVertical className="h-11 rotate-180 ml-2" />
+            </div>
+        </div>
+    </div>
 </ScalableFrame>
 
 <style>
@@ -303,9 +333,5 @@
         position: absolute;
         left: 0;
         top: 0;
-    }
-
-    .pause {
-        margin: 1%;
     }
 </style>
