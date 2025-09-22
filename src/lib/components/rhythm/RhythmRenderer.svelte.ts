@@ -370,6 +370,7 @@ export class RhythmRenderer {
         }
 
         this.ctx.lineWidth = 1;
+        const cloudFadePercentage = 1 - btnTrackPercent;
         //single cloud rendering
         for (let i = 0; i < this.songData.length; i++) {
             if (!withinTimeRange(this.songData[i].timing)) {
@@ -386,20 +387,25 @@ export class RhythmRenderer {
             }
 
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
-            this.ctx.strokeStyle = "orange";
+            // this.ctx.strokeStyle = "orange";
             let progDist = calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
-            this.ctx.strokeRect(
-                progDist,
-                trackYPositions[v.trackNo] * this.canvas.height,
-                cloudSprites[v.trackNo].width,
-                cloudSprites[v.trackNo].height,
-            )
+            // this.ctx.strokeRect(
+            //     progDist,
+            //     trackYPositions[v.trackNo] * this.canvas.height,
+            //     cloudSprites[v.trackNo].width,
+            //     cloudSprites[v.trackNo].height,
+            // )
 
+            this.ctx.globalAlpha = 1;
+            if(prog < cloudFadePercentage || prog > (1 - cloudFadePercentage)){
+                this.ctx.globalAlpha = (prog < cloudFadePercentage) ? (prog / cloudFadePercentage) : ((1 - prog) / cloudFadePercentage);
+            }
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
                 progDist,
                 trackYPositions[v.trackNo] * this.canvas.height
             )
+            this.ctx.globalAlpha = 1;
         }
     }
 
