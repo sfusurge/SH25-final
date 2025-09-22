@@ -22,7 +22,6 @@
 
 
     const testSongUpload = () => {
-        // musicFile?.item(0)
         songTestMode = true;
     }
 
@@ -30,7 +29,7 @@
         if (!canvas) {
             return undefined;
         }
-        return new RhythmRenderer(canvas);
+        return new RhythmRenderer(canvas, window.innerWidth <= 800);
     });
 
     onDestroy(() => {

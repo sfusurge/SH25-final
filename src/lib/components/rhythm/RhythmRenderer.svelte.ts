@@ -1,5 +1,5 @@
 import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
-import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg, getSrc } from "./CanvasTools";
+import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
 
 enum trackIds {
     top = 0,
@@ -28,6 +28,7 @@ const trackLength = 0.75;
 
 const btnPos = 0.75;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
+const btnLabels = ["a", "s", "d"];
 
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
@@ -57,6 +58,7 @@ export interface RhythmNote {
 export class RhythmRenderer {
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
+    mobileView: boolean;
 
     pkg: RenderPkg;
     startTime: number = 0;
@@ -88,7 +90,7 @@ export class RhythmRenderer {
 
     musicPlayer: GameMusicPlayer = new GameMusicPlayer();
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, mobileView: boolean) {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d")!;
         this.pkg = {
@@ -96,6 +98,8 @@ export class RhythmRenderer {
             w: canvas.width,
             h: canvas.height
         }
+        this.mobileView = mobileView;
+        console.log(mobileView)
 
         this.reset();
         this.init();
@@ -218,34 +222,29 @@ export class RhythmRenderer {
         );
 
         //tracks
-        trackYPositions.forEach(pos => {
+        trackYPositions.forEach((yPos, i) => {
             this.staticObjs.push(
-                new cQuad(this.pkg, trackXPos, pos, trackLength, trackWidth, "fill", () => {
+                new cQuad(this.pkg, trackXPos, yPos, trackLength, trackWidth, "fill", () => {
 
                     this.ctx.strokeStyle = "white";
                     this.ctx.lineWidth = 1.5;
                     this.ctx.globalAlpha = 0.4;
                 }),
-                new cQuad(this.pkg, trackXPos, pos, trackLength, trackWidth, "stroke", () => {
+                new cQuad(this.pkg, trackXPos, yPos, trackLength, trackWidth, "stroke", () => {
                     this.ctx.strokeStyle = "white";
                     this.ctx.lineWidth = 1.5;
                     this.ctx.globalAlpha = 1;
-                })
-            )
-        });
-
-        //button indicators
-        trackYPositions.forEach((yPos, i) => {
-            this.staticObjs.push(
+                }),
+                //button indicators
                 new cCricle(this.pkg, btnPos, yPos + trackWidth / 2, trackWidth / 2 - .01, () => {
                     this.ctx.lineWidth = 0.1;
                     this.ctx.fillStyle = "#" + btnColors[i];
                     this.ctx.globalAlpha = 1;
-                })
+                }),
+                //button labels
+                new cText(this.pkg, btnPos, yPos + trackWidth / 2, btnLabels[i])
             )
         });
-
-
     }
 
     keyDown(index: number) {
@@ -437,18 +436,6 @@ export class RhythmRenderer {
             return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
         })
     }
-
-    // getRightEdge(timing: number){
-    //     if(this.songData[0].timing > timing){
-    //         return -1;
-    //     }
-    //     let i = Math.floor(this.songData.length / 2);
-    //     while(true){
-    //         if(this.songData[i].timing <= timing && (i + 1 >= this.songData.length || this.songData[i + 1].timing > timing)){
-
-    //         }
-    //     }
-    // }
 
     /**
      * returns the low and high bound of the current musicplayer time

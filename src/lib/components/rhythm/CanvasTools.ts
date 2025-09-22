@@ -100,6 +100,26 @@ export class cImg extends component {
     }
 }
 
+export class cText extends component {
+    stringVal: string;
+
+    constructor(pkg: RenderPkg, x: number, y: number, stringValue: string, setup = () => { }) {
+        super(pkg, x, y, setup);
+        this.stringVal = stringValue;
+    }
+
+    update() {
+        this.SpecialSetup();
+        this.ctx.fillStyle = "black";
+        this.ctx.strokeStyle = "white";
+        this.ctx.font = "bold 16px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.lineWidth = 2
+        this.ctx.strokeText(this.stringVal, this.xStd(this.x), this.yStd(this.y));
+        this.ctx.fillText(this.stringVal, this.xStd(this.x), this.yStd(this.y));
+    }
+}
 
 export  function parseBeatMap(beatMapString: string) {
     const out: RhythmNote[] = [];
