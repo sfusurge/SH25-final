@@ -21,6 +21,7 @@ interface boundRange {
 }
 
 const basePoints = 5;
+const scoreBoundsPercentage: boundRange = {min: 0.4, max: 0.75};
 
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
@@ -79,7 +80,8 @@ export class RhythmRenderer {
     otter_idle = 0;
 
     points = $state(0);
-
+    lowScoreThreshold = 0;
+    highScoreThreshold = 0;
     addPoints(bonusMulti: number = 1) {
         this.points += basePoints * bonusMulti;
     }
@@ -132,6 +134,8 @@ export class RhythmRenderer {
         
         let lastNote = this.songData[this.songData.length - 1]
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
+        this.lowScoreThreshold = Math.max(scoreBoundsPercentage.min * this.songData.length) * basePoints;
+        this.highScoreThreshold = Math.max(scoreBoundsPercentage.max * this.songData.length) * basePoints;
     }
 
     startSong() {
@@ -495,13 +499,14 @@ export class RhythmRenderer {
     }
 
     resumeGame() {
-        this.musicPlayer.play();
+        setTimeout(() => {
+            this.musicPlayer.play();
+        }, 3000)
     }
 
     resetGame() {
         //TODO: modify this. DOESN'T WORK YET 
         this.reset();
-        this.init();
     }
 
 }

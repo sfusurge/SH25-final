@@ -194,9 +194,9 @@
             showScore={renderer?.points}
             gameResult={!renderer
                 ? null
-                : renderer.points < 20
+                : renderer.points < renderer.lowScoreThreshold
                   ? "lose"
-                  : renderer.points > 100
+                  : renderer.points > renderer.highScoreThreshold
                     ? "win"
                     : null}
             actionButton={createGameActionButton("restart", () => {
