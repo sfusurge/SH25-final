@@ -201,6 +201,7 @@
                     : null}
             actionButton={createGameActionButton("restart", () => {
                 GameState.startGame();
+                renderer?.reset();
             })}
         />
     {/if}
