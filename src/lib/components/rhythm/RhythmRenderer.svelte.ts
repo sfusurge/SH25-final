@@ -40,7 +40,7 @@ const trackLength = 0.75;
 const btnPos = 0.75;
 const btnPad = 0.01;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
-const btnLabels = ["A", "S", "D"];
+const btnLabels = ["A/J", "S/K", "D/L"];
 
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
@@ -53,7 +53,7 @@ const cloudSprites = spriteNames.map(sN => {
     return s;
 })
 
-const interactionThreshold = 280;
+const interactionThreshold = 350;
 const vfxDuration = 200;
 
 const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;
