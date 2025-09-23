@@ -163,15 +163,15 @@ export class RhythmRenderer {
         this.canvas.addEventListener("keypress", (e) => {
             switch (e.key.toLowerCase()) {
                 case "a":
-                case 'j':
+                case "j":
                     this.keyDown(trackIds.top);
                     break;
                 case "s":
-                case 'k':
+                case "k":
                     this.keyDown(trackIds.middle);
                     break;
                 case "d":
-                case 'l':
+                case "l":
                     this.keyDown(trackIds.bottom);
                     break;
             }
@@ -180,15 +180,15 @@ export class RhythmRenderer {
         this.canvas.addEventListener("keyup", (e) => {
             switch (e.key.toLowerCase()) {
                 case "a":
-                case 'j':
+                case "j":
                     this.keyUp(trackIds.top);
                     break;
                 case "s":
-                case 'k':
+                case "k":
                     this.keyUp(trackIds.middle);
                     break;
                 case "d":
-                case 'l':
+                case "l":
                     this.keyUp(trackIds.bottom);
                     break;
             }
