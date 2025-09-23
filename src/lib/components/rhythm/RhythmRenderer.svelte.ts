@@ -141,7 +141,7 @@ export class RhythmRenderer {
     setSong(notes: RhythmNote[], song: AudioBuffer) {
         this.musicPlayer.song = song;
         this.songData = notes;
-        
+
         let lastNote = this.songData[this.songData.length - 1]
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
         this.lowScoreThreshold = Math.max(scoreBoundsPercentage.min * this.songData.length) * basePoints;
@@ -451,7 +451,7 @@ export class RhythmRenderer {
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
                 progDist,
-                this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) -  cloudSprites[v.trackNo].height / 2
+                this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
             )
             this.ctx.globalAlpha = 1;
         }
@@ -539,9 +539,6 @@ export class RhythmRenderer {
         }, 3000)
     }
 
-    resetGame() {
-        //TODO: modify this. DOESN'T WORK YET 
-        this.reset();
-    }
+
 
 }
