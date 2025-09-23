@@ -74,6 +74,52 @@ export const mazeGameConfig: GameSlideConfig = {
     },
 };
 
+export const rhythmGameConfig: GameSlideConfig = {
+    instructions: {
+        title: "Rhythm of the Kingdom",
+        slides: [
+            {
+                imageSrc: "/rhythm/instructions1.png",
+                content:
+                    "<br>Perform the most divine ballad in all the realms! <strong>Land every note with perfect rhythm and win the hearts of your audience</strong>.",
+            },
+            {
+                imageSrc: "/rhythm/instructions2.png",
+                content:
+                    "<br>Each beat appears as a colored cloud. <strong>Click/Tap the matching color-coded button at the right moment to strike the beat</strong> and keep the rhythm flowing!",
+            },
+            {
+                imageSrc: "/rhythm/instructions3.png",
+                content:
+                    "Each cloud carries its own rhythm. <strong>Look at the symbol and shape of the cloud</strong> to see how long to hold the note, then hit the matching color-coded button in time!",
+            },
+        ],
+    },
+    ending: {
+        title: "Game Over!",
+        slides: {
+            win: [
+                {
+                    imageSrc: "/rhythm/best.png",
+                    content: `Nice work! Your timing was on point.`,
+                },
+            ],
+            lose: [
+                {
+                    imageSrc: "/rhythm/lose.png",
+                    content: `The audience was left unmoved, better luck next time ...`,
+                },
+            ],
+            default: [
+                {
+                    imageSrc: "/rhythm/neutral.png",
+                    content: `Nice work! Your timing was on point.`,
+                },
+            ],
+        },
+    },
+};
+
 // Helper function to create action buttons for different game states
 export function createGameActionButton(
     type: "start" | "continue" | "restart",

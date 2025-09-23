@@ -1,6 +1,6 @@
 <script lang="ts">
     import { updateComicUsage } from "$lib/firebase/api";
-    import { onMount, onDestroy } from "svelte";
+    import { onMount, onDestroy, tick } from "svelte";
 
     interface Props {
         key: number | string;
@@ -20,6 +20,20 @@
     let endOfPage = $derived(
         Math.abs(thumbTop - (container?.clientHeight ?? 99999) - thumbHeight) < 300,
     );
+
+    let previousKey = $state(key);
+
+    $effect(() => {
+        if (key !== previousKey) {
+            previousKey = key;
+            tick().then(() => {
+                if (container) {
+                    container.scrollTop = 0;
+                    updateThumb();
+                }
+            });
+        }
+    });
 
     $effect(() => {
         if (endOfPage) {

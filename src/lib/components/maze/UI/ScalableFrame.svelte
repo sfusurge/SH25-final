@@ -36,7 +36,7 @@
 
         border: 2px solid var(--border);
         min-width: 100px;
-        min-height: 100px;
+        min-height: 500px;
 
         box-sizing: border-box;
     }

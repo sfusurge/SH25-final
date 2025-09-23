@@ -145,9 +145,18 @@
                     text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
             />
         </div>
-        <LockedTile release="Releases [09/17/2025]" />
-        <LockedTile release="Releases [09/22/2025]" />
+        <div class:active-tile={isActiveTile("/webtoon", "#2")}>
+            <WebtoonTile
+                    imageSrc="/assets/ig.svg"
+                    imageAlt="[Ch 2] You Improved."
+                    imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
+                    onClick={() => goto("/webtoon#2")}
+                    header="[Ch 2] You Improved."
+                    text="Scummious and our two heroes’ friendship reaches a strain, changing the course of their journey forever."
+            />
+        </div>
         <LockedTile release="Releases [09/29/2025]" />
+        <LockedTile release="Releases [10/04/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
