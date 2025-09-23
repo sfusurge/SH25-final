@@ -189,8 +189,9 @@
                     ? "win"
                     : null}
             actionButton={createGameActionButton("restart", () => {
-                window.location.reload();
                 renderer?.reset();
+                GameState.startGame();
+                selectedSongTitle = "";
             })}
         />
     {/if}

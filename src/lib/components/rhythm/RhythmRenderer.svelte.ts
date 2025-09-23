@@ -140,12 +140,18 @@ export class RhythmRenderer {
 
     setSong(notes: RhythmNote[], song: AudioBuffer) {
         this.musicPlayer.song = song;
+
+        this.musicPlayer.offsetTime = 0;
+        this.musicPlayer.lastPlayTime = 0;
+        this.musicPlayer.currentTime = 0;
+
         this.songData = notes;
 
         let lastNote = this.songData[this.songData.length - 1]
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
         this.lowScoreThreshold = Math.max(scoreBoundsPercentage.min * this.songData.length) * basePoints;
         this.highScoreThreshold = Math.max(scoreBoundsPercentage.max * this.songData.length) * basePoints;
+
     }
 
     startSong() {
@@ -157,6 +163,10 @@ export class RhythmRenderer {
         this.heldKeys = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
+
+        this.duration = this.empty;
+        this.musicPlayer.pause();
+        this.musicPlayer.song = undefined;
     }
 
     setupEvents() {
@@ -365,6 +375,7 @@ export class RhythmRenderer {
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
+            this.songData = [];
         }
 
         this.ctx.restore();
