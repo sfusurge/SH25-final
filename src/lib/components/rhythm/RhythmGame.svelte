@@ -189,8 +189,9 @@
                     ? "win"
                     : null}
             actionButton={createGameActionButton("restart", () => {
-                window.location.reload();
                 renderer?.reset();
+                GameState.startGame();
+                selectedSongTitle = "";
             })}
         />
     {/if}
@@ -252,7 +253,7 @@
             <img class="icon" src="/rhythm/pause.png" alt="?" />
         </HoverEffectButton>
     </div>
-  a
+    a
     <div style="position: absolute; right: 20px; top: 20px;;">
         <div
             class="mt-auto mb-8 relative border border-border bg-background h-11"
