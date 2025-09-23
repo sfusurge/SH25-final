@@ -146,7 +146,7 @@
     }
 </script>
 
-<ScalableFrame style="flex:1;">
+<div style="flex:1; display:flex; width:100%; height:100%; position:relative;">
     {#if GameState.isGamePre || GameState.showInstructionsDuringGame}
         <SlideShow
             slides={rhythmGameConfig.instructions.slides}
@@ -174,7 +174,7 @@
             }}
         />
     {/if}
-
+    
     {#if GameState.isGameEnded}
         <SlideShow
             slides={rhythmGameConfig.ending.slides}
@@ -196,6 +196,7 @@
         />
     {/if}
 
+    <ScalableFrame style="flex:1;" >
     <div class="uistuff beatMapInput">
         <label>
             <!-- TODO: placeholder, remove -->
@@ -253,7 +254,7 @@
             <img class="icon" src="/rhythm/pause.png" alt="?" />
         </HoverEffectButton>
     </div>
-    a
+  
     <div style="position: absolute; right: 20px; top: 20px;;">
         <div
             class="mt-auto mb-8 relative border border-border bg-background h-11"
@@ -279,6 +280,7 @@
         </div>
     </div>
 </ScalableFrame>
+</div>
 
 <style>
     .beatMapInput {

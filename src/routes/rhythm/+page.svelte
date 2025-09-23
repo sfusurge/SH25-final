@@ -1,10 +1,10 @@
 <script lang="ts">
     import RhythmGame from "$lib/components/rhythm/RhythmGame.svelte";
+    import { global } from "../+layout.svelte";
 </script>
 
-<div class="gameParent">
-
-    <RhythmGame/>
+<div class="gameParent" class:mobile={global.mobile}>
+    <RhythmGame />
 </div>
 
 <style>
@@ -16,5 +16,9 @@
         box-sizing: border-box;
 
         display: flex;
+    }
+
+    .mobile {
+        padding: 0;
     }
 </style>
