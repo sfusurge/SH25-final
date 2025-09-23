@@ -38,7 +38,7 @@ const trackWidth = 0.065;
 const trackLength = 0.75;
 
 const btnPos = 0.75;
-const btnPad = 0.1;
+const btnPad = 0.01;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 const btnLabels = ["A", "S", "D"];
 
@@ -274,8 +274,7 @@ export class RhythmRenderer {
                 new cCricle(this.pkg, 
                     this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 : btnPos, 
                     this.mobileView ? mobileSz.btnPos : yPos + trackWidth / 2, 
-                    (this.mobileView ? mobileSz.trackWidth : trackWidth) / 2 - 
-                        (this.mobileView ? mobileSz.btnPad : btnPad), 
+                    this.mobileView ? (mobileSz.trackWidth / 2 - mobileSz.btnPad) : (trackWidth / 2 - btnPad), 
                     () => {
                         this.ctx.lineWidth = 0.1;
                         this.ctx.fillStyle = "#" + btnColors[i];
