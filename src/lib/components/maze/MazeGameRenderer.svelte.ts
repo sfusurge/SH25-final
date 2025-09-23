@@ -2,7 +2,7 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { Player, ProjectileEntity } from "./Entities";
+import { Player, ProjectileEntity, ENTITY_TYPE } from "./Entities";
 import { GameState } from "./MazeGameState.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
@@ -71,6 +71,13 @@ export class MazeGame {
     rooms = this.mazeGenerator.rooms;
     idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
     currentRoomId: number = 0; // 0 means not in a room.
+    roomsCleared = new Map<number, boolean>(); // Track which rooms have been cleared of enemies
+
+    // Overlay transition state
+    overlayOpacity = 0; 
+    overlayTargetOpacity = 0;
+    overlayTransitionSpeed = 6; // percent change per frame
+    lastOverlayState = false; // Track previous overlay state for transition detection
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -257,6 +264,7 @@ export class MazeGame {
         this.rooms = this.mazeGenerator.rooms;
         this.idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
         this.currentRoomId = 0;
+        this.roomsCleared.clear();
 
         // Reset player position to first room
         const firstRoom = this.mazeGenerator.rooms[0];
@@ -452,6 +460,35 @@ export class MazeGame {
         const eCol = Math.floor(entity.x / CELL_SIZE);
         const eRow = Math.floor(entity.y / CELL_SIZE);
 
+        // Add invisible walls
+        if (this.currentRoomId > 0 && this.isRoomLocked(this.currentRoomId) && entity.metadata.entityType !== ENTITY_TYPE.projectile) {
+            const room = this.idToRoomLayout[this.currentRoomId];
+            if (room) {
+                // Create invisible walls at room boundaries
+                const roomLeft = room.left * CELL_SIZE;
+                const roomRight = room.right * CELL_SIZE;
+                const roomTop = room.top * CELL_SIZE;
+                const roomBottom = room.bottom * CELL_SIZE;
+
+                // Left boundary wall
+                if (entity.x < roomLeft + entity.width / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomLeft - 10, roomTop, 10, roomBottom - roomTop));
+                }
+                // Right boundary wall
+                if (entity.x > roomRight - entity.width / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomRight, roomTop, 10, roomBottom - roomTop));
+                }
+                // Top boundary wall
+                if (entity.y < roomTop + entity.height / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomLeft, roomTop - 10, roomRight - roomLeft, 10));
+                }
+                // Bottom boundary wall
+                if (entity.y > roomBottom - entity.height / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomLeft, roomBottom, roomRight - roomLeft, 10));
+                }
+            }
+        }
+
         // TODO, filter only the wall that matters
         for (const [dr, dc] of [[-1, 0], [1, 0], [0, 1], [0, -1], [0, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
             const row = eRow + dr;
@@ -578,6 +615,11 @@ export class MazeGame {
         debug.entityCollisions = entityCollisionCount;
         debug.projectileCount = this.projectiles.length;
 
+        // Check for room completion after potential enemy kills
+        if (this.currentRoomId > 0) {
+            this.setRoomCompletionStatus(this.currentRoomId);
+        }
+
     }
     /**
      * updates velocity of all entities and then move according to vel.
@@ -629,6 +671,8 @@ export class MazeGame {
             // Remove destroyed entities
             room.entities = room.entities.filter(e => !e.metadata.destroyed);
             room.dynamicEntities = room.dynamicEntities.filter(e => !e.metadata.destroyed);
+
+            this.setRoomCompletionStatus(this.currentRoomId);
         }
         this.player.update(this, this.deltaTime);
     }
@@ -681,6 +725,30 @@ export class MazeGame {
         grid.addEntity(this.player);
         for (const entity of room.entities) {
             grid.addEntity(entity);
+        }
+    }
+
+    countEnemiesInRoom(roomId: number): number {
+        if (roomId <= 0) return 0;
+
+        const room = this.idToRoomLayout[roomId];
+        if (!room) return 0;
+
+        return room.entities.filter(entity =>
+            entity.metadata.entityType === ENTITY_TYPE.enemy &&
+            (!entity.metadata.destroyed && !(entity as any).isDead)
+        ).length;
+    }
+
+    isRoomLocked(roomId: number): boolean {
+        return roomId > 0 && !this.roomsCleared.get(roomId) && this.countEnemiesInRoom(roomId) > 0;
+    }
+
+    setRoomCompletionStatus(roomId: number): void {
+        if (roomId <= 0) return;
+
+        if (this.countEnemiesInRoom(roomId) === 0) {
+            this.roomsCleared.set(roomId, true);
         }
     }
 
@@ -944,6 +1012,67 @@ export class MazeGame {
         }
 
         debug.cellRenderCount = renderCount;
+
+
+        // ======= ROOM LOCK SCREEN OVERLAY ======
+
+        const shouldShowOverlay = this.currentRoomId > 0 && this.isRoomLocked(this.currentRoomId);
+
+        if (shouldShowOverlay !== this.lastOverlayState) {
+            this.overlayTargetOpacity = shouldShowOverlay ? 1 : 0;
+            this.lastOverlayState = shouldShowOverlay;
+        }
+
+        // Smoothly animate overlay opacity towards target
+        if (this.overlayOpacity !== this.overlayTargetOpacity) {
+            const diff = this.overlayTargetOpacity - this.overlayOpacity;
+            this.overlayOpacity += diff * this.overlayTransitionSpeed / 60; //adjust 60 to fps if changed
+            if (Math.abs(diff) < 0.01) {
+                this.overlayOpacity = this.overlayTargetOpacity
+            };
+        }
+
+        // Render overlay if it has any opacity
+        if (this.overlayOpacity > 0 && this.currentRoomId > 0) {
+            const currentRoom = this.idToRoomLayout[this.currentRoomId];
+            if (currentRoom) {
+                ctx.resetTransform();
+                ctx.scale(dpr, dpr);
+
+                const spacing = 0.3;
+                const screenCenterX = (this.canvas.width / dpr) / (2 * this.zoom);
+                const screenCenterY = (this.canvas.height / dpr) / (2 * this.zoom);
+                const fadeDistance = (CELL_SIZE * this.zoom) * 0.5;
+                const [screenWidth, screenHeight] = [this.canvas.width / dpr, this.canvas.height / dpr];
+                const maxOpacity = 0.75 * this.overlayOpacity;
+
+                // room screen boundaries
+                const roomScreen = {
+                    left: ((currentRoom.left - spacing) * CELL_SIZE - this.camera.x) * this.zoom + screenCenterX,
+                    right: ((currentRoom.right + spacing) * CELL_SIZE - this.camera.x) * this.zoom + screenCenterX,
+                    top: ((currentRoom.top - spacing) * CELL_SIZE - this.camera.y) * this.zoom + screenCenterY,
+                    bottom: ((currentRoom.bottom + spacing - 0.3) * CELL_SIZE - this.camera.y) * this.zoom + screenCenterY
+                };
+
+                // rectangles with gradients
+                const overlays = [
+                    { condition: roomScreen.top > 0, gradient: [0, Math.max(0, roomScreen.top - fadeDistance), 0, roomScreen.top], stops: [maxOpacity, 0], rect: [0, 0, screenWidth, roomScreen.top] },
+                    { condition: roomScreen.bottom < screenHeight, gradient: [0, roomScreen.bottom, 0, Math.min(screenHeight, roomScreen.bottom + fadeDistance)], stops: [0, maxOpacity], rect: [0, roomScreen.bottom, screenWidth, screenHeight - roomScreen.bottom] },
+                    { condition: roomScreen.left > 0, gradient: [Math.max(0, roomScreen.left - fadeDistance), 0, roomScreen.left, 0], stops: [maxOpacity, 0], rect: [0, 0, roomScreen.left, screenHeight] },
+                    { condition: roomScreen.right < screenWidth, gradient: [roomScreen.right, 0, Math.min(screenWidth, roomScreen.right + fadeDistance), 0], stops: [0, maxOpacity], rect: [roomScreen.right, 0, screenWidth - roomScreen.right, screenHeight] }
+                ];
+
+                overlays.forEach(({ condition, gradient, stops, rect }) => {
+                    if (condition) {
+                        const grad = ctx.createLinearGradient(gradient[0], gradient[1], gradient[2], gradient[3]);
+                        grad.addColorStop(0, `rgba(0, 0, 0, ${stops[0]})`);
+                        grad.addColorStop(1, `rgba(0, 0, 0, ${stops[1]})`);
+                        ctx.fillStyle = grad;
+                        ctx.fillRect(rect[0], rect[1], rect[2], rect[3]);
+                    }
+                });
+            }
+        }
     }
 }
 
