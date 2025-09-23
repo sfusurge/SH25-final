@@ -86,7 +86,7 @@ export const rhythmGameConfig: GameSlideConfig = {
             {
                 imageSrc: "/rhythm/instructions2.png",
                 content:
-                    "<br>Each beat appears as a colored cloud. <strong>Click/Tap the matching color-coded button at the right moment to strike the beat</strong> and keep the rhythm flowing!",
+                    "Each beat appears as a colored cloud. <strong>Click the ASD or JKL keys/Tap the matching color-coded button at the right moment to strike the beat</strong> and keep the rhythm flowing!",
             },
             {
                 imageSrc: "/rhythm/instructions3.png",
