@@ -19,19 +19,12 @@
         <div class="decor right"></div>
     {/if}
 
-    <div class="inner">
-        {@render children?.()}
-    </div>
+    {@render children?.()}
+
 </div>
 
 <style>
-    .inner {
-        width: 100%;
-        height: 100%;
 
-        position: relative;
-        z-index: 1;
-    }
 
     .rootContainer {
         display: flex;
