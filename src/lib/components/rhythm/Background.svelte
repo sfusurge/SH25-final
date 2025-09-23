@@ -50,6 +50,7 @@
         z-index: 0;
 
         background-color: #aadcff;
+        transform: translateZ(0);
     }
 
     .movingBg {
