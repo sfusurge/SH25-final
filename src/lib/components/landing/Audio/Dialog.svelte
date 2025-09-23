@@ -98,7 +98,7 @@
         height: fit-content;
 
         background-color: var(--color-background);
-        z-index: 1002;
+        z-index: 10020;
     }
 
     :not(.mobile).left {
