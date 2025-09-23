@@ -57,18 +57,18 @@
         data-maze-ui={dataMazeUi ? true : undefined}
     >
         <RockFilter />
-
         <div data-demon="border" class="decorBar"></div>
         <div data-demon="border" class="decorBar" style="top: unset; bottom: 0;"></div>
-
-        <div class="titleBar">
-            <p class="title">{title}</p>
-            {#if onClose}
-                <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
-            {/if}
+        <div class="contentHolder">
+            <div class="titleBar">
+                <p class="title">{title}</p>
+                {#if onClose}
+                    <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
+                {/if}
+            </div>
+            <HorizontalDivider />
+            {@render children?.()}
         </div>
-        <HorizontalDivider />
-        {@render children?.()}
     </div>
     {#if mobile}
         <div
@@ -80,20 +80,31 @@
 {/if}
 
 <style>
+    .contentHolder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        padding: 2rem 1.5rem;
+        overflow: auto;
+        height: 100%;
+        width: 100%;
+    }
+
     .dialog {
         position: absolute;
         top: 0;
         border: 1px solid var(--color-border);
 
-        padding: 2rem 1.5rem;
         box-sizing: border-box;
 
         display: flex;
         flex-direction: column;
-        justify-content: center;
+
         align-items: center;
 
-        min-width: 250px;
+        min-width: 300px;
+        max-height: 85dvh;
         width: fit-content;
         height: fit-content;
 
@@ -155,6 +166,7 @@
         width: 100%;
         height: 0.5rem;
         background-image: url("/assets/block-pattern.svg");
+        z-index: 5;
     }
 
     .titleBar {
