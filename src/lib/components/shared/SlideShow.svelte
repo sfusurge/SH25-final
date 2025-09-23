@@ -2,6 +2,7 @@
     import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
     import HoverEffectButton from "$lib/components/landing/HoverEffectButton.svelte";
     import { global } from "$lib/../routes/+layout.svelte";
+    import Diamond from "$lib/components/landing/svgs/Diamond.svelte";
 
     // Main slide interface
     interface Slide {
@@ -75,17 +76,14 @@
     // Navigation functions
     function nextSlide() {
         if (hasMultipleSlides) {
-            currentSlideIndex =
-                (currentSlideIndex + 1) % slidesToDisplay.length;
+            currentSlideIndex = (currentSlideIndex + 1) % slidesToDisplay.length;
         }
     }
 
     function prevSlide() {
         if (hasMultipleSlides) {
             currentSlideIndex =
-                currentSlideIndex > 0
-                    ? currentSlideIndex - 1
-                    : slidesToDisplay.length - 1;
+                currentSlideIndex > 0 ? currentSlideIndex - 1 : slidesToDisplay.length - 1;
         }
     }
 
@@ -94,12 +92,13 @@
     }
 </script>
 
+<!-- content -->
 <Dialog
     {title}
     {show}
     onClose={showCloseButton ? onClose : undefined}
     mobile={global.mobile}
-    offsetDirection={global.mobile ? "center" : "center"}
+    offsetDirection={"center"}
     {dataMazeUi}
 >
     <div class="slideshow-content" class:data-maze-ui={dataMazeUi}>
@@ -172,7 +171,8 @@
         align-items: center;
         gap: 0.5rem;
         width: 500px;
-        height: 50vh;
+        max-height: 50vh;
+        min-height: 400px;
     }
 
     .score-display {

@@ -21,15 +21,26 @@ interface boundRange {
 }
 
 const basePoints = 5;
+const scoreBoundsPercentage: boundRange = { min: 0.4, max: 0.75 };
 
+const mobileSz = {
+    trackXs: [0.095, 0.38, 0.665], //track space: 0.72, between space: 0.045, board space: 0.9
+    trackYPos: 0.325,
+    trackWidth: 0.24,
+    trackLength: 0.625,
+
+    btnPos: 0.825,
+    btnPad: 0.07
+}
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
 const trackWidth = 0.065;
 const trackLength = 0.75;
 
 const btnPos = 0.75;
+const btnPad = 0.01;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
-const btnLabels = ["A", "S", "D"];
+const btnLabels = ["A/J", "S/K", "D/L"];
 
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
@@ -42,7 +53,7 @@ const cloudSprites = spriteNames.map(sN => {
     return s;
 })
 
-const interactionThreshold = 280;
+const interactionThreshold = 350;
 const vfxDuration = 200;
 
 const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;
@@ -79,7 +90,8 @@ export class RhythmRenderer {
     otter_idle = 0;
 
     points = $state(0);
-
+    lowScoreThreshold = 0;
+    highScoreThreshold = 0;
     addPoints(bonusMulti: number = 1) {
         this.points += basePoints * bonusMulti;
     }
@@ -128,10 +140,18 @@ export class RhythmRenderer {
 
     setSong(notes: RhythmNote[], song: AudioBuffer) {
         this.musicPlayer.song = song;
+
+        this.musicPlayer.offsetTime = 0;
+        this.musicPlayer.lastPlayTime = 0;
+        this.musicPlayer.currentTime = 0;
+
         this.songData = notes;
 
         let lastNote = this.songData[this.songData.length - 1]
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
+        this.lowScoreThreshold = Math.max(scoreBoundsPercentage.min * this.songData.length) * basePoints;
+        this.highScoreThreshold = Math.max(scoreBoundsPercentage.max * this.songData.length) * basePoints;
+
     }
 
     startSong() {
@@ -143,18 +163,25 @@ export class RhythmRenderer {
         this.heldKeys = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
+
+        this.duration = this.empty;
+        this.musicPlayer.pause();
+        this.musicPlayer.song = undefined;
     }
 
     setupEvents() {
         this.canvas.addEventListener("keypress", (e) => {
             switch (e.key.toLowerCase()) {
                 case "a":
+                case "j":
                     this.keyDown(trackIds.top);
                     break;
                 case "s":
+                case "k":
                     this.keyDown(trackIds.middle);
                     break;
                 case "d":
+                case "l":
                     this.keyDown(trackIds.bottom);
                     break;
             }
@@ -163,12 +190,15 @@ export class RhythmRenderer {
         this.canvas.addEventListener("keyup", (e) => {
             switch (e.key.toLowerCase()) {
                 case "a":
+                case "j":
                     this.keyUp(trackIds.top);
                     break;
                 case "s":
+                case "k":
                     this.keyUp(trackIds.middle);
                     break;
                 case "d":
+                case "l":
                     this.keyUp(trackIds.bottom);
                     break;
             }
@@ -181,8 +211,8 @@ export class RhythmRenderer {
             this.pkg.w = box.width * this.dpr;
             this.pkg.h = box.height * this.dpr;
 
-            this.canvas.width = this.pkg.w;
-            this.canvas.height = this.pkg.h;
+            // this.canvas.width = this.pkg.w;
+            // this.canvas.height = this.pkg.h;
         }
 
         this.resizeObserver = new ResizeObserver((entries) => {
@@ -219,37 +249,62 @@ export class RhythmRenderer {
 
         //backboard
         this.staticObjs.push(
-            new cQuad(this.pkg, 0.1, 0.58, 0.8, 0.37, "fill", () => {
-                this.ctx.restore();
-                this.ctx.fillStyle = "black";
-                this.ctx.globalAlpha = 0.4;
-            })
+            new cQuad(this.pkg,
+                this.mobileView ? 0.05 : 0.1,
+                this.mobileView ? 0.3 : 0.58,
+                this.mobileView ? 0.9 : 0.8,
+                this.mobileView ? 0.675 : 0.37,
+                "fill",
+                () => {
+                    this.ctx.restore();
+                    this.ctx.fillStyle = "black";
+                    this.ctx.globalAlpha = 0.4;
+                })
         );
 
         //tracks
         trackYPositions.forEach((yPos, i) => {
             this.staticObjs.push(
-                new cQuad(this.pkg, trackXPos, yPos, trackLength, trackWidth, "fill", () => {
-
-                    this.ctx.strokeStyle = "white";
-                    this.ctx.lineWidth = 1.5;
-                    this.ctx.globalAlpha = 0.4;
-                }),
-                new cQuad(this.pkg, trackXPos, yPos, trackLength, trackWidth, "stroke", () => {
-                    this.ctx.strokeStyle = "white";
-                    this.ctx.lineWidth = 1.5;
-                    this.ctx.globalAlpha = 1;
-                }),
+                new cQuad(this.pkg,
+                    this.mobileView ? mobileSz.trackXs[i] : trackXPos,
+                    this.mobileView ? mobileSz.trackYPos : yPos,
+                    this.mobileView ? mobileSz.trackWidth : trackLength,
+                    this.mobileView ? mobileSz.trackLength : trackWidth,
+                    "fill",
+                    () => {
+                        this.ctx.fillStyle = "black";
+                        this.ctx.globalAlpha = 0.4;
+                    }),
+                new cQuad(this.pkg,
+                    this.mobileView ? mobileSz.trackXs[i] : trackXPos,
+                    this.mobileView ? mobileSz.trackYPos : yPos,
+                    this.mobileView ? mobileSz.trackWidth : trackLength,
+                    this.mobileView ? mobileSz.trackLength : trackWidth,
+                    "stroke",
+                    () => {
+                        this.ctx.strokeStyle = "white";
+                        this.ctx.lineWidth = 2;
+                        this.ctx.globalAlpha = 1;
+                    }),
                 //button indicators
-                new cCricle(this.pkg, btnPos, yPos + trackWidth / 2, trackWidth / 2 - .01, () => {
-                    this.ctx.lineWidth = 0.1;
-                    this.ctx.fillStyle = "#" + btnColors[i];
-                    this.ctx.globalAlpha = 1;
-                }),
-                //button labels
-                new cText(this.pkg, btnPos, yPos + trackWidth / 2 + .002, btnLabels[i])
+                new cCricle(this.pkg,
+                    this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 : btnPos,
+                    this.mobileView ? mobileSz.btnPos : yPos + trackWidth / 2,
+                    this.mobileView ? (mobileSz.trackWidth / 2 - mobileSz.btnPad) : (trackWidth / 2 - btnPad),
+                    () => {
+                        this.ctx.lineWidth = 0.1;
+                        this.ctx.fillStyle = "#" + btnColors[i];
+                        this.ctx.globalAlpha = 1;
+                    })
             )
         });
+
+        //button labels
+        if (!this.mobileView) {
+            trackYPositions.forEach((yPos, i) => {
+                this.staticObjs.push(new cText(this.pkg, btnPos, yPos + trackWidth / 2 + .002, btnLabels[i]))
+            })
+        }
     }
 
     keyDown(index: number) {
@@ -308,12 +363,19 @@ export class RhythmRenderer {
         this.ctx.save();
         this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
 
+        // update canvas size before rendering to avoid flicker
+        if (this.canvas.width !== this.pkg.w || this.canvas.height !== this.pkg.h) {
+            this.canvas.width = this.pkg.w;
+            this.canvas.height = this.pkg.h;
+        }
+
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
+            this.songData = [];
         }
 
         this.ctx.restore();
@@ -473,7 +535,7 @@ export class RhythmRenderer {
     }
 
     addBtnVfx(track: number, hit: boolean) {
-        let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[track] + .0125, [hit ? "hit" : "miss"])
+        let vfx = new cImg(this.pkg, trackLength - 35 / this.canvas.width, trackYPositions[track] + trackWidth / 2 - 18 / this.canvas.height, [hit ? "hit" : "miss"])
         vfx.startTime = this.musicPlayer.currentTime;
         this.vfxObjs.push(vfx);
     }
@@ -495,7 +557,9 @@ export class RhythmRenderer {
     }
 
     resumeGame() {
-        this.musicPlayer.play();
+        setTimeout(() => {
+            this.musicPlayer.play();
+        }, 3000)
     }
 
 

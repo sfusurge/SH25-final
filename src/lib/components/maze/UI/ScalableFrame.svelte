@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import { global } from "../../../../routes/+layout.svelte";
 
     interface Props {
         children?: Snippet;
@@ -11,24 +12,19 @@
 </script>
 
 <div class="rootContainer" style="--borderWidth: {borderWidth}px; {style}">
-    <div class="decor bot"></div>
-    <div class="decor top"></div>
-    <div class="decor left"></div>
-    <div class="decor right"></div>
+    {#if !global.mobile}
+        <div class="decor bot"></div>
+        <div class="decor top"></div>
+        <div class="decor left"></div>
+        <div class="decor right"></div>
+    {/if}
 
-    <div class="inner">
-        {@render children?.()}
-    </div>
+    {@render children?.()}
+
 </div>
 
 <style>
-    .inner {
-        width: 100%;
-        height: 100%;
 
-        position: relative;
-        z-index: 1;
-    }
 
     .rootContainer {
         display: flex;
