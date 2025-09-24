@@ -42,6 +42,7 @@ const btnPad = 0.01;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 const btnLabels = ["A/J", "S/K", "D/L"];
 
+
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
 const cloudPresenceDuration = 3000;
@@ -53,7 +54,7 @@ const cloudSprites = spriteNames.map(sN => {
     return s;
 })
 
-const interactionThreshold = 350;
+const interactionThreshold = 280;
 const vfxDuration = 200;
 
 const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;
@@ -146,6 +147,9 @@ export class RhythmRenderer {
         this.musicPlayer.currentTime = 0;
 
         this.songData = notes;
+        this.songData.forEach(note => {
+            note.noteState = noteState.untouched;
+        });
 
         let lastNote = this.songData[this.songData.length - 1]
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
@@ -167,6 +171,8 @@ export class RhythmRenderer {
         this.duration = this.empty;
         this.musicPlayer.pause();
         this.musicPlayer.song = undefined;
+        this.songData = [];
+        this.points = 0;
     }
 
     setupEvents() {
@@ -362,7 +368,6 @@ export class RhythmRenderer {
     render() {
         this.ctx.save();
         this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
-
         // update canvas size before rendering to avoid flicker
         if (this.canvas.width !== this.pkg.w || this.canvas.height !== this.pkg.h) {
             this.canvas.width = this.pkg.w;
@@ -535,7 +540,7 @@ export class RhythmRenderer {
     }
 
     addBtnVfx(track: number, hit: boolean) {
-        let vfx = new cImg(this.pkg, trackLength - 35 / this.canvas.width, trackYPositions[track] + trackWidth / 2 - 18 / this.canvas.height, [hit ? "hit" : "miss"])
+        let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[track] + .0125, [hit ? "hit" : "miss"])
         vfx.startTime = this.musicPlayer.currentTime;
         this.vfxObjs.push(vfx);
     }

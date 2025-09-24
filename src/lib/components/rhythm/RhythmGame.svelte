@@ -133,6 +133,7 @@
             renderer.songData.length > 0
         ) {
             renderer.startSong();
+            canvas?.focus();
         }
     });
 
@@ -174,7 +175,7 @@
             }}
         />
     {/if}
-    
+
     {#if GameState.isGameEnded}
         <SlideShow
             slides={rhythmGameConfig.ending.slides}
@@ -195,7 +196,6 @@
             })}
         />
     {/if}
-
     <ScalableFrame style="flex:1;" >
     <div class="uistuff beatMapInput">
         <label>
@@ -254,7 +254,7 @@
             <img class="icon" src="/rhythm/pause.png" alt="?" />
         </HoverEffectButton>
     </div>
-  
+    
     <div style="position: absolute; right: 20px; top: 20px;;">
         <div
             class="mt-auto mb-8 relative border border-border bg-background h-11"
@@ -281,7 +281,6 @@
     </div>
 </ScalableFrame>
 </div>
-
 <style>
     .beatMapInput {
         top: 250px;
