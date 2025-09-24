@@ -122,30 +122,7 @@ export class MazeGame {
         }
         this.ctx = ctx;
 
-        // put player in a room
-        const firstRoom = this.mazeGenerator.rooms[0];
-        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
-        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
-
-        let foundSafeSpot = false;
-        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
-
-        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
-            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
-                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
-                    console.log("Found safe spot for player:", x, y);
-                    playerStartX = x;
-                    playerStartY = y;
-                    foundSafeSpot = true;
-                }
-            }
-        }
-
-        const playerStartPos = new Vector2(
-            (playerStartX + 0.5) * CELL_SIZE,
-            (playerStartY + 0.5) * CELL_SIZE
-        );
-
+        const playerStartPos = this.findHallwayStartPosition();
         this.player = new Player(playerStartPos);
         this.detectMobileMode();
         this.init();
@@ -168,6 +145,56 @@ export class MazeGame {
             // @ts-ignore
             this.keyMem[key] = false;
         }
+    }
+
+    findHallwayStartPosition(): Vector2 {
+        // Find a hallway position near the center of the maze
+        const centerX = Math.floor(this.maze.width / 2);
+        const centerY = Math.floor(this.maze.height / 2);
+
+        let playerStartX = centerX;
+        let playerStartY = centerY;
+        let foundHallwaySpot = false;
+
+        // Search in expanding circles from the center for a hallway position
+        for (let radius = 0; radius < Math.max(this.maze.width, this.maze.height) / 2 && !foundHallwaySpot; radius++) {
+            for (let dx = -radius; dx <= radius && !foundHallwaySpot; dx++) {
+                for (let dy = -radius; dy <= radius && !foundHallwaySpot; dy++) {
+                    // Only check cells at the current radius (not already checked)
+                    if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+
+                    const x = centerX + dx;
+                    const y = centerY + dy;
+
+                    // Check bounds
+                    if (x < 0 || x >= this.maze.width || y < 0 || y >= this.maze.height) continue;
+
+                    const cellIndex = y * this.maze.width + x;
+                    const cell = this.maze.map[cellIndex];
+
+                    // Check if it's a hallway 
+                    const roomId = ((cell & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
+                    if (cell !== CELL_TYPE.SOLID && roomId === 0) {
+                        playerStartX = x;
+                        playerStartY = y;
+                        foundHallwaySpot = true;
+                    }
+                }
+            }
+        }
+
+        // Fallback just in case
+        if (!foundHallwaySpot) {
+            console.log("No hallway found near center, so using first room as fallback");
+            const firstRoom = this.mazeGenerator.rooms[0];
+            playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
+            playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
+        }
+
+        return new Vector2(
+            (playerStartX + 0.5) * CELL_SIZE,
+            (playerStartY + 0.5) * CELL_SIZE
+        );
     }
 
     init() {
@@ -266,28 +293,8 @@ export class MazeGame {
         this.currentRoomId = 0;
         this.roomsCleared.clear();
 
-        // Reset player position to first room
-        const firstRoom = this.mazeGenerator.rooms[0];
-        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
-        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
-
-        let foundSafeSpot = false;
-        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
-
-        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
-            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
-                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
-                    playerStartX = x;
-                    playerStartY = y;
-                    foundSafeSpot = true;
-                }
-            }
-        }
-
-        const playerStartPos = new Vector2(
-            (playerStartX + 0.5) * CELL_SIZE,
-            (playerStartY + 0.5) * CELL_SIZE
-        );
+        // Reset player position to hallway near center
+        const playerStartPos = this.findHallwayStartPosition();
 
         // Reset player
         this.player.pos = playerStartPos;

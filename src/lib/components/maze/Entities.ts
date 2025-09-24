@@ -266,6 +266,9 @@ export class Player extends Entity {
     onCollision(other: Entity, game?: any): void {
 
         if (other.metadata.entityType === ENTITY_TYPE.enemy && this.immuneDuration <= 0) {
+            if ((other as any).isDead) {
+                return;
+            }
             this.applyImpulse(this.pos.sub(other.pos).normalize().muli(800));
             this.immuneDuration = 1;
 
