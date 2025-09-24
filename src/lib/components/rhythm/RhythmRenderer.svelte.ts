@@ -85,6 +85,7 @@ export class RhythmRenderer {
 
     staticObjs: Component[] = [];
     vfxObjs: Component[] = [];
+    notesVfx: Component | null = null;
 
     otter_index = -1;
     otter_timer = 0;
@@ -105,6 +106,11 @@ export class RhythmRenderer {
 
     musicPlayer: GameMusicPlayer = new GameMusicPlayer();
     duration: number = this.empty;
+
+    // variables for fade control
+    fadeStartTime = this.empty;
+    fadeDuration = 1000;
+    isFadingOut: boolean = false;
 
     constructor(canvas: HTMLCanvasElement, mobileView: boolean) {
         this.canvas = canvas;
@@ -167,7 +173,7 @@ export class RhythmRenderer {
         this.heldKeys = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
-
+        this.notesVfx = null;
         this.duration = this.empty;
         this.musicPlayer.pause();
         this.musicPlayer.song = undefined;
@@ -339,7 +345,8 @@ export class RhythmRenderer {
         }
 
         this.addBtnVfx(index, hit);
-        this.setOtter(hit ? 2 : 3, 200);
+        this.addNotesVfx(hit);
+        this.setOtter(hit ? 2 : 3, 100);
     }
 
     keyUp(track: number) {
@@ -356,6 +363,7 @@ export class RhythmRenderer {
         }
 
         this.setOtter(note.noteState === noteState.caught ? 2 : 3);
+        this.addNotesVfx(note.noteState === noteState.caught);
         this.heldKeys[track] = this.empty;
     }
 
@@ -377,6 +385,7 @@ export class RhythmRenderer {
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
+        this.renderNotesVfx();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
@@ -505,7 +514,7 @@ export class RhythmRenderer {
                     this.xStd(trackLength - .025),
                     this.yStd(trackYPositions[i] + .0125)
                 )
-                this.setOtter(2, 120);
+                this.setOtter(2, 1000);
             }
         });
     }
@@ -517,6 +526,31 @@ export class RhythmRenderer {
         this.vfxObjs = this.vfxObjs.filter(v => {
             return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
         })
+    }
+
+
+    renderNotesVfx() {
+        if (this.notesVfx) {
+            const elapsed = Date.now() - this.fadeStartTime;
+            let opacity = 1;
+
+            if (this.isFadingOut) {
+                opacity = 1 - Math.min(elapsed / this.fadeDuration, 1);
+            }
+
+            this.ctx.globalAlpha = opacity;
+            this.notesVfx.update();
+            this.ctx.globalAlpha = 1;
+
+            if (elapsed > this.fadeDuration && !this.isFadingOut) {
+                this.isFadingOut = true;
+                this.fadeStartTime = Date.now();
+            }
+
+            if (this.isFadingOut && opacity <= 0) {
+                this.notesVfx = null;
+            }
+        }
     }
 
     /**
@@ -538,6 +572,22 @@ export class RhythmRenderer {
     yStd(y: number) {
         return y * this.canvas.height;
     }
+
+    addNotesVfx(hit: boolean) {
+        const xPos = this.mobileView
+            ? 0.5 - 0.05
+            : btnPos - 0.05;
+        const yPos = this.mobileView
+            ? mobileSz.btnPos - 0.1
+            : 0.58 - 0.13;
+
+
+        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? "vfxNice" : "vfxBad"]);
+        this.notesVfx.startTime = this.musicPlayer.currentTime;
+        this.fadeStartTime = Date.now();
+        this.isFadingOut = false;
+    }
+
 
     addBtnVfx(track: number, hit: boolean) {
         let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[track] + .0125, [hit ? "hit" : "miss"])
