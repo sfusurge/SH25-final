@@ -162,7 +162,7 @@
                     imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
                     onClick={() => goto("/webtoon#3")}
                     header="[Ch 3] Let's See How You Struggle."
-                    text="Scummious and Shade's bond grows as Stormy and Sparky begin to make there way through the trials of the gods."
+                    text="Scummious and Shade's bond grows as Stormy and Sparky begin to make their way through the trials of the gods."
             />
         </div>        <LockedTile release="Releases [10/04/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
