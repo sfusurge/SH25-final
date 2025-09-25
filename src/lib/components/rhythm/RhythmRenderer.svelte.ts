@@ -85,6 +85,7 @@ export class RhythmRenderer {
 
     staticObjs: Component[] = [];
     vfxObjs: Component[] = [];
+    notesVfx: Component | null = null;
 
     otter_index = -1;
     otter_timer = 0;
@@ -105,6 +106,9 @@ export class RhythmRenderer {
 
     musicPlayer: GameMusicPlayer = new GameMusicPlayer();
     duration: number = this.empty;
+
+    // variables for fade control
+    isFadingOut: boolean = false;
 
     constructor(canvas: HTMLCanvasElement, mobileView: boolean) {
         this.canvas = canvas;
@@ -167,7 +171,7 @@ export class RhythmRenderer {
         this.heldKeys = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
-
+        this.notesVfx = null;
         this.duration = this.empty;
         this.musicPlayer.pause();
         this.musicPlayer.song = undefined;
@@ -235,7 +239,7 @@ export class RhythmRenderer {
 
         // cloud rendering
         this.staticObjs.push(
-            new cImg(this.pkg, 0.35, 0.4, ["pinkCloud"], 0, () => {
+            new cImg(this.pkg, 0.4, 0.5, ["pinkCloud"], 0, () => {
                 this.ctx.save();
                 this.ctx.globalAlpha = 1;
             })
@@ -243,7 +247,7 @@ export class RhythmRenderer {
 
         // otter
         this.otter_index = this.staticObjs.push(
-            new cImg(this.pkg, 0.45, 0.3 - (7 / this.canvas.height), [...OTTER_IMG], 0)
+            new cImg(this.pkg, 0.48, 0.4, [...OTTER_IMG], 0)
         ) - 1;
 
         this.otter_idle = window.setInterval(() => {
@@ -339,6 +343,7 @@ export class RhythmRenderer {
         }
 
         this.addBtnVfx(index, hit);
+        this.addNotesVfx(hit);
         this.setOtter(hit ? 2 : 3, 200);
     }
 
@@ -356,6 +361,7 @@ export class RhythmRenderer {
         }
 
         this.setOtter(note.noteState === noteState.caught ? 2 : 3);
+        this.addNotesVfx(note.noteState === noteState.caught);
         this.heldKeys[track] = this.empty;
     }
 
@@ -377,6 +383,7 @@ export class RhythmRenderer {
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
+        this.renderNotesVfx();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
@@ -505,7 +512,7 @@ export class RhythmRenderer {
                     this.xStd(trackLength - .025),
                     this.yStd(trackYPositions[i] + .0125)
                 )
-                this.setOtter(2, 120);
+                this.setOtter(2, 1000);
             }
         });
     }
@@ -517,6 +524,29 @@ export class RhythmRenderer {
         this.vfxObjs = this.vfxObjs.filter(v => {
             return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
         })
+    }
+
+
+    renderNotesVfx() {
+        if (this.notesVfx) {
+            const elapsed = this.musicPlayer.currentTime - this.notesVfx.startTime;
+
+            if (elapsed < 2000) {
+                let opacity = 1;
+
+                if (elapsed > 1000) {
+                    const fadeProgress = (elapsed - 1000) / 1000;
+                    opacity = Math.max(0, 1 - fadeProgress);
+                }
+
+                this.ctx.save();
+                this.ctx.globalAlpha = opacity;
+                this.notesVfx.update();
+                this.ctx.restore();
+            } else {
+                this.notesVfx = null;
+            }
+        }
     }
 
     /**
@@ -538,6 +568,21 @@ export class RhythmRenderer {
     yStd(y: number) {
         return y * this.canvas.height;
     }
+
+    addNotesVfx(hit: boolean) {
+        const xPos = this.mobileView
+            ? 0.5 - 0.05
+            : btnPos - 0.05;
+        const yPos = this.mobileView
+            ? mobileSz.btnPos - 0.1
+            : 0.58 - 0.13;
+
+
+        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? "vfxNice" : "vfxBad"]);
+        this.notesVfx.startTime = this.musicPlayer.currentTime;
+        this.isFadingOut = false;
+    }
+
 
     addBtnVfx(track: number, hit: boolean) {
         let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[track] + .0125, [hit ? "hit" : "miss"])
