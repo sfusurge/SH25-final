@@ -108,8 +108,6 @@ export class RhythmRenderer {
     duration: number = this.empty;
 
     // variables for fade control
-    fadeStartTime = this.empty;
-    fadeDuration = 1000;
     isFadingOut: boolean = false;
 
     constructor(canvas: HTMLCanvasElement, mobileView: boolean) {
@@ -241,7 +239,7 @@ export class RhythmRenderer {
 
         // cloud rendering
         this.staticObjs.push(
-            new cImg(this.pkg, 0.35, 0.4, ["pinkCloud"], 0, () => {
+            new cImg(this.pkg, 0.4, 0.5, ["pinkCloud"], 0, () => {
                 this.ctx.save();
                 this.ctx.globalAlpha = 1;
             })
@@ -249,7 +247,7 @@ export class RhythmRenderer {
 
         // otter
         this.otter_index = this.staticObjs.push(
-            new cImg(this.pkg, 0.45, 0.3 - (7 / this.canvas.height), [...OTTER_IMG], 0)
+            new cImg(this.pkg, 0.48, 0.4, [...OTTER_IMG], 0)
         ) - 1;
 
         this.otter_idle = window.setInterval(() => {
@@ -346,7 +344,7 @@ export class RhythmRenderer {
 
         this.addBtnVfx(index, hit);
         this.addNotesVfx(hit);
-        this.setOtter(hit ? 2 : 3, 100);
+        this.setOtter(hit ? 2 : 3, 200);
     }
 
     keyUp(track: number) {
@@ -531,23 +529,21 @@ export class RhythmRenderer {
 
     renderNotesVfx() {
         if (this.notesVfx) {
-            const elapsed = Date.now() - this.fadeStartTime;
-            let opacity = 1;
+            const elapsed = this.musicPlayer.currentTime - this.notesVfx.startTime;
 
-            if (this.isFadingOut) {
-                opacity = 1 - Math.min(elapsed / this.fadeDuration, 1);
-            }
+            if (elapsed < 2000) {
+                let opacity = 1;
 
-            this.ctx.globalAlpha = opacity;
-            this.notesVfx.update();
-            this.ctx.globalAlpha = 1;
+                if (elapsed > 1000) {
+                    const fadeProgress = (elapsed - 1000) / 1000;
+                    opacity = Math.max(0, 1 - fadeProgress);
+                }
 
-            if (elapsed > this.fadeDuration && !this.isFadingOut) {
-                this.isFadingOut = true;
-                this.fadeStartTime = Date.now();
-            }
-
-            if (this.isFadingOut && opacity <= 0) {
+                this.ctx.save();
+                this.ctx.globalAlpha = opacity;
+                this.notesVfx.update();
+                this.ctx.restore();
+            } else {
                 this.notesVfx = null;
             }
         }
@@ -584,7 +580,6 @@ export class RhythmRenderer {
 
         this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? "vfxNice" : "vfxBad"]);
         this.notesVfx.startTime = this.musicPlayer.currentTime;
-        this.fadeStartTime = Date.now();
         this.isFadingOut = false;
     }
 
