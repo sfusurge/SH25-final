@@ -1,7 +1,7 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
 import { Vector2 } from "$lib/Vector2";
-import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, WalkerEntity } from "./Entities";
+import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, WalkerEntity, DoorEntity } from "./Entities";
 
 
 export type Room = {
@@ -37,17 +37,22 @@ export class RoomLayout {
     entities: Entity[];
     staticEntities: (Entity | undefined)[][] = []; // solid, such as rocks / scroll, is always in depth sorted order.
     dynamicEntities: Entity[] = [];
+    needsDoor: boolean;
 
-    constructor(width: number, height: number, left: number, top: number, right: number, bottom: number, obstacleMap: number[][]) {
+    constructor(width: number, height: number, left: number, top: number, right: number, bottom: number, obstacleMap: number[][], needsDoor: boolean) {
         this.width = width;
         this.height = height;
         this.left = left;
         this.top = top;
         this.right = right;
         this.bottom = bottom;
+        this.needsDoor = needsDoor;
 
         this.entities = [];
         const HALFCELL = CELL_SIZE / 2;
+
+        const emptyPositions: { row: number; col: number; pos: Vector2 }[] = [];
+
         for (let row = 0; row < height; row++) {
             this.staticEntities.push(new Array(this.width).fill(undefined));
             for (let col = 0; col < width; col++) {
@@ -78,10 +83,19 @@ export class RoomLayout {
                     }
                     this.entities.push(entity);
                 } else {
+                    emptyPositions.push({ row, col, pos });
                     this.staticEntities[row][col] = undefined;
                 }
-
             }
+        }
+
+        // Second pass to place door
+        if (this.needsDoor && emptyPositions.length > 0) {
+            const randomIndex = Math.floor(Math.random() * emptyPositions.length);
+            const { row, col, pos } = emptyPositions[randomIndex];
+            const doorEntity = new DoorEntity(pos);
+            this.staticEntities[row][col] = doorEntity;
+            this.entities.push(doorEntity);
         }
     }
 
