@@ -21,6 +21,9 @@
         return () => window.removeEventListener('resize', updateSize);
     });
 
+    $: mainInKindPartners = companies.inKind.filter(company => !company.overflow);
+    $: overflowPartners = companies.inKind.find(item => item.overflow)?.overflow || [];
+
 </script>
 
 <div class="w-full h-screen overflow-y-auto py-8 ">
@@ -28,22 +31,6 @@
         <h1 class="header top-0 bg-inherit z-10 py-4">
             Our Sponsors
         </h1>
-
-<!--        <div class="flex">-->
-<!--            <div class="flex flex-col gap-4 w-full">-->
-<!--                {#each companies.monetary.gold as company}-->
-<!--                    <SponsorFrame-->
-<!--                            height={height}-->
-<!--                            width={width}-->
-<!--                            src={company.picture}-->
-<!--                            alt={company.name}-->
-<!--                            href={company.link}-->
-<!--                            padding={company.padding}-->
-<!--                    />-->
-<!--                {/each}-->
-<!--            </div>-->
-
-<!--        </div>-->
 
         <div class="flex">
             <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-x-15 gap-y-10 w-full">
@@ -85,7 +72,7 @@
 
         <div class="flex">
             <div class="grid grid-cols-1 lg:grid-cols-3 items-center gap-6 w-full">
-                {#each companies.inKind as company}
+                {#each mainInKindPartners as company}
                     {#if company.name.toLowerCase() !== 'buffer'}
                         <SponsorFrame
                                 height="93px"
@@ -101,6 +88,23 @@
                 {/each}
             </div>
         </div>
+
+        {#if overflowPartners.length > 0}
+            <div class="flex">
+                <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-6 w-full">
+                    {#each overflowPartners as company}
+                        <SponsorFrame
+                                height="93px"
+                                width="220px"
+                                src={company.picture}
+                                alt={company.name}
+                                href={company.link}
+                                padding={company.padding}
+                        />
+                    {/each}
+                </div>
+            </div>
+        {/if}
     </div>
 </div>
 
