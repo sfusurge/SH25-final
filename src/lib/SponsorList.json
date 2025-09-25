@@ -100,6 +100,19 @@
         "picture": "/assets/sponsors/Monetary/Logo/Chang/Chang-Logo-White-2.png",
         "link": "https://www.sfu.ca/chang-institute/home/",
         "padding": "0px"
+      },
+      {
+        "name": "buffer"
+      },
+      {
+        "name": "Synexus",
+        "tier": "Bronze",
+        "picture": "/assets/sponsors/Monetary/Logo/Synexus/synexus.png",
+        "link": "https://www.linkedin.com/company/synexus-labs/",
+        "padding": "0px"
+      },
+      {
+        "name": "buffer"
       }
     ]
   },
@@ -213,16 +226,38 @@
       "padding": "8px"
     },
     {
-      "name": "buffer"
-    },
-    {
       "name": "Lattech",
       "picture": "/assets/sponsors/In-Kind/Logos/Lattech/lattech.png",
       "link": "https://litt.ly/lattech",
       "padding": "0px"
     },
     {
-      "name": "buffer"
+      "name": "n8n",
+      "picture": "/assets/sponsors/In-Kind/Logos/n8n/n8n_pink+white_logo.svg",
+      "link": "https://n8n.io/",
+      "padding": "8px"
+    },
+    {
+      "name": "Crust n Crunch",
+      "picture": "/assets/sponsors/In-Kind/Logos/Crust n Crunch/CRUST-N-CRUNCH.png",
+      "link": "https://crustncrunch.com/",
+      "padding": "0px"
+    },
+    {
+      "overflow": [
+        {
+          "name": "InWorld AI",
+          "picture": "/assets/sponsors/In-Kind/Logos/InWorld/inworld.svg",
+          "link": "https://inworld.ai/",
+          "padding": "8px"
+        },
+        {
+          "name": "Cactus Club Cafe",
+          "picture": "/assets/sponsors/In-Kind/Logos/Cactus/cactus-club-logo.svg",
+          "link": "https://www.cactusclubcafe.com/",
+          "padding": "8px"
+        }
+      ]
     }
   ]
 }
