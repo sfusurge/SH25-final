@@ -25,16 +25,16 @@ const scoreBoundsPercentage: boundRange = { min: 0.4, max: 0.75 };
 
 const mobileSz = {
     trackXs: [0.095, 0.38, 0.665], //track space: 0.72, between space: 0.045, board space: 0.9
-    trackYPos: 0.325,
+    trackYPos: 0.3,
     trackWidth: 0.24,
     trackLength: 0.625,
 
     btnPos: 0.825,
     btnPad: 0.07,
-    btnRadius: 0.24/2 - 0.07,
+    btnRadius: 280 / 2 / 3000 * 0.625,
 
-    cloudSpawnPercent: 0.325,
-    cloudDespawnPercent: 0.925,
+    cloudSpawnPercent: 0.3,
+    cloudDespawnPercent: 0.975,
 
 }
 const trackXPos = 0.125;
@@ -267,7 +267,7 @@ export class RhythmRenderer {
         this.staticObjs.push(
             new cQuad(this.pkg,
                 this.mobileView ? 0.05 : 0.1,
-                this.mobileView ? 0.3 : 0.58,
+                this.mobileView ? 0.275 : 0.58,
                 this.mobileView ? 0.9 : 0.8,
                 this.mobileView ? 0.675 : 0.37,
                 "fill",
@@ -428,7 +428,7 @@ export class RhythmRenderer {
         }
 
         const calcYByProgress = (prog: number, additionalShift: number = 0) => {
-            return this.yStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
+            return this.yStd(mobileSz.cloudSpawnPercent + prog * (mobileSz.cloudDespawnPercent - mobileSz.cloudSpawnPercent)) + additionalShift;
         }
 
         this.ctx.lineWidth = 10;
@@ -449,17 +449,23 @@ export class RhythmRenderer {
             }
 
             let rPercent = n.timing < lowTime ? 1 : 1 - ((n.timing - lowTime) / timeRange);
-            let rightLineAnchor = calcXByProgress(rPercent);
+            let rightLineAnchor = this.mobileView ? calcYByProgress(rPercent) : calcXByProgress(rPercent);
 
             let lPercent = n.timing + n.duration! > highTime ? 0 : 1 - ((n.timing + n.duration! - lowTime) / timeRange);
-            let leftLineAnchor = calcXByProgress(lPercent);
+            let leftLineAnchor = this.mobileView ? calcYByProgress(lPercent) : calcXByProgress(lPercent);
 
             const lineOpacity = ['DD', 'FF', 'EE', '88'];
             this.ctx.strokeStyle = `#${btnColors[n.trackNo]}${lineOpacity[n.noteState]}`;
             this.ctx.beginPath()
-            let lineY = this.yStd(trackYPositions[n.trackNo] + cloudVerticalDisplace);
-            this.ctx.moveTo(leftLineAnchor, lineY);
-            this.ctx.lineTo(rightLineAnchor, lineY);
+            if(this.mobileView){
+                let lineX = this.xStd(mobileSz.trackXs[n.trackNo] + mobileSz.trackWidth / 2);
+                this.ctx.moveTo(lineX, leftLineAnchor);
+                this.ctx.lineTo(lineX, rightLineAnchor);
+            }else{
+                let lineY = this.yStd(trackYPositions[n.trackNo] + cloudVerticalDisplace);
+                this.ctx.moveTo(leftLineAnchor, lineY);
+                this.ctx.lineTo(rightLineAnchor, lineY);
+            }
             this.ctx.stroke();
         }
 
@@ -499,8 +505,7 @@ export class RhythmRenderer {
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
                 this.mobileView ? this.xStd(mobileSz.trackXs[v.trackNo] + mobileSz.trackWidth / 2) 
-                    - cloudSprites[v.trackNo].width / 2 
-                    : progDist,
+                    - cloudSprites[v.trackNo].width / 2 : progDist,
                 this.mobileView ? progDist :
                     this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
             )
@@ -525,8 +530,8 @@ export class RhythmRenderer {
             } else {
                 this.ctx.drawImage(
                     hitVfx,
-                    this.xStd(trackLength - .025),
-                    this.yStd(trackYPositions[i] + .0125)
+                    this.xStd(this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 - .045 : (trackLength - .025)),
+                    this.yStd(this.mobileView ? mobileSz.btnPos - .0125 : (trackYPositions[i] + .0125))
                 )
                 this.setOtter(2, 1000);
             }
@@ -601,7 +606,11 @@ export class RhythmRenderer {
 
 
     addBtnVfx(track: number, hit: boolean) {
-        let vfx = new cImg(this.pkg, trackLength - .025, trackYPositions[track] + .0125, [hit ? "hit" : "miss"])
+        let vfx = new cImg(
+            this.pkg, 
+            this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025, 
+            this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125, 
+            [hit ? "hit" : "miss"])
         vfx.startTime = this.musicPlayer.currentTime;
         this.vfxObjs.push(vfx);
     }
