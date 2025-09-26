@@ -7,7 +7,7 @@ export interface RenderPkg {
     h: number;
 }
 
-export function getSrc(file: string){
+export function getSrc(file: string) {
     return `/rhythm/${file}.webp`
 }
 
@@ -84,12 +84,17 @@ export class cImg extends component {
     currentSprite: number;
     spriteForms: HTMLImageElement[];
 
+    static imageCache: { [key: string]: HTMLImageElement } = {};
     constructor(pkg: RenderPkg, x: number, y: number, spriteLocations: string[], currentId: number = 0, setup = () => { }) {
         super(pkg, x, y, setup);
         this.currentSprite = currentId;
         this.spriteForms = spriteLocations.map(loc => {
+            if (loc in cImg.imageCache) {
+                return cImg.imageCache[loc];
+            }
             let s: HTMLImageElement = new Image();
             s.src = getSrc(loc);
+            cImg.imageCache[loc] = s;
             return s;
         })
     }
@@ -121,11 +126,11 @@ export class cText extends component {
     }
 }
 
-export  function parseBeatMap(beatMapString: string) {
+export function parseBeatMap(beatMapString: string) {
     const out: RhythmNote[] = [];
     let title: string = "", difficulty: string = "";
     try {
-        const lines =beatMapString.split("\n");
+        const lines = beatMapString.split("\n");
 
         title = lines[0];
         title = title.slice(title.indexOf("#"));
@@ -139,7 +144,7 @@ export  function parseBeatMap(beatMapString: string) {
             out.push({
                 trackNo: parseFloat(_trackNo),
                 timing: Math.floor(parseFloat(_time) * msPerSec),
-                duration: _duration ? Math.floor(parseFloat(_duration) * msPerSec): undefined,
+                duration: _duration ? Math.floor(parseFloat(_duration) * msPerSec) : undefined,
                 noteState: noteState.untouched
             })
         }
