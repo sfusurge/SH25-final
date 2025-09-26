@@ -38,6 +38,7 @@ export class RoomLayout {
     staticEntities: (Entity | undefined)[][] = []; // solid, such as rocks / scroll, is always in depth sorted order.
     dynamicEntities: Entity[] = [];
     needsDoor: boolean;
+    doorLocation?: [number, number];
 
     constructor(width: number, height: number, left: number, top: number, right: number, bottom: number, obstacleMap: number[][], needsDoor: boolean) {
         this.width = width;
@@ -83,7 +84,10 @@ export class RoomLayout {
                     }
                     this.entities.push(entity);
                 } else {
-                    emptyPositions.push({ row, col, pos });
+                    if (row !== height - 1) { 
+                        // Prevent being hidden by bottom wall
+                        emptyPositions.push({ row, col, pos });
+                    }
                     this.staticEntities[row][col] = undefined;
                 }
             }
@@ -96,6 +100,8 @@ export class RoomLayout {
             const doorEntity = new DoorEntity(pos);
             this.staticEntities[row][col] = doorEntity;
             this.entities.push(doorEntity);
+            console.log(`Door placed at ${row}, ${col}`);
+            this.doorLocation = [row, col];
         }
     }
 

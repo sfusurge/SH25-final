@@ -2,11 +2,20 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { Player, ProjectileEntity, ENTITY_TYPE } from "./Entities";
+import { Player, ProjectileEntity, ENTITY_TYPE, DoorEntity } from "./Entities";
 import { GameState } from "./MazeGameState.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
 })
+
+const mazeConfig = {
+    width: 40,
+    height: 40,
+    roomAttempts: 50,
+    windingPercent: 50,
+    randomOpenPercent: 0.03
+};
+
 
 // Direction constants
 const LEFT = 0;
@@ -60,11 +69,11 @@ class EntityGrid {
 export class MazeGame {
     // TODO refactor for regenerating rooms
     mazeGenerator = new MazeGenerator(
-        40, // maze width
-        40, // maze height
-        50, // attempts to generate rooms
-        50, // winding percent for paths: 0 is straight corridors, 100 is max branching
-        0.03 // random open percent: chance to create openings in a wall where the two regions it connects already are connected
+        mazeConfig.width,
+        mazeConfig.height,
+        mazeConfig.roomAttempts,
+        mazeConfig.windingPercent,
+        mazeConfig.randomOpenPercent
     );
 
     maze = this.mazeGenerator.generate();
@@ -74,7 +83,7 @@ export class MazeGame {
     roomsCleared = new Map<number, boolean>(); // Track which rooms have been cleared of enemies
 
     // Overlay transition state
-    overlayOpacity = 0; 
+    overlayOpacity = 0;
     overlayTargetOpacity = 0;
     overlayTransitionSpeed = 6; // percent change per frame
     lastOverlayState = false; // Track previous overlay state for transition detection
@@ -280,11 +289,11 @@ export class MazeGame {
     reset() {
         // Generate a new maze
         this.mazeGenerator = new MazeGenerator(
-            40, // maze width
-            40, // maze height
-            50, // attempts to generate rooms
-            50, // winding percent for paths
-            0.03 // random open percent
+            mazeConfig.width,
+            mazeConfig.height,
+            mazeConfig.roomAttempts,
+            mazeConfig.windingPercent,
+            mazeConfig.randomOpenPercent
         );
 
         this.maze = this.mazeGenerator.generate();
@@ -756,6 +765,19 @@ export class MazeGame {
 
         if (this.countEnemiesInRoom(roomId) === 0) {
             this.roomsCleared.set(roomId, true);
+            if (roomId === 1) { // room 1 has door
+
+                const roomLayout = this.idToRoomLayout[roomId];
+                const doorX = roomLayout.doorLocation?.[1];
+                const doorY = roomLayout.doorLocation?.[0];
+                if (doorX !== undefined && doorY !== undefined) {
+                    const entity = roomLayout.staticEntities[doorY][doorX];
+                    if (entity && entity.metadata.entityType === ENTITY_TYPE.door) {
+                        const doorEntity = entity as DoorEntity;
+                        doorEntity.isLocked = false;
+                    }
+                }
+            }
         }
     }
 
