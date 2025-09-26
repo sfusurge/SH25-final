@@ -197,27 +197,6 @@
         />
     {/if}
     <ScalableFrame style="flex:1;" >
-    <div class="uistuff beatMapInput">
-        <label>
-            <!-- TODO: placeholder, remove -->
-
-            Beatmap:
-            <input accept=".beatmap" bind:files={beatmapFile} type="file" />
-        </label>
-    </div>
-
-    <div class="uistuff songFileInput">
-        <label>
-            <!-- TODO: placeholder, remove -->
-
-            SongMp3:
-            <input accept=".mp3" bind:files={musicFile} type="file" />
-        </label>
-    </div>
-
-    {#if beatmapFile && musicFile}
-        <div class="uistuff testSong" on:click={testSongUpload}>Test</div>
-    {/if}
 
     <div class="uistuff songSelection">
         <label for="songOption">
