@@ -64,6 +64,7 @@ const interactionThreshold = 350;
 const vfxDuration = 200;
 
 const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;
+type OtterState = "idle" | "idle2" | "hit" | "miss";
 
 export interface RhythmNote {
     trackNo: number;
@@ -93,6 +94,8 @@ export class RhythmRenderer {
     vfxObjs: Component[] = [];
     notesVfx: Component | null = null;
 
+
+    otter_state = $state('idle')
     otter_index = -1;
     otter_timer = 0;
     otter_idle = 0;
@@ -227,8 +230,8 @@ export class RhythmRenderer {
             this.pkg.w = box.width * this.dpr;
             this.pkg.h = box.height * this.dpr;
 
-            // this.canvas.width = this.pkg.w;
-            // this.canvas.height = this.pkg.h;
+            this.canvas.width = this.pkg.w;
+            this.canvas.height = this.pkg.h;
         }
 
         this.resizeObserver = new ResizeObserver((entries) => {
@@ -243,18 +246,6 @@ export class RhythmRenderer {
 
     setupEnvironment() {
 
-        // cloud rendering
-        this.staticObjs.push(
-            new cImg(this.pkg, 0.4, 0.5, ["pinkCloud"], 0, () => {
-                this.ctx.save();
-                this.ctx.globalAlpha = 1;
-            })
-        );
-
-        // otter
-        this.otter_index = this.staticObjs.push(
-            new cImg(this.pkg, 0.48, 0.4, [...OTTER_IMG], 0)
-        ) - 1;
 
         this.otter_idle = window.setInterval(() => {
             if (this.otter_index < 0) return;
@@ -350,7 +341,7 @@ export class RhythmRenderer {
 
         this.addBtnVfx(index, hit);
         this.addNotesVfx(hit);
-        this.setOtter(hit ? 2 : 3, 200);
+        this.setOtter(hit ? 2 : 3, 1000);
     }
 
     keyUp(track: number) {
@@ -366,7 +357,7 @@ export class RhythmRenderer {
             note.noteState = noteState.missed;
         }
 
-        this.setOtter(note.noteState === noteState.caught ? 2 : 3);
+        this.setOtter(note.noteState === noteState.caught ? 2 : 3, 1000);
         this.addNotesVfx(note.noteState === noteState.caught);
         this.heldKeys[track] = this.empty;
     }
@@ -409,7 +400,7 @@ export class RhythmRenderer {
         let cTime = this.musicPlayer.currentTime;
 
         // pos/percent of btn to screen, relative to length of track
-        const btnTrackPercent = this.mobileView ? 
+        const btnTrackPercent = this.mobileView ?
             ((mobileSz.btnPos - mobileSz.cloudSpawnPercent) / (mobileSz.cloudDespawnPercent - mobileSz.cloudSpawnPercent))
             : ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
 
@@ -457,11 +448,11 @@ export class RhythmRenderer {
             const lineOpacity = ['DD', 'FF', 'EE', '88'];
             this.ctx.strokeStyle = `#${btnColors[n.trackNo]}${lineOpacity[n.noteState]}`;
             this.ctx.beginPath()
-            if(this.mobileView){
+            if (this.mobileView) {
                 let lineX = this.xStd(mobileSz.trackXs[n.trackNo] + mobileSz.trackWidth / 2);
                 this.ctx.moveTo(lineX, leftLineAnchor);
                 this.ctx.lineTo(lineX, rightLineAnchor);
-            }else{
+            } else {
                 let lineY = this.yStd(trackYPositions[n.trackNo] + cloudVerticalDisplace);
                 this.ctx.moveTo(leftLineAnchor, lineY);
                 this.ctx.lineTo(rightLineAnchor, lineY);
@@ -489,7 +480,7 @@ export class RhythmRenderer {
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             // this.ctx.strokeStyle = "orange";
             let progDist = this.mobileView ?
-                calcYByProgress(prog, -(cloudSprites[v.trackNo].height / 2)): 
+                calcYByProgress(prog, -(cloudSprites[v.trackNo].height / 2)) :
                 calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
             // this.ctx.strokeRect(
             //     progDist,
@@ -504,7 +495,7 @@ export class RhythmRenderer {
             }
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
-                this.mobileView ? this.xStd(mobileSz.trackXs[v.trackNo] + mobileSz.trackWidth / 2) 
+                this.mobileView ? this.xStd(mobileSz.trackXs[v.trackNo] + mobileSz.trackWidth / 2)
                     - cloudSprites[v.trackNo].width / 2 : progDist,
                 this.mobileView ? progDist :
                     this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
@@ -526,7 +517,7 @@ export class RhythmRenderer {
                 n.noteState = noteState.missed;
                 this.heldKeys[i] = this.empty;
                 this.addBtnVfx(i, false);
-                this.setOtter(3);
+                this.setOtter(3, 1000);
             } else {
                 this.ctx.drawImage(
                     hitVfx,
@@ -607,24 +598,28 @@ export class RhythmRenderer {
 
     addBtnVfx(track: number, hit: boolean) {
         let vfx = new cImg(
-            this.pkg, 
-            this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025, 
-            this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125, 
+            this.pkg,
+            this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
+            this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
             [hit ? "hit" : "miss"])
         vfx.startTime = this.musicPlayer.currentTime;
         this.vfxObjs.push(vfx);
     }
 
-    setOtter(index: number, ms = 1000) {
-        if (this.otter_index < 0) return;
-        const cur = this.staticObjs[this.otter_index] as cImg;
-        cur.currentSprite = index;
+    setOtter(index: number, ms: number) {
+        if (index === 2) {
+            this.otter_state = "hit";
+        } else if (index === 3) {
+            this.otter_state = "miss";
+        } else {
+            this.otter_state = "idle";
+        }
+
+        // reset after 1 second
         clearTimeout(this.otter_timer);
         this.otter_timer = window.setTimeout(() => {
-            const def = this.staticObjs[this.otter_index] as cImg;
-            if (def) def.currentSprite = 0;
+            this.otter_state = "idle";
         }, ms);
-
     }
 
     pauseGame() {

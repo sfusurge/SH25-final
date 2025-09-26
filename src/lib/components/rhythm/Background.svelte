@@ -28,7 +28,8 @@
             <div
                 class="movingBg"
                 style="animation: scroll {backgroundLoopDuration -
-                    idx * animationSpeedDifferenceFactor}s linear infinite; z-index: {idx}"
+                    idx *
+                        animationSpeedDifferenceFactor}s linear infinite; z-index: {idx}"
             >
                 <img src="/rhythm/{bg}.{imgType}" />
                 <img src="/rhythm/{bg}.{imgType}" />
@@ -36,7 +37,7 @@
         {/if}
     {/each}
 
-    <img src="/rhythm/sun1.webp" alt="" class="static" style="opacity: 0.4;"/>
+    <img src="/rhythm/sun1.webp" alt="" class="static" style="opacity: 0.4;" />
     <img src="/rhythm/sun2.webp" alt="" class="static" />
 </div>
 
@@ -85,12 +86,12 @@
 
     @keyframes -global-scroll {
         0% {
-            transform: translate(-50%, 0);
+            transform: translate(0%, 0);
         }
 
         100% {
             /* update here to avoid teleporting sprites */
-            transform: translate(50%, 0);
+            transform: translate(-100%, 0);
         }
     }
 </style>

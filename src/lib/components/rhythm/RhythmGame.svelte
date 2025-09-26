@@ -35,11 +35,16 @@
     });
 
     let displayScore = $state(0);
+    let otterState = $state("idle");
 
     // Update score separately with an effect
     $effect(() => {
         if (renderer?.points !== undefined) {
             displayScore = renderer.points;
+        }
+
+        if (renderer?.otter_state !== undefined) {
+            otterState = renderer.otter_state;
         }
     });
 
@@ -175,7 +180,7 @@
             }}
         />
     {/if}
-    
+
     {#if GameState.isGameEnded}
         <SlideShow
             slides={rhythmGameConfig.ending.slides}
@@ -196,69 +201,79 @@
             })}
         />
     {/if}
-    <ScalableFrame style="flex:1;" >
+    <ScalableFrame style="flex:1;">
+        <div class="uistuff songSelection">
+            <label for="songOption">
+                <!-- TODO: placeholder, remove -->
 
-    <div class="uistuff songSelection">
-        <label for="songOption">
-            <!-- TODO: placeholder, remove -->
+                Pick your song:
+                <select
+                    name="songOption"
+                    id="songOption"
+                    bind:value={selectedSongTitle}
+                >
+                    {#each Object.entries(songs) as [title, song], index (title)}
+                        <option value={title}>{title}</option>
+                    {/each}
+                </select>
+            </label>
+        </div>
 
-            Pick your song:
-            <select
-                name="songOption"
-                id="songOption"
-                bind:value={selectedSongTitle}
+        <Background />
+        <img class="cloud" src="/rhythm/pinkCloud.webp" alt="cloud" />
+        <canvas tabindex="1" bind:this={canvas}></canvas>
+
+        <div style="position: absolute; left: 20px; top: 20px;;">
+            <HoverEffectButton
+                className="h-11"
+                onClick={() => {
+                    if (GameState.isGameRunning) {
+                        pause();
+                        GameState.openInstructions(true);
+                    }
+                }}
+                square
+                large
             >
-                {#each Object.entries(songs) as [title, song], index (title)}
-                    <option value={title}>{title}</option>
-                {/each}
-            </select>
-        </label>
-    </div>
+                <img class="icon" src="/rhythm/pause.png" alt="?" />
+            </HoverEffectButton>
+        </div>
 
-    <Background />
-    <canvas tabindex="1" bind:this={canvas}></canvas>
-
-    <div style="position: absolute; left: 20px; top: 20px;;">
-        <HoverEffectButton
-            className="h-11"
-            onClick={() => {
-                if (GameState.isGameRunning) {
-                    pause();
-                    GameState.openInstructions(true);
-                }
-            }}
-            square
-            large
-        >
-            <img class="icon" src="/rhythm/pause.png" alt="?" />
-        </HoverEffectButton>
-    </div>
-    
-    <div style="position: absolute; right: 20px; top: 20px;;">
-        <div
-            class="mt-auto mb-8 relative border border-border bg-background h-11"
-        >
-            <RockFilter />
-            <div class="flex justify-between items-center h-full w-40">
-                <BlockPatternVertical className="h-11 mr-2" />
-                <div class="flex items-center gap-2">
-                    <img
-                        src="/assets/experiences/leaf/leafIcon.png"
-                        alt="Score Icon"
-                        height="15"
-                        width="16"
-                    />
-                    <span
-                        class="text-primary text-sm font-normal leading-normal opacity-100"
-                        style="font-family: var(--font-catriel);"
-                        >{displayScore}</span
-                    >
+        <div style="position: absolute; right: 20px; top: 20px;;">
+            <div
+                class="mt-auto mb-8 relative border border-border bg-background h-11"
+            >
+                <RockFilter />
+                <div class="flex justify-between items-center h-full w-40">
+                    <BlockPatternVertical className="h-11 mr-2" />
+                    <div class="flex items-center gap-2">
+                        <img
+                            src="/assets/experiences/leaf/leafIcon.png"
+                            alt="Score Icon"
+                            height="15"
+                            width="16"
+                        />
+                        <span
+                            class="text-primary text-sm font-normal leading-normal opacity-100"
+                            style="font-family: var(--font-catriel);"
+                            >{displayScore}</span
+                        >
+                    </div>
+                    <BlockPatternVertical className="h-11 rotate-180 ml-2" />
                 </div>
-                <BlockPatternVertical className="h-11 rotate-180 ml-2" />
             </div>
         </div>
-    </div>
-</ScalableFrame>
+
+        <img
+            class="otter"
+            src="/rhythm/{otterState === 'idle'
+                ? 'pinkResting1'
+                : otterState === 'hit'
+                  ? 'pinkCorrectHit'
+                  : 'pinkWrongHit'}.webp"
+            alt="otter"
+        />
+    </ScalableFrame>
 </div>
 
 <style>
@@ -293,6 +308,24 @@
         font-size: 0.75vw;
     }
 
+    .cloud {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -20%);
+        z-index: 0;
+        width: 30%;
+    }
+
+    .otter {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -70%);
+        z-index: 10;
+        width: 11%;
+    }
+
     .songSelection {
         top: 100px;
         left: 50%;
@@ -317,5 +350,7 @@
         position: absolute;
         left: 0;
         top: 0;
+        z-index: 0;
+        background-color: transparent;
     }
 </style>
