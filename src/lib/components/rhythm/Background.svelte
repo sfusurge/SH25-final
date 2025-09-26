@@ -15,29 +15,40 @@
         "cloud1",
     ];
 
-    const backgroundLoopDuration: number = 120;
+    const backgroundLoopDuration: number = 160;
     const animationSpeedDifferenceFactor: number = 5;
     const imgType: string = "webp";
 
     const staticImgNames: string[] = ["sun1", "sun2"];
 </script>
 
-
-
 <div id="rhythmBg" class="rhythmBg">
     {#each backgrounds as bg, idx}
-        <div
-            class="movingBg"
-            class:static={staticImgNames.includes(bg)}
-            style="background-image: url(/rhythm/{bg}.{imgType}); animation: scroll {backgroundLoopDuration -
-                idx * animationSpeedDifferenceFactor}s linear infinite; z-index:{idx};"
-        ></div>
+        {#if !staticImgNames.includes(bg)}
+            <div
+                class="movingBg"
+                style="animation: scroll {backgroundLoopDuration -
+                    idx * animationSpeedDifferenceFactor}s linear infinite; z-index: {idx}"
+            >
+                <img src="/rhythm/{bg}.{imgType}" />
+                <img src="/rhythm/{bg}.{imgType}" />
+            </div>
+        {/if}
     {/each}
+
+    <img src="/rhythm/sun1.webp" alt="" class="static" style="opacity: 0.4;"/>
+    <img src="/rhythm/sun2.webp" alt="" class="static" />
 </div>
 
 <style>
     .static {
-        background-position: 45% 0;
+        position: absolute;
+        top: 0;
+        left: 60%;
+        height: 100%;
+        transform: translate(-50%, 0);
+        width: auto;
+        max-width: unset;
         animation: none;
     }
 
@@ -51,27 +62,35 @@
 
         background-color: #aadcff;
         transform: translateZ(0);
+
+        overflow: hidden;
     }
 
     .movingBg {
         position: absolute;
-        left:0;
+        left: 0;
         top: 0;
-        width: 100%;
         height: 100%;
+        width: fit-content;
 
-        background-size: cover;
-        background-repeat: repeat-x;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .movingBg > img {
+        height: 100%;
+        width: auto;
+        max-width: unset;
     }
 
     @keyframes -global-scroll {
         0% {
-            background-position: -50% 0;
+            transform: translate(-50%, 0);
         }
 
         100% {
             /* update here to avoid teleporting sprites */
-            background-position: calc(50%) 0;
+            transform: translate(50%, 0);
         }
     }
 </style>
