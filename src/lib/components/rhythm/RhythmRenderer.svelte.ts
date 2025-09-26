@@ -1,5 +1,5 @@
 import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
-import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
+import { component as Component, cQuad, cCircle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
 import { GamePhase, GameState } from "$lib/components/rhythm/RhythmGameState.svelte";
 
 enum trackIds {
@@ -303,7 +303,7 @@ export class RhythmRenderer {
                         this.ctx.globalAlpha = 1;
                     }),
                 //button indicators
-                new cCricle(this.pkg,
+                new cCircle(this.pkg,
                     this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 : btnPos,
                     this.mobileView ? mobileSz.btnPos : yPos + trackWidth / 2,
                     this.mobileView ? mobileSz.btnRadius : (trackWidth / 2 - btnPad),

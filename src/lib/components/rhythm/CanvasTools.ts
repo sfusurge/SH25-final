@@ -63,7 +63,7 @@ export class cQuad extends component {
     }
 }
 
-export class cCricle extends component {
+export class cCircle extends component {
     radius: number
 
     constructor(pkg: RenderPkg, x: number, y: number, radius: number, setup = () => { }) {
