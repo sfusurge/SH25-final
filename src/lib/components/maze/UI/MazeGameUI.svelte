@@ -3,6 +3,7 @@
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
     import SlideShow from "$lib/components/shared/SlideShow.svelte";
     import { mazeGameConfig, createGameActionButton } from "$lib/components/shared/slideshowConfig";
+    import MazeDoorOverlay from "./MazeDoorOverlay.svelte";
     import MazeHud from "./MazeHUD.svelte";
 
     // Props
@@ -66,6 +67,7 @@
 {/if}
 
 <MazeHud />
+<MazeDoorOverlay />
 
 <style>
     .pause-overlay {

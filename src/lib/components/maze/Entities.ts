@@ -717,9 +717,9 @@ export class DoorEntity extends Entity {
         this.metadata.entityType = ENTITY_TYPE.door;
     }
 
-    onCollision(other: Entity, game?: any): void {
-        if (other.metadata?.entityType === 'player' && !this.isLocked) {
-            // TODO
+    onCollision(other: Entity, game?: MazeGame): void {
+        if (other.metadata?.entityType === ENTITY_TYPE.player && !this.isLocked) {
+            game?.beginDoorEntry?.(this);
         }
     }
 

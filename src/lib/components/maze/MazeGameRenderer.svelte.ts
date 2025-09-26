@@ -4,16 +4,22 @@ import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 import { Player, ProjectileEntity, ENTITY_TYPE, DoorEntity } from "./Entities";
 import { GameState } from "./MazeGameState.svelte.ts";
+import { DoorTransitionState } from "./DoorTransitionState.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
 })
 
 const mazeConfig = {
-    width: 40,
-    height: 40,
+    width: 10,
+    height: 10,
     roomAttempts: 50,
     windingPercent: 50,
     randomOpenPercent: 0.03
+};
+
+type PreparedMazeData = {
+    mazeGenerator: MazeGenerator;
+    maze: ReturnType<MazeGenerator["generate"]>;
 };
 
 
@@ -87,6 +93,7 @@ export class MazeGame {
     overlayTargetOpacity = 0;
     overlayTransitionSpeed = 6; // percent change per frame
     lastOverlayState = false; // Track previous overlay state for transition detection
+    doorTransitionActive = false;
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -104,6 +111,10 @@ export class MazeGame {
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
     projectiles: ProjectileEntity[] = [];
+
+    private pendingMazeData: PreparedMazeData | null = null;
+    private pendingMazeReady = false;
+    private isPreparingNextFloor = false;
 
     horWallSprite = new Image();
     horWallPillar = new Image();
@@ -135,6 +146,58 @@ export class MazeGame {
         this.player = new Player(playerStartPos);
         this.detectMobileMode();
         this.init();
+    }
+
+    private createMazeData(): PreparedMazeData {
+        const mazeGenerator = new MazeGenerator(
+            mazeConfig.width,
+            mazeConfig.height,
+            mazeConfig.roomAttempts,
+            mazeConfig.windingPercent,
+            mazeConfig.randomOpenPercent
+        );
+
+        const maze = mazeGenerator.generate();
+        return { mazeGenerator, maze };
+    }
+
+    private applyMazeData(data: PreparedMazeData) {
+        this.mazeGenerator = data.mazeGenerator;
+        this.maze = data.maze;
+        this.rooms = this.mazeGenerator.rooms;
+        this.idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+        this.pendingMazeReady = false;
+        this.isPreparingNextFloor = false;
+    }
+
+    private applyPendingMazeData() {
+        const data = this.pendingMazeData ?? this.createMazeData();
+        this.pendingMazeData = null;
+        this.applyMazeData(data);
+    }
+
+    private prepareNextFloor() {
+        if (this.pendingMazeData) {
+            if (!this.pendingMazeReady) {
+                this.pendingMazeReady = true;
+                DoorTransitionState.markTransitionReady();
+            }
+            return;
+        }
+
+        if (this.isPreparingNextFloor) {
+            return;
+        }
+
+        this.pendingMazeReady = false;
+        this.isPreparingNextFloor = true;
+
+        requestAnimationFrame(() => {
+            this.pendingMazeData = this.createMazeData();
+            this.pendingMazeReady = true;
+            this.isPreparingNextFloor = false;
+            DoorTransitionState.markTransitionReady();
+        });
     }
 
     keyMem = {
@@ -287,18 +350,7 @@ export class MazeGame {
     }
 
     reset() {
-        // Generate a new maze
-        this.mazeGenerator = new MazeGenerator(
-            mazeConfig.width,
-            mazeConfig.height,
-            mazeConfig.roomAttempts,
-            mazeConfig.windingPercent,
-            mazeConfig.randomOpenPercent
-        );
-
-        this.maze = this.mazeGenerator.generate();
-        this.rooms = this.mazeGenerator.rooms;
-        this.idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+        this.applyPendingMazeData();
         this.currentRoomId = 0;
         this.roomsCleared.clear();
 
@@ -321,6 +373,8 @@ export class MazeGame {
 
         // Reset camera
         this.camera = Vector2.ZERO;
+        this.doorTransitionActive = false;
+        DoorTransitionState.reset();
     }
 
     detectMobileMode() {
@@ -348,6 +402,14 @@ export class MazeGame {
 
     setShootingJoystickInput(input: Vector2) {
         this.shootingJoystickInput = input;
+    }
+
+    beginDoorEntry(door: DoorEntity) {
+        if (!door || door.isLocked) {
+            return;
+        }
+
+        DoorTransitionState.startHold(door);
     }
 
     getPlayerInput() {
@@ -428,6 +490,35 @@ export class MazeGame {
         this.projectiles.push(projectile);
     }
 
+    private tickDoorTransition(dt: number) {
+        const state = DoorTransitionState;
+
+        if (state.phase === "holding") {
+            const door = state.activeDoor;
+            const stillInside = !!door && door.aabb.collidingWith(this.player.aabb);
+            state.updateHold(dt, stillInside);
+            this.doorTransitionActive = false;
+        } else if (state.phase === "transition") {
+            if (!this.doorTransitionActive) {
+                this.prepareNextFloor();
+                this.doorTransitionActive = true;
+                this.clearAllKeys();
+                this.joystickInput = Vector2.ZERO;
+                this.shootingJoystickInput = Vector2.ZERO;
+                this.player.vel = Vector2.ZERO;
+            }
+            state.tickTransition(dt, this.pendingMazeReady, () => this.completeDoorTransition());
+        } else {
+            this.doorTransitionActive = false;
+        }
+    }
+
+    private completeDoorTransition() {
+        this.reset();
+        this.doorTransitionActive = false;
+        GameState.focusGameCanvas();
+    }
+
     updateCameraPos() {
         // TODO
         this.camera.x = this.player.x;
@@ -461,11 +552,19 @@ export class MazeGame {
             return;
         }
 
-        this.updateCameraPos();
-        this.updateEntities();
-        this.resolveEntityCollisions();
+        const isTransitioning = DoorTransitionState.phase === "transition";
 
-        // this.collisionResolution(this.player, this.entities[0].aabb);
+        if (!isTransitioning) {
+            this.updateCameraPos();
+            this.updateEntities();
+            this.resolveEntityCollisions();
+        } else {
+            this.player.vel = Vector2.ZERO;
+            this.updateCameraPos();
+        }
+
+        this.tickDoorTransition(this.deltaTime);
+
         this.render();
 
         this.lastTime = time;

@@ -84,7 +84,7 @@ export class RoomLayout {
                     }
                     this.entities.push(entity);
                 } else {
-                    if (row !== height - 1) { 
+                    if (row !== height - 1) {
                         // Prevent being hidden by bottom wall
                         emptyPositions.push({ row, col, pos });
                     }
@@ -127,7 +127,7 @@ export class RoomLayout {
 }
 
 
-
+// TODO: MAKE SURE ALL OPEN SPOTS ARE ACCESSIBLE BY THE PLAYER
 // Make each tile in room half as big as in maze
 // -> dimensions have to be even
 export const ROOM_TEMPLATES: RoomTemplate[] = [
