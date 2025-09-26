@@ -5,7 +5,7 @@
     } from "$lib/components/rhythm/RhythmRenderer.svelte";
     import Background from "$lib/components/rhythm/Background.svelte";
     import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
-    import { onDestroy, untrack } from "svelte";
+    import { onDestroy, untrack, onMount } from "svelte";
     import { cImg, parseBeatMap } from "$lib/components/rhythm/CanvasTools";
     import {
         rhythmGameConfig,
@@ -36,8 +36,8 @@
 
     let displayScore = $state(0);
     let otterState = $state("idle");
+    let lastTime = 0;
 
-    // Update score separately with an effect
     $effect(() => {
         if (renderer?.points !== undefined) {
             displayScore = renderer.points;
@@ -46,6 +46,21 @@
         if (renderer?.otter_state !== undefined) {
             otterState = renderer.otter_state;
         }
+    });
+
+    const updateIdleFrame = (timestamp: number) => {
+        requestAnimationFrame(updateIdleFrame);
+
+        if (timestamp - lastTime >= 1000) {
+            if (otterState === "idle" || otterState === "idle2") {
+                otterState = otterState == "idle" ? "idle2" : "idle";
+            }
+            lastTime = timestamp;
+        }
+    };
+
+    onMount(() => {
+        requestAnimationFrame(updateIdleFrame);
     });
 
     onDestroy(() => {
@@ -268,9 +283,11 @@
             class="otter"
             src="/rhythm/{otterState === 'idle'
                 ? 'pinkResting1'
-                : otterState === 'hit'
-                  ? 'pinkCorrectHit'
-                  : 'pinkWrongHit'}.webp"
+                : otterState === 'idle2'
+                  ? 'pinkResting2'
+                  : otterState === 'hit'
+                    ? 'pinkCorrectHit'
+                    : 'pinkWrongHit'}.webp"
             alt="otter"
         />
     </ScalableFrame>

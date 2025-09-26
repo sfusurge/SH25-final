@@ -63,7 +63,6 @@ const cloudSprites = spriteNames.map(sN => {
 const interactionThreshold = 350;
 const vfxDuration = 200;
 
-const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;
 type OtterState = "idle" | "idle2" | "hit" | "miss";
 
 export interface RhythmNote {
@@ -247,12 +246,6 @@ export class RhythmRenderer {
     setupEnvironment() {
 
 
-        this.otter_idle = window.setInterval(() => {
-            if (this.otter_index < 0) return;
-            const cur = this.staticObjs[this.otter_index] as cImg;
-            if (cur.currentSprite === 0) cur.currentSprite = 1;
-            else if (cur.currentSprite === 1) cur.currentSprite = 0;
-        }, 1000);
 
         //backboard
         this.staticObjs.push(
