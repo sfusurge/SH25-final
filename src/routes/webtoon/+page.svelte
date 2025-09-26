@@ -30,6 +30,14 @@
             "/assets/webtoons/2/2.13.png",
             "/assets/webtoons/2/2.14.png",
             "/assets/webtoons/2/2.15.png"
+        ],
+        [
+            "/assets/webtoons/3/3.1.png",
+            "/assets/webtoons/3/3.2.png",
+            "/assets/webtoons/3/3.3.png",
+            "/assets/webtoons/3/3.4.png",
+            "/assets/webtoons/3/3.5.png",
+            "/assets/webtoons/3/3.6.png",
         ]
     ];
 

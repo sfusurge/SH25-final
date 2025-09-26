@@ -36,8 +36,6 @@
             }
         }
     });
-
-    $inspect(scrollY, scrollHeight);
 </script>
 
 <div class="parent" class:mobile={global.mobile}>

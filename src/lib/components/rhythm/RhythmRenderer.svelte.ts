@@ -60,7 +60,7 @@ const cloudSprites = spriteNames.map(sN => {
     return s;
 })
 
-const interactionThreshold = 280;
+const interactionThreshold = 350;
 const vfxDuration = 200;
 
 const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;

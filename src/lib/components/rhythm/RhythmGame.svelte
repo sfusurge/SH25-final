@@ -175,7 +175,7 @@
             }}
         />
     {/if}
-
+    
     {#if GameState.isGameEnded}
         <SlideShow
             slides={rhythmGameConfig.ending.slides}
@@ -260,6 +260,7 @@
     </div>
 </ScalableFrame>
 </div>
+
 <style>
     .beatMapInput {
         top: 250px;
