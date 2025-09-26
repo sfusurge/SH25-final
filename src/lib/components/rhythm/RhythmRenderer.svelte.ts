@@ -30,7 +30,12 @@ const mobileSz = {
     trackLength: 0.625,
 
     btnPos: 0.825,
-    btnPad: 0.07
+    btnPad: 0.07,
+    btnRadius: 0.24/2 - 0.07,
+
+    cloudSpawnPercent: 0.325,
+    cloudDespawnPercent: 0.925,
+
 }
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
@@ -45,6 +50,7 @@ const btnLabels = ["A/J", "S/K", "D/L"];
 
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
+const cloudVerticalDisplace = 0.045;
 const cloudPresenceDuration = 3000;
 
 const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
@@ -300,7 +306,7 @@ export class RhythmRenderer {
                 new cCricle(this.pkg,
                     this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 : btnPos,
                     this.mobileView ? mobileSz.btnPos : yPos + trackWidth / 2,
-                    this.mobileView ? (mobileSz.trackWidth / 2 - mobileSz.btnPad) : (trackWidth / 2 - btnPad),
+                    this.mobileView ? mobileSz.btnRadius : (trackWidth / 2 - btnPad),
                     () => {
                         this.ctx.lineWidth = 0.1;
                         this.ctx.fillStyle = "#" + btnColors[i];
@@ -403,7 +409,9 @@ export class RhythmRenderer {
         let cTime = this.musicPlayer.currentTime;
 
         // pos/percent of btn to screen, relative to length of track
-        const btnTrackPercent = ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
+        const btnTrackPercent = this.mobileView ? 
+            ((mobileSz.btnPos - mobileSz.cloudSpawnPercent) / (mobileSz.cloudDespawnPercent - mobileSz.cloudSpawnPercent))
+            : ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
 
         // portion time to percentage after the btns, make that lower bound
         const lowTime = cTime - cloudPresenceDuration * (1 - btnTrackPercent);
@@ -419,8 +427,11 @@ export class RhythmRenderer {
             return this.xStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
         }
 
+        const calcYByProgress = (prog: number, additionalShift: number = 0) => {
+            return this.yStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
+        }
+
         this.ctx.lineWidth = 10;
-        const vDisplace = 0.045;
         //hold cloud rendering
         this.heldKeyCheck();
         for (let h = 0; h < this.holdKeyTracker.length; h++) {
@@ -446,7 +457,7 @@ export class RhythmRenderer {
             const lineOpacity = ['DD', 'FF', 'EE', '88'];
             this.ctx.strokeStyle = `#${btnColors[n.trackNo]}${lineOpacity[n.noteState]}`;
             this.ctx.beginPath()
-            let lineY = this.yStd(trackYPositions[n.trackNo] + vDisplace);
+            let lineY = this.yStd(trackYPositions[n.trackNo] + cloudVerticalDisplace);
             this.ctx.moveTo(leftLineAnchor, lineY);
             this.ctx.lineTo(rightLineAnchor, lineY);
             this.ctx.stroke();
@@ -471,7 +482,9 @@ export class RhythmRenderer {
 
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             // this.ctx.strokeStyle = "orange";
-            let progDist = calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
+            let progDist = this.mobileView ?
+                calcYByProgress(prog, -(cloudSprites[v.trackNo].height / 2)): 
+                calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
             // this.ctx.strokeRect(
             //     progDist,
             //     (trackYPositions[v.trackNo] + trackWidth / 2) * this.canvas.height -  cloudSprites[v.trackNo].height / 2,
@@ -485,8 +498,11 @@ export class RhythmRenderer {
             }
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
-                progDist,
-                this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
+                this.mobileView ? this.xStd(mobileSz.trackXs[v.trackNo] + mobileSz.trackWidth / 2) 
+                    - cloudSprites[v.trackNo].width / 2 
+                    : progDist,
+                this.mobileView ? progDist :
+                    this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
             )
             this.ctx.globalAlpha = 1;
         }
@@ -611,7 +627,4 @@ export class RhythmRenderer {
             this.musicPlayer.play();
         }, 3000)
     }
-
-
-
 }
