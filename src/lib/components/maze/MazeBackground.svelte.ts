@@ -83,34 +83,39 @@ export class MazeBackgroundController {
         }
     }
 
-    private updateCanvasSize = () => {
+    public updateCanvasSize = () => {
         if (!this.canvasContainer || !this.canvas) return;
 
-        // Get the actual display size of the container
-        const containerRect = this.canvasContainer.getBoundingClientRect();
-        const displayWidth = containerRect.width;
-        const displayHeight = containerRect.height;
+        // Measure container (may briefly report 0 during layout thrash)
+        const { width: rawWidth, height: rawHeight } = this.canvasContainer.getBoundingClientRect();
+        const displayWidth = Math.floor(rawWidth);
+        const displayHeight = Math.floor(rawHeight);
+
+        // Skip updates when the container is collapsed; retry on next frame
+        if (displayWidth <= 0 || displayHeight <= 0) {
+            requestAnimationFrame(() => this.updateCanvasSize());
+            return;
+        }
 
         // Use device pixel ratio for sharp rendering on high-DPI displays
         const dpr = window.devicePixelRatio || 1;
+        const internalWidth = Math.round(displayWidth * dpr);
+        const internalHeight = Math.round(displayHeight * dpr);
 
-        // Set the internal canvas resolution (accounts for device pixel ratio)
-        const internalWidth = displayWidth * dpr;
-        const internalHeight = displayHeight * dpr;
+        // Ignore redundant updates
+        if (internalWidth === this.canvasWidth && internalHeight === this.canvasHeight) {
+            return;
+        }
 
-        // Update our state variables
         this.canvasWidth = internalWidth;
         this.canvasHeight = internalHeight;
 
-        // Set the canvas internal resolution
+        // Update the canvas resolution and CSS size
         this.canvas.width = internalWidth;
         this.canvas.height = internalHeight;
+        this.canvas.style.width = `${displayWidth}px`;
+        this.canvas.style.height = `${displayHeight}px`;
 
-        // Scale the canvas back down using CSS to account for device pixel ratio
-        this.canvas.style.width = displayWidth + "px";
-        this.canvas.style.height = displayHeight + "px";
-
-        // Notify the game controller about the size change
         if (this.gameRenderer) {
             this.gameRenderer.handleCanvasResize(internalWidth, internalHeight);
         }

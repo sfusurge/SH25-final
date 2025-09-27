@@ -70,7 +70,7 @@
     // Computed properties
     const hasMultipleSlides = $derived(slidesToDisplay.length > 1);
     const currentSlide = $derived(
-        slidesToDisplay[currentSlideIndex] || { imageSrc: "", content: "" },
+        slidesToDisplay[currentSlideIndex] || { imageSrc: "", content: "" }
     );
 
     // Navigation functions
@@ -169,10 +169,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.1rem;
         width: 500px;
         max-height: 50vh;
-        min-height: 400px;
+        height: fit-content;
     }
 
     .score-display {
@@ -192,7 +192,9 @@
     .slide-image-container {
         width: fit-content;
         aspect-ratio: 16/9;
-        overflow: hidden;
+        height: auto;
+        height: 150px;
+        overflow: auto;
         border-radius: 4px;
         border: 1px solid var(--color-border);
         /* background-color: var(--color-background-secondary, #f5f5f5); */
@@ -213,7 +215,7 @@
         text-align: center;
         max-width: 100%;
         flex: 1;
-        padding: 0.5rem 0;
+        padding: 0.2rem 0;
         display: table-cell;
         vertical-align: middle;
     }
@@ -222,7 +224,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-top: 0.5rem;
+        margin-top: 0.2rem;
         height: 2rem;
         visibility: hidden;
     }
@@ -263,7 +265,7 @@
     }
 
     .action-section {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         display: flex;
         justify-content: center;
     }
@@ -277,13 +279,12 @@
         font-size: 14px !important;
     }
 
-    /* Mobile specific styling */
-    @media (max-width: 768px) {
+    /* tablet(?) specific styling */
+    @media (max-width: 1200px) {
         .slideshow-content {
             width: 90vw;
             max-width: 350px;
-            gap: 0.8rem;
-            height: 480px;
+            gap: 0.2rem;
         }
 
         .slide-image-container {
@@ -291,7 +292,31 @@
         }
 
         .slide-content {
-            font-size: 0.85rem;
+            font-size: 0.7rem;
+            max-height: 80px;
+        }
+
+        .navigation-controls {
+            gap: 0.8rem;
+        }
+    }
+
+     /* Mobile specific styling */
+    @media (max-width: 768px) {
+        .slideshow-content {
+            width: 90vw;
+            max-width: 350px;
+            gap: 0.2rem;
+
+        }
+
+        .slide-image-container {
+            max-width: 280px;
+        }
+
+        .slide-content {
+            font-size: 0.8rem;
+            max-height: 120px;
         }
 
         .navigation-controls {
