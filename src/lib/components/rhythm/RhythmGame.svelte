@@ -320,14 +320,14 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -70%);
-        z-index: 10;
+        z-index: 0;
         width: 11%;
     }
 
     .songSelection {
         top: 100px;
         left: 50%;
-
+        z-index: 11;
         transform: translate(-50%, 0);
     }
 
@@ -348,7 +348,7 @@
         position: absolute;
         left: 0;
         top: 0;
-        z-index: 0;
+        z-index: 1;
         background-color: transparent;
     }
 </style>
