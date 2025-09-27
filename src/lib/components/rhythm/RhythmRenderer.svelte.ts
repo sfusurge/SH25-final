@@ -93,6 +93,9 @@ export class RhythmRenderer {
     vfxObjs: Component[] = [];
     notesVfx: Component | null = null;
 
+    countDownReset = 3;
+    countDownMode = 0;
+    countDownTimestamp = 0;
 
     otter_state = $state('idle')
     otter_index = -1;
@@ -159,6 +162,7 @@ export class RhythmRenderer {
         this.musicPlayer.currentTime = 0;
 
         this.songData = notes;
+        //unfortunately because the songs are cached, this state doesnt revert when the song is replayed
         this.songData.forEach(note => {
             note.noteState = noteState.untouched;
         });
@@ -167,7 +171,6 @@ export class RhythmRenderer {
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 250;
         this.lowScoreThreshold = Math.max(scoreBoundsPercentage.min * this.songData.length) * basePoints;
         this.highScoreThreshold = Math.max(scoreBoundsPercentage.max * this.songData.length) * basePoints;
-
     }
 
     startSong() {
@@ -400,6 +403,7 @@ export class RhythmRenderer {
             this.canvas.height = this.pkg.h;
         }
 
+        this.countDownUpdate();
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
@@ -411,6 +415,38 @@ export class RhythmRenderer {
         }
 
         this.ctx.restore();
+    }
+
+    startCountDown(){
+        this.countDownMode = this.countDownReset;
+        this.countDownTimestamp = this.currentTime;
+    }
+
+    countDownUpdate(){
+        if(this.countDownMode == 0){
+            return;
+        }
+
+        this.ctx.font = "bold 60px Arial";
+        this.ctx.fillStyle = "white";
+        this.ctx.strokeStyle = `#${btnColors[this.countDownMode - 1]}`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.lineWidth = 20;
+
+        this.ctx.strokeText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
+        this.ctx.strokeStyle = "#CCCCCC";
+        this.ctx.lineWidth = 5;
+        this.ctx.strokeText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
+        this.ctx.fillText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
+
+        if(this.currentTime > this.countDownTimestamp + 1000){
+            this.countDownMode--;
+            this.countDownTimestamp = this.currentTime;
+            if(this.countDownMode == 0){
+                this.startSong();
+            }
+        }
     }
 
     renderEnv() {
@@ -556,7 +592,7 @@ export class RhythmRenderer {
             obj.update();
         });
         this.vfxObjs = this.vfxObjs.filter(v => {
-            return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
+            return (this.currentTime - v.startTime) < vfxDuration
         })
     }
 
@@ -624,7 +660,7 @@ export class RhythmRenderer {
             this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
             this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
             [hit ? "hit" : "miss"])
-        vfx.startTime = this.musicPlayer.currentTime;
+        vfx.startTime = this.currentTime;
         this.vfxObjs.push(vfx);
     }
 
@@ -645,12 +681,13 @@ export class RhythmRenderer {
     }
 
     pauseGame() {
-        this.musicPlayer.pause();
+        this.countDownMode = 0;
+        if(this.musicPlayer.isPlaying){
+            this.musicPlayer.pause();
+        }
     }
 
     resumeGame() {
-        setTimeout(() => {
-            this.musicPlayer.play();
-        }, 3000)
+        this.startCountDown()
     }
 }
