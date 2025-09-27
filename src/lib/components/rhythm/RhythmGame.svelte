@@ -83,6 +83,10 @@
             notesSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.beatmap",
             songSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.mp3",
         },
+        "Philosophical Starry": {
+            notesSrc: "/rhythm/beatmaps/Philosophical Starry [Easy].beatmap",
+            songSrc: "/rhythm/beatmaps/philosophicalStarry.mp3",
+        },
     });
 
     let selectedSongTitle: string = $state("");
@@ -294,37 +298,6 @@
 </div>
 
 <style>
-    .beatMapInput {
-        top: 250px;
-        left: 10%;
-        font-size: 0.75vw;
-
-        ::file-selector-button {
-            border: 1px white solid;
-            padding: 0 5px;
-            cursor: pointer;
-        }
-    }
-
-    .songFileInput {
-        top: 250px;
-        left: 40%;
-        font-size: 0.75vw;
-
-        ::file-selector-button {
-            border: 1px white solid;
-            padding: 0 5px;
-            cursor: pointer;
-        }
-    }
-
-    .testSong {
-        top: 250px;
-        left: 70%;
-        cursor: pointer;
-        font-size: 0.75vw;
-    }
-
     .cloud {
         position: absolute;
         top: 50%;
