@@ -1,7 +1,7 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
 import { Vector2 } from "$lib/Vector2";
-import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, WalkerEntity, DoorEntity } from "./Entities";
+import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, WalkerEntity, DoorEntity } from "./entities";
 
 
 export type Room = {

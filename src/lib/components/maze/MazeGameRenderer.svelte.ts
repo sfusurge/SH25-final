@@ -1,8 +1,11 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
+import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN } from "$lib/components/maze/entities/index.ts";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { Player, ProjectileEntity, ENTITY_TYPE, DoorEntity } from "./Entities";
+import { Player } from "./entities/Player.ts";
+import { ProjectileEntity } from "./entities/ProjectileEntity.ts";
+import { DoorEntity } from "./entities/DoorEntity.ts";
 import { GameState } from "./MazeGameState.svelte.ts";
 import { DoorTransitionState } from "./DoorTransitionState.svelte.ts";
 
@@ -22,12 +25,6 @@ type PreparedMazeData = {
     maze: ReturnType<MazeGenerator["generate"]>;
 };
 
-
-// Direction constants
-const LEFT = 0;
-const UP = 1;
-const RIGHT = 2;
-const DOWN = 3;
 
 /**
  * Entity grid using actual maze cells for efficient collision detection

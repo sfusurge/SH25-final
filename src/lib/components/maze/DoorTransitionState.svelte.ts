@@ -1,4 +1,4 @@
-import type { DoorEntity } from "./Entities";
+import type { DoorEntity } from "./entities/DoorEntity";
 import { GameState } from "./MazeGameState.svelte";
 
 export type DoorTransitionPhase = "idle" | "holding" | "transition";
