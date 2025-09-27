@@ -206,7 +206,7 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
-            this.points = this.yStd(mobileSz.btnPos) / 3;
+            // this.points = this.yStd(mobileSz.btnPos) / 3;
             // console.log(e.touches[0].clientY)
             // console.log(this.yStd(mobileSz.btnPos) / 2)
             // console.log(this.xStd(mobileSz.trackXs[0] - mobileSz.btnRadius))
@@ -224,9 +224,9 @@ export class RhythmRenderer {
                 //divide by 2, apparently in mobile mode the height is doubled
                 if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
 
-                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 2){
+                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
                         this.keyDown(trackIds.top);
-                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 2){
+                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
                         this.keyDown(trackIds.bottom);
                     }else{
                         this.keyDown(trackIds.middle);
