@@ -1,5 +1,5 @@
 import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
-import { component as Component, cQuad, cCricle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
+import { component as Component, cQuad, cCircle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
 import { GamePhase, GameState } from "$lib/components/rhythm/RhythmGameState.svelte";
 
 enum trackIds {
@@ -25,12 +25,17 @@ const scoreBoundsPercentage: boundRange = { min: 0.4, max: 0.75 };
 
 const mobileSz = {
     trackXs: [0.095, 0.38, 0.665], //track space: 0.72, between space: 0.045, board space: 0.9
-    trackYPos: 0.325,
+    trackYPos: 0.3,
     trackWidth: 0.24,
     trackLength: 0.625,
 
     btnPos: 0.825,
-    btnPad: 0.07
+    btnPad: 0.07,
+    btnRadius: 280 / 2 / 3000 * 0.625,
+
+    cloudSpawnPercent: 0.3,
+    cloudDespawnPercent: 0.975,
+
 }
 const trackXPos = 0.125;
 const trackYPositions = [0.625, 0.725, 0.825]
@@ -42,8 +47,10 @@ const btnPad = 0.01;
 const btnColors = ["FF9D9D", "DFFFBE", "F9E8A5"];
 const btnLabels = ["A/J", "S/K", "D/L"];
 
+
 const cloudSpawnPercent: number = 0.125;
 const cloudDespawnPercent: number = 0.85;
+const cloudVerticalDisplace = 0.045;
 const cloudPresenceDuration = 3000;
 
 const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
@@ -56,7 +63,7 @@ const cloudSprites = spriteNames.map(sN => {
 const interactionThreshold = 350;
 const vfxDuration = 200;
 
-const OTTER_IMG = ["pinkResting1", "pinkResting2", "pinkCorrectHit", "pinkWrongHit"] as const;
+type OtterState = "idle" | "idle2" | "hit" | "miss";
 
 export interface RhythmNote {
     trackNo: number;
@@ -84,7 +91,10 @@ export class RhythmRenderer {
 
     staticObjs: Component[] = [];
     vfxObjs: Component[] = [];
+    notesVfx: Component | null = null;
 
+
+    otter_state = $state('idle')
     otter_index = -1;
     otter_timer = 0;
     otter_idle = 0;
@@ -104,6 +114,9 @@ export class RhythmRenderer {
 
     musicPlayer: GameMusicPlayer = new GameMusicPlayer();
     duration: number = this.empty;
+
+    // variables for fade control
+    isFadingOut: boolean = false;
 
     constructor(canvas: HTMLCanvasElement, mobileView: boolean) {
         this.canvas = canvas;
@@ -146,6 +159,9 @@ export class RhythmRenderer {
         this.musicPlayer.currentTime = 0;
 
         this.songData = notes;
+        this.songData.forEach(note => {
+            note.noteState = noteState.untouched;
+        });
 
         let lastNote = this.songData[this.songData.length - 1]
         this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
@@ -163,10 +179,12 @@ export class RhythmRenderer {
         this.heldKeys = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
-
+        this.notesVfx = null;
         this.duration = this.empty;
         this.musicPlayer.pause();
         this.musicPlayer.song = undefined;
+        this.songData = [];
+        this.points = 0;
     }
 
     setupEvents() {
@@ -187,6 +205,38 @@ export class RhythmRenderer {
             }
         }, { capture: true });
 
+        this.canvas.addEventListener("touchstart", (e) => {
+            this.keyDown(trackIds.top);
+            const mobileScreenOffset = 50;
+            // console.log(e.touches[0].clientY)
+            // console.log(this.yStd(mobileSz.btnPos) / 2)
+            // console.log(this.xStd(mobileSz.trackXs[0] - mobileSz.btnRadius))
+            // console.log(this.xStd(mobileSz.trackXs[0])/2)
+            // console.log(this.xStd(mobileSz.trackXs[0] + mobileSz.trackWidth)/2)
+            // console.log(this.xStd(mobileSz.trackXs[0])/2)
+            // console.log(this.yStd(mobileSz.btnPos + mobileSz.btnRadius))
+
+            const isWithinBtnI = (i: number) => {
+                let l = this.xStd(mobileSz.trackXs[i]) / 2;
+                let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
+                return e.touches[0].clientX > l && e.touches[0].clientX < r;
+            }
+            if(this.mobileView){
+                //divide by 2, apparently in mobile mode the height is doubled
+                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 2 + mobileScreenOffset &&
+                    e.touches[0].clientY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2 + mobileScreenOffset){
+
+                    if(isWithinBtnI(trackIds.top)){
+                        this.keyDown(trackIds.top);
+                    }else if(isWithinBtnI(trackIds.middle)){
+                        this.keyDown(trackIds.middle);
+                    }else if(isWithinBtnI(trackIds.bottom)){
+                        this.keyDown(trackIds.bottom);
+                    }
+                }
+            }
+        }, { capture: true });
+
         this.canvas.addEventListener("keyup", (e) => {
             switch (e.key.toLowerCase()) {
                 case "a":
@@ -204,6 +254,29 @@ export class RhythmRenderer {
             }
         }, { capture: true });
 
+        this.canvas.addEventListener("mouseup", (e) => {
+
+            const isWithinBtnI = (i: number) => {
+                let l = this.xStd(mobileSz.trackXs[i]) / 2;
+                let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
+                return e.offsetX > l && e.offsetX < r;
+            }
+            if(this.mobileView){
+                //divide by 2, apparently in mobile mode the height is doubled
+                if(e.offsetY > this.yStd((mobileSz.btnPos - mobileSz.btnRadius) / 2) &&
+                    e.offsetY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2){
+
+                    if(isWithinBtnI(trackIds.top)){
+                        this.keyUp(trackIds.top);
+                    }else if(isWithinBtnI(trackIds.middle)){
+                        this.keyUp(trackIds.middle);
+                    }else if(isWithinBtnI(trackIds.bottom)){
+                        this.keyUp(trackIds.bottom);
+                    }
+                }
+            }
+        }, { capture: true })
+
         const handleResize = () => {
             const box = this.canvas.getBoundingClientRect();
             this.dpr = window.devicePixelRatio;
@@ -211,8 +284,8 @@ export class RhythmRenderer {
             this.pkg.w = box.width * this.dpr;
             this.pkg.h = box.height * this.dpr;
 
-            // this.canvas.width = this.pkg.w;
-            // this.canvas.height = this.pkg.h;
+            this.canvas.width = this.pkg.w;
+            this.canvas.height = this.pkg.h;
         }
 
         this.resizeObserver = new ResizeObserver((entries) => {
@@ -227,31 +300,13 @@ export class RhythmRenderer {
 
     setupEnvironment() {
 
-        // cloud rendering
-        this.staticObjs.push(
-            new cImg(this.pkg, 0.35, 0.4, ["pinkCloud"], 0, () => {
-                this.ctx.save();
-                this.ctx.globalAlpha = 1;
-            })
-        );
 
-        // otter
-        this.otter_index = this.staticObjs.push(
-            new cImg(this.pkg, 0.45, 0.3 - (7 / this.canvas.height), [...OTTER_IMG], 0)
-        ) - 1;
-
-        this.otter_idle = window.setInterval(() => {
-            if (this.otter_index < 0) return;
-            const cur = this.staticObjs[this.otter_index] as cImg;
-            if (cur.currentSprite === 0) cur.currentSprite = 1;
-            else if (cur.currentSprite === 1) cur.currentSprite = 0;
-        }, 1000);
 
         //backboard
         this.staticObjs.push(
             new cQuad(this.pkg,
                 this.mobileView ? 0.05 : 0.1,
-                this.mobileView ? 0.3 : 0.58,
+                this.mobileView ? 0.275 : 0.58,
                 this.mobileView ? 0.9 : 0.8,
                 this.mobileView ? 0.675 : 0.37,
                 "fill",
@@ -287,10 +342,10 @@ export class RhythmRenderer {
                         this.ctx.globalAlpha = 1;
                     }),
                 //button indicators
-                new cCricle(this.pkg,
+                new cCircle(this.pkg,
                     this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 : btnPos,
                     this.mobileView ? mobileSz.btnPos : yPos + trackWidth / 2,
-                    this.mobileView ? (mobileSz.trackWidth / 2 - mobileSz.btnPad) : (trackWidth / 2 - btnPad),
+                    this.mobileView ? mobileSz.btnRadius : (trackWidth / 2 - btnPad),
                     () => {
                         this.ctx.lineWidth = 0.1;
                         this.ctx.fillStyle = "#" + btnColors[i];
@@ -333,7 +388,8 @@ export class RhythmRenderer {
         }
 
         this.addBtnVfx(index, hit);
-        this.setOtter(hit ? 2 : 3, 200);
+        this.addNotesVfx(hit);
+        this.setOtter(hit ? 2 : 3, 1000);
     }
 
     keyUp(track: number) {
@@ -349,7 +405,8 @@ export class RhythmRenderer {
             note.noteState = noteState.missed;
         }
 
-        this.setOtter(note.noteState === noteState.caught ? 2 : 3);
+        this.setOtter(note.noteState === noteState.caught ? 2 : 3, 1000);
+        this.addNotesVfx(note.noteState === noteState.caught);
         this.heldKeys[track] = this.empty;
     }
 
@@ -362,7 +419,6 @@ export class RhythmRenderer {
     render() {
         this.ctx.save();
         this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
-
         // update canvas size before rendering to avoid flicker
         if (this.canvas.width !== this.pkg.w || this.canvas.height !== this.pkg.h) {
             this.canvas.width = this.pkg.w;
@@ -372,6 +428,7 @@ export class RhythmRenderer {
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
+        this.renderNotesVfx();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
@@ -391,7 +448,9 @@ export class RhythmRenderer {
         let cTime = this.musicPlayer.currentTime;
 
         // pos/percent of btn to screen, relative to length of track
-        const btnTrackPercent = ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
+        const btnTrackPercent = this.mobileView ?
+            ((mobileSz.btnPos - mobileSz.cloudSpawnPercent) / (mobileSz.cloudDespawnPercent - mobileSz.cloudSpawnPercent))
+            : ((btnPos - cloudSpawnPercent) / (cloudDespawnPercent - cloudSpawnPercent));
 
         // portion time to percentage after the btns, make that lower bound
         const lowTime = cTime - cloudPresenceDuration * (1 - btnTrackPercent);
@@ -407,8 +466,11 @@ export class RhythmRenderer {
             return this.xStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
         }
 
+        const calcYByProgress = (prog: number, additionalShift: number = 0) => {
+            return this.yStd(mobileSz.cloudSpawnPercent + prog * (mobileSz.cloudDespawnPercent - mobileSz.cloudSpawnPercent)) + additionalShift;
+        }
+
         this.ctx.lineWidth = 10;
-        const vDisplace = 0.045;
         //hold cloud rendering
         this.heldKeyCheck();
         for (let h = 0; h < this.holdKeyTracker.length; h++) {
@@ -426,17 +488,23 @@ export class RhythmRenderer {
             }
 
             let rPercent = n.timing < lowTime ? 1 : 1 - ((n.timing - lowTime) / timeRange);
-            let rightLineAnchor = calcXByProgress(rPercent);
+            let rightLineAnchor = this.mobileView ? calcYByProgress(rPercent) : calcXByProgress(rPercent);
 
             let lPercent = n.timing + n.duration! > highTime ? 0 : 1 - ((n.timing + n.duration! - lowTime) / timeRange);
-            let leftLineAnchor = calcXByProgress(lPercent);
+            let leftLineAnchor = this.mobileView ? calcYByProgress(lPercent) : calcXByProgress(lPercent);
 
             const lineOpacity = ['DD', 'FF', 'EE', '88'];
             this.ctx.strokeStyle = `#${btnColors[n.trackNo]}${lineOpacity[n.noteState]}`;
             this.ctx.beginPath()
-            let lineY = this.yStd(trackYPositions[n.trackNo] + vDisplace);
-            this.ctx.moveTo(leftLineAnchor, lineY);
-            this.ctx.lineTo(rightLineAnchor, lineY);
+            if (this.mobileView) {
+                let lineX = this.xStd(mobileSz.trackXs[n.trackNo] + mobileSz.trackWidth / 2);
+                this.ctx.moveTo(lineX, leftLineAnchor);
+                this.ctx.lineTo(lineX, rightLineAnchor);
+            } else {
+                let lineY = this.yStd(trackYPositions[n.trackNo] + cloudVerticalDisplace);
+                this.ctx.moveTo(leftLineAnchor, lineY);
+                this.ctx.lineTo(rightLineAnchor, lineY);
+            }
             this.ctx.stroke();
         }
 
@@ -459,7 +527,9 @@ export class RhythmRenderer {
 
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             // this.ctx.strokeStyle = "orange";
-            let progDist = calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
+            let progDist = this.mobileView ?
+                calcYByProgress(prog, -(cloudSprites[v.trackNo].height / 2)) :
+                calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
             // this.ctx.strokeRect(
             //     progDist,
             //     (trackYPositions[v.trackNo] + trackWidth / 2) * this.canvas.height -  cloudSprites[v.trackNo].height / 2,
@@ -473,8 +543,10 @@ export class RhythmRenderer {
             }
             this.ctx.drawImage(
                 cloudSprites[v.trackNo],
-                progDist,
-                this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
+                this.mobileView ? this.xStd(mobileSz.trackXs[v.trackNo] + mobileSz.trackWidth / 2)
+                    - cloudSprites[v.trackNo].width / 2 : progDist,
+                this.mobileView ? progDist :
+                    this.yStd(trackYPositions[v.trackNo] + trackWidth / 2) - cloudSprites[v.trackNo].height / 2
             )
             this.ctx.globalAlpha = 1;
         }
@@ -493,14 +565,14 @@ export class RhythmRenderer {
                 n.noteState = noteState.missed;
                 this.heldKeys[i] = this.empty;
                 this.addBtnVfx(i, false);
-                this.setOtter(3);
+                this.setOtter(3, 1000);
             } else {
                 this.ctx.drawImage(
                     hitVfx,
-                    this.xStd(trackLength - .025),
-                    this.yStd(trackYPositions[i] + .0125)
+                    this.xStd(this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 - .045 : (trackLength - .025)),
+                    this.yStd(this.mobileView ? mobileSz.btnPos - .0125 : (trackYPositions[i] + .0125))
                 )
-                this.setOtter(2, 120);
+                this.setOtter(2, 1000);
             }
         });
     }
@@ -512,6 +584,29 @@ export class RhythmRenderer {
         this.vfxObjs = this.vfxObjs.filter(v => {
             return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
         })
+    }
+
+
+    renderNotesVfx() {
+        if (this.notesVfx) {
+            const elapsed = this.musicPlayer.currentTime - this.notesVfx.startTime;
+
+            if (elapsed < 2000) {
+                let opacity = 1;
+
+                if (elapsed > 1000) {
+                    const fadeProgress = (elapsed - 1000) / 1000;
+                    opacity = Math.max(0, 1 - fadeProgress);
+                }
+
+                this.ctx.save();
+                this.ctx.globalAlpha = opacity;
+                this.notesVfx.update();
+                this.ctx.restore();
+            } else {
+                this.notesVfx = null;
+            }
+        }
     }
 
     /**
@@ -534,22 +629,45 @@ export class RhythmRenderer {
         return y * this.canvas.height;
     }
 
+    addNotesVfx(hit: boolean) {
+        const xPos = this.mobileView
+            ? 0.5 - 0.05
+            : btnPos - 0.05;
+        const yPos = this.mobileView
+            ? mobileSz.btnPos - 0.1
+            : 0.58 - 0.13;
+
+
+        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? "vfxNice" : "vfxBad"]);
+        this.notesVfx.startTime = this.musicPlayer.currentTime;
+        this.isFadingOut = false;
+    }
+
+
     addBtnVfx(track: number, hit: boolean) {
-        let vfx = new cImg(this.pkg, trackLength - 35 / this.canvas.width, trackYPositions[track] + trackWidth / 2 - 18 / this.canvas.height, [hit ? "hit" : "miss"])
+        let vfx = new cImg(
+            this.pkg,
+            this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
+            this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
+            [hit ? "hit" : "miss"])
         vfx.startTime = this.musicPlayer.currentTime;
         this.vfxObjs.push(vfx);
     }
 
-    setOtter(index: number, ms = 1000) {
-        if (this.otter_index < 0) return;
-        const cur = this.staticObjs[this.otter_index] as cImg;
-        cur.currentSprite = index;
+    setOtter(index: number, ms: number) {
+        if (index === 2) {
+            this.otter_state = "hit";
+        } else if (index === 3) {
+            this.otter_state = "miss";
+        } else {
+            this.otter_state = "idle";
+        }
+
+        // reset after 1 second
         clearTimeout(this.otter_timer);
         this.otter_timer = window.setTimeout(() => {
-            const def = this.staticObjs[this.otter_index] as cImg;
-            if (def) def.currentSprite = 0;
+            this.otter_state = "idle";
         }, ms);
-
     }
 
     pauseGame() {
@@ -561,7 +679,4 @@ export class RhythmRenderer {
             this.musicPlayer.play();
         }, 3000)
     }
-
-
-
 }

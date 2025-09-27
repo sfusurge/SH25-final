@@ -5,7 +5,7 @@
     } from "$lib/components/rhythm/RhythmRenderer.svelte";
     import Background from "$lib/components/rhythm/Background.svelte";
     import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
-    import { onDestroy, untrack } from "svelte";
+    import { onDestroy, untrack, onMount } from "svelte";
     import { cImg, parseBeatMap } from "$lib/components/rhythm/CanvasTools";
     import {
         rhythmGameConfig,
@@ -35,12 +35,32 @@
     });
 
     let displayScore = $state(0);
+    let otterState = $state("idle");
+    let lastTime = 0;
 
-    // Update score separately with an effect
     $effect(() => {
         if (renderer?.points !== undefined) {
             displayScore = renderer.points;
         }
+
+        if (renderer?.otter_state !== undefined) {
+            otterState = renderer.otter_state;
+        }
+    });
+
+    const updateIdleFrame = (timestamp: number) => {
+        requestAnimationFrame(updateIdleFrame);
+
+        if (timestamp - lastTime >= 1000) {
+            if (otterState === "idle" || otterState === "idle2") {
+                otterState = otterState == "idle" ? "idle2" : "idle";
+            }
+            lastTime = timestamp;
+        }
+    };
+
+    onMount(() => {
+        requestAnimationFrame(updateIdleFrame);
     });
 
     onDestroy(() => {
@@ -62,6 +82,10 @@
         "BAD APPLE": {
             notesSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.beatmap",
             songSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.mp3",
+        },
+        "Philosophical Starry": {
+            notesSrc: "/rhythm/beatmaps/Philosophical Starry [Easy].beatmap",
+            songSrc: "/rhythm/beatmaps/philosophicalStarry.mp3",
         },
     });
 
@@ -133,6 +157,7 @@
             renderer.songData.length > 0
         ) {
             renderer.startSong();
+            canvas?.focus();
         }
     });
 
@@ -174,7 +199,7 @@
             }}
         />
     {/if}
-    
+
     {#if GameState.isGameEnded}
         <SlideShow
             slides={rhythmGameConfig.ending.slides}
@@ -195,123 +220,100 @@
             })}
         />
     {/if}
+    <ScalableFrame style="flex:1;">
+        <div class="uistuff songSelection">
+            <label for="songOption">
+                <!-- TODO: placeholder, remove -->
 
-    <ScalableFrame style="flex:1;" >
-    <div class="uistuff beatMapInput">
-        <label>
-            <!-- TODO: placeholder, remove -->
+                Pick your song:
+                <select
+                    name="songOption"
+                    id="songOption"
+                    bind:value={selectedSongTitle}
+                >
+                    {#each Object.entries(songs) as [title, song], index (title)}
+                        <option value={title}>{title}</option>
+                    {/each}
+                </select>
+            </label>
+        </div>
 
-            Beatmap:
-            <input accept=".beatmap" bind:files={beatmapFile} type="file" />
-        </label>
-    </div>
+        <Background />
+        <img class="cloud" src="/rhythm/pinkCloud.webp" alt="cloud" />
+        <canvas tabindex="1" bind:this={canvas}></canvas>
 
-    <div class="uistuff songFileInput">
-        <label>
-            <!-- TODO: placeholder, remove -->
-
-            SongMp3:
-            <input accept=".mp3" bind:files={musicFile} type="file" />
-        </label>
-    </div>
-
-    {#if beatmapFile && musicFile}
-        <div class="uistuff testSong" on:click={testSongUpload}>Test</div>
-    {/if}
-
-    <div class="uistuff songSelection">
-        <label for="songOption">
-            <!-- TODO: placeholder, remove -->
-
-            Pick your song:
-            <select
-                name="songOption"
-                id="songOption"
-                bind:value={selectedSongTitle}
+        <div style="position: absolute; left: 20px; top: 20px;;">
+            <HoverEffectButton
+                className="h-11"
+                onClick={() => {
+                    if (GameState.isGameRunning) {
+                        pause();
+                        GameState.openInstructions(true);
+                    }
+                }}
+                square
+                large
             >
-                {#each Object.entries(songs) as [title, song], index (title)}
-                    <option value={title}>{title}</option>
-                {/each}
-            </select>
-        </label>
-    </div>
+                <img class="icon" src="/rhythm/pause.png" alt="?" />
+            </HoverEffectButton>
+        </div>
 
-    <Background />
-    <canvas tabindex="1" bind:this={canvas}></canvas>
-
-    <div style="position: absolute; left: 20px; top: 20px;;">
-        <HoverEffectButton
-            className="h-11"
-            onClick={() => {
-                if (GameState.isGameRunning) {
-                    pause();
-                    GameState.openInstructions(true);
-                }
-            }}
-            square
-            large
-        >
-            <img class="icon" src="/rhythm/pause.png" alt="?" />
-        </HoverEffectButton>
-    </div>
-  
-    <div style="position: absolute; right: 20px; top: 20px;;">
-        <div
-            class="mt-auto mb-8 relative border border-border bg-background h-11"
-        >
-            <RockFilter />
-            <div class="flex justify-between items-center h-full w-40">
-                <BlockPatternVertical className="h-11 mr-2" />
-                <div class="flex items-center gap-2">
-                    <img
-                        src="/assets/experiences/leaf/leafIcon.png"
-                        alt="Score Icon"
-                        height="15"
-                        width="16"
-                    />
-                    <span
-                        class="text-primary text-sm font-normal leading-normal opacity-100"
-                        style="font-family: var(--font-catriel);"
-                        >{displayScore}</span
-                    >
+        <div style="position: absolute; right: 20px; top: 20px;;">
+            <div
+                class="mt-auto mb-8 relative border border-border bg-background h-11"
+            >
+                <RockFilter />
+                <div class="flex justify-between items-center h-full w-40">
+                    <BlockPatternVertical className="h-11 mr-2" />
+                    <div class="flex items-center gap-2">
+                        <img
+                            src="/assets/experiences/leaf/leafIcon.png"
+                            alt="Score Icon"
+                            height="15"
+                            width="16"
+                        />
+                        <span
+                            class="text-primary text-sm font-normal leading-normal opacity-100"
+                            style="font-family: var(--font-catriel);"
+                            >{displayScore}</span
+                        >
+                    </div>
+                    <BlockPatternVertical className="h-11 rotate-180 ml-2" />
                 </div>
-                <BlockPatternVertical className="h-11 rotate-180 ml-2" />
             </div>
         </div>
-    </div>
-</ScalableFrame>
+
+        <img
+            class="otter"
+            src="/rhythm/{otterState === 'idle'
+                ? 'pinkResting1'
+                : otterState === 'idle2'
+                  ? 'pinkResting2'
+                  : otterState === 'hit'
+                    ? 'pinkCorrectHit'
+                    : 'pinkWrongHit'}.webp"
+            alt="otter"
+        />
+    </ScalableFrame>
 </div>
 
 <style>
-    .beatMapInput {
-        top: 250px;
-        left: 10%;
-        font-size: 0.75vw;
-
-        ::file-selector-button {
-            border: 1px white solid;
-            padding: 0 5px;
-            cursor: pointer;
-        }
+    .cloud {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -20%);
+        z-index: 0;
+        width: 30%;
     }
 
-    .songFileInput {
-        top: 250px;
-        left: 40%;
-        font-size: 0.75vw;
-
-        ::file-selector-button {
-            border: 1px white solid;
-            padding: 0 5px;
-            cursor: pointer;
-        }
-    }
-
-    .testSong {
-        top: 250px;
-        left: 70%;
-        cursor: pointer;
-        font-size: 0.75vw;
+    .otter {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -70%);
+        z-index: 10;
+        width: 11%;
     }
 
     .songSelection {
@@ -338,5 +340,7 @@
         position: absolute;
         left: 0;
         top: 0;
+        z-index: 0;
+        background-color: transparent;
     }
 </style>
