@@ -514,8 +514,14 @@ export class MazeGame {
     }
 
     private completeDoorTransition() {
-        this.reset();
+        GameState.completeLevel();
         this.doorTransitionActive = false;
+
+        if (GameState.isGameEnded) {
+            return;
+        }
+
+        this.reset();
         GameState.focusGameCanvas();
     }
 

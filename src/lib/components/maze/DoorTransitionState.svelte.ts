@@ -1,11 +1,12 @@
 import type { DoorEntity } from "./Entities";
+import { GameState } from "./MazeGameState.svelte";
 
 export type DoorTransitionPhase = "idle" | "holding" | "transition";
 
 const DEFAULT_PROMPT_TITLE = "Hold to enter";
 const DEFAULT_PROMPT_CANCEL = "Move away to stay in this floor";
 const TRANSITION_PREPARING_MESSAGE = "Preparing the next floor...";
-const TRANSITION_READY_MESSAGE = "Entering the next floor...";
+const TRANSITION_READY_MESSAGE = "Preparing the next floor...";
 
 class _DoorTransitionState {
     phase = $state<DoorTransitionPhase>("idle");
@@ -83,6 +84,7 @@ class _DoorTransitionState {
         this.readyTimer = 0;
         this.isReady = false;
         this.transitionMessage = TRANSITION_PREPARING_MESSAGE;
+        GameState.freezeTimer();
     }
 
     markTransitionReady(message?: string) {
@@ -126,6 +128,7 @@ class _DoorTransitionState {
         this.readyTimer = 0;
         this.isReady = false;
         this.setDefaultPrompts();
+        GameState.resumeTimer();
     }
 
     get holdProgress() {
