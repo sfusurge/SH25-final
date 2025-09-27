@@ -3,19 +3,9 @@
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
     import HudContainer from "./HudContainer.svelte";
 
-    // Timer formatting function
-    function fmt(ms: number) {
-        const s = Math.floor(ms / 1000);
-        const mm = String(Math.floor(s / 60)).padStart(2, "0");
-        const ss = String(s % 60).padStart(2, "0");
-        return `${mm}:${ss}`;
-    }
-
-    let sessionTimeLeftMs = $derived(GameState.timeRemaining);
-
     // HUD data - same for both mobile and desktop
     const hudItems = $derived([
-        { iconSrc: "/assets/clock.svg", value: fmt(sessionTimeLeftMs), alt: "clock" },
+        { iconSrc: "/assets/clock.svg", value: GameState.formattedElapsedTime, alt: "clock" },
         { iconSrc: "/assets/diamond.svg", value: GameState.score, alt: "Score Icon" },
         { iconSrc: "/assets/eye-open.svg", value: GameState.health, alt: "Health Icon" },
     ]);
@@ -86,6 +76,7 @@
         position: absolute;
         inset: 0;
         z-index: 10;
+        pointer-events: none;
     }
 
     .desktop-health {
@@ -94,6 +85,7 @@
         right: 0;
         padding: 2rem 2rem 0 0;
         margin: 1.25rem;
+        pointer-events: auto;
     }
 
     .desktop-bottom {
@@ -107,5 +99,6 @@
         align-items: start;
         padding-bottom: 0;
         gap: 2rem;
+        pointer-events: auto;
     }
 </style>

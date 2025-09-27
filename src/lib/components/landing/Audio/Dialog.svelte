@@ -106,7 +106,7 @@
         min-width: 300px;
         max-height: 85dvh;
         width: fit-content;
-        height: fit-content;
+        height: auto;
 
         background-color: var(--color-background);
         z-index: 10020;

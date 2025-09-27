@@ -3,6 +3,7 @@
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
     import SlideShow from "$lib/components/shared/SlideShow.svelte";
     import { mazeGameConfig, createGameActionButton } from "$lib/components/shared/slideshowConfig";
+    import MazeDoorOverlay from "./MazeDoorOverlay.svelte";
     import MazeHud from "./MazeHUD.svelte";
 
     // Props
@@ -10,9 +11,28 @@
         gameRenderer?: any; // MazeGame type would be imported from renderer
     }
     let { gameRenderer }: Props = $props();
+
+    const endingSlidesConfig = $derived.by(() => {
+        const baseConfig = mazeGameConfig.ending.slides;
+        const timeText = GameState.formattedElapsedTime;
+
+        const appendTime = (slides: { imageSrc: string; content: string }[] | undefined) =>
+            (slides ?? []).map((slide) => ({
+                ...slide,
+
+                // TODO: reconfigure formatting
+                content: `${slide.content}<br><br><strong>Time:</strong> ${timeText}`,
+            }));
+
+        return {
+            win: appendTime(baseConfig.win),
+            lose: appendTime(baseConfig.lose),
+            default: appendTime(baseConfig.default),
+        };
+    });
 </script>
 
-{#if GameState.paused}
+{#if GameState.paused && GameState.isGameRunning}
     <div class="pause-overlay" data-maze-ui></div>
 {/if}
 
@@ -47,11 +67,11 @@
 
 {#if GameState.isGameEnded}
     <SlideShow
-        slides={mazeGameConfig.ending.slides}
+        slides={endingSlidesConfig}
         title={mazeGameConfig.ending.title}
         show={true}
         showScore={GameState.score}
-        gameResult={"win"}
+        gameResult={GameState.gameResult ?? null}
         actionButton={createGameActionButton("restart", () => {
             // Reset the game world (new maze, entities, player position)
             if (gameRenderer) {
@@ -66,6 +86,7 @@
 {/if}
 
 <MazeHud />
+<MazeDoorOverlay />
 
 <style>
     .pause-overlay {
