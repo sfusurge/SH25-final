@@ -1,18 +1,27 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
+import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN, Player, ProjectileEntity, DoorEntity } from "$lib/components/maze/entities/index.ts";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { Player, ProjectileEntity } from "./Entities";
 import { GameState } from "./MazeGameState.svelte.ts";
+import { DoorTransitionState } from "./DoorTransitionState.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
 })
 
-// Direction constants
-const LEFT = 0;
-const UP = 1;
-const RIGHT = 2;
-const DOWN = 3;
+const mazeConfig = {
+    width: 10,
+    height: 10,
+    roomAttempts: 50,
+    windingPercent: 50,
+    randomOpenPercent: 0.03
+};
+
+type PreparedMazeData = {
+    mazeGenerator: MazeGenerator;
+    maze: ReturnType<MazeGenerator["generate"]>;
+};
+
 
 /**
  * Entity grid using actual maze cells for efficient collision detection
@@ -60,17 +69,25 @@ class EntityGrid {
 export class MazeGame {
     // TODO refactor for regenerating rooms
     mazeGenerator = new MazeGenerator(
-        40, // maze width
-        40, // maze height
-        50, // attempts to generate rooms
-        50, // winding percent for paths: 0 is straight corridors, 100 is max branching
-        0.03 // random open percent: chance to create openings in a wall where the two regions it connects already are connected
+        mazeConfig.width,
+        mazeConfig.height,
+        mazeConfig.roomAttempts,
+        mazeConfig.windingPercent,
+        mazeConfig.randomOpenPercent
     );
 
     maze = this.mazeGenerator.generate();
     rooms = this.mazeGenerator.rooms;
     idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
     currentRoomId: number = 0; // 0 means not in a room.
+    roomsCleared = new Map<number, boolean>(); // Track which rooms have been cleared of enemies
+
+    // Overlay transition state
+    overlayOpacity = 0;
+    overlayTargetOpacity = 0;
+    overlayTransitionSpeed = 6; // percent change per frame
+    lastOverlayState = false; // Track previous overlay state for transition detection
+    doorTransitionActive = false;
 
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -88,6 +105,10 @@ export class MazeGame {
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
     projectiles: ProjectileEntity[] = [];
+
+    private pendingMazeData: PreparedMazeData | null = null;
+    private pendingMazeReady = false;
+    private isPreparingNextFloor = false;
 
     horWallSprite = new Image();
     horWallPillar = new Image();
@@ -115,33 +136,62 @@ export class MazeGame {
         }
         this.ctx = ctx;
 
-        // put player in a room
-        const firstRoom = this.mazeGenerator.rooms[0];
-        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
-        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
-
-        let foundSafeSpot = false;
-        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
-
-        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
-            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
-                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
-                    console.log("Found safe spot for player:", x, y);
-                    playerStartX = x;
-                    playerStartY = y;
-                    foundSafeSpot = true;
-                }
-            }
-        }
-
-        const playerStartPos = new Vector2(
-            (playerStartX + 0.5) * CELL_SIZE,
-            (playerStartY + 0.5) * CELL_SIZE
-        );
-
+        const playerStartPos = this.findHallwayStartPosition();
         this.player = new Player(playerStartPos);
         this.detectMobileMode();
         this.init();
+    }
+
+    private createMazeData(): PreparedMazeData {
+        const mazeGenerator = new MazeGenerator(
+            mazeConfig.width,
+            mazeConfig.height,
+            mazeConfig.roomAttempts,
+            mazeConfig.windingPercent,
+            mazeConfig.randomOpenPercent
+        );
+
+        const maze = mazeGenerator.generate();
+        return { mazeGenerator, maze };
+    }
+
+    private applyMazeData(data: PreparedMazeData) {
+        this.mazeGenerator = data.mazeGenerator;
+        this.maze = data.maze;
+        this.rooms = this.mazeGenerator.rooms;
+        this.idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+        this.pendingMazeReady = false;
+        this.isPreparingNextFloor = false;
+    }
+
+    private applyPendingMazeData() {
+        const data = this.pendingMazeData ?? this.createMazeData();
+        this.pendingMazeData = null;
+        this.applyMazeData(data);
+    }
+
+    private prepareNextFloor() {
+        if (this.pendingMazeData) {
+            if (!this.pendingMazeReady) {
+                this.pendingMazeReady = true;
+                DoorTransitionState.markTransitionReady();
+            }
+            return;
+        }
+
+        if (this.isPreparingNextFloor) {
+            return;
+        }
+
+        this.pendingMazeReady = false;
+        this.isPreparingNextFloor = true;
+
+        requestAnimationFrame(() => {
+            this.pendingMazeData = this.createMazeData();
+            this.pendingMazeReady = true;
+            this.isPreparingNextFloor = false;
+            DoorTransitionState.markTransitionReady();
+        });
     }
 
     keyMem = {
@@ -155,6 +205,63 @@ export class MazeGame {
         ArrowLeft: false,
         ArrowRight: false
     };
+
+    clearAllKeys() {
+        for (const key in this.keyMem) {
+            // @ts-ignore
+            this.keyMem[key] = false;
+        }
+    }
+
+    findHallwayStartPosition(): Vector2 {
+        // Find a hallway position near the center of the maze
+        const centerX = Math.floor(this.maze.width / 2);
+        const centerY = Math.floor(this.maze.height / 2);
+
+        let playerStartX = centerX;
+        let playerStartY = centerY;
+        let foundHallwaySpot = false;
+
+        // Search in expanding circles from the center for a hallway position
+        for (let radius = 0; radius < Math.max(this.maze.width, this.maze.height) / 2 && !foundHallwaySpot; radius++) {
+            for (let dx = -radius; dx <= radius && !foundHallwaySpot; dx++) {
+                for (let dy = -radius; dy <= radius && !foundHallwaySpot; dy++) {
+                    // Only check cells at the current radius (not already checked)
+                    if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+
+                    const x = centerX + dx;
+                    const y = centerY + dy;
+
+                    // Check bounds
+                    if (x < 0 || x >= this.maze.width || y < 0 || y >= this.maze.height) continue;
+
+                    const cellIndex = y * this.maze.width + x;
+                    const cell = this.maze.map[cellIndex];
+
+                    // Check if it's a hallway 
+                    const roomId = ((cell & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
+                    if (cell !== CELL_TYPE.SOLID && roomId === 0) {
+                        playerStartX = x;
+                        playerStartY = y;
+                        foundHallwaySpot = true;
+                    }
+                }
+            }
+        }
+
+        // Fallback just in case
+        if (!foundHallwaySpot) {
+            console.log("No hallway found near center, so using first room as fallback");
+            const firstRoom = this.mazeGenerator.rooms[0];
+            playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
+            playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
+        }
+
+        return new Vector2(
+            (playerStartX + 0.5) * CELL_SIZE,
+            (playerStartY + 0.5) * CELL_SIZE
+        );
+    }
 
     init() {
 
@@ -222,8 +329,14 @@ export class MazeGame {
         });
 
         // Ensure canvas stays focused when clicked
-        this.canvas.addEventListener("click", () => {
+        this.canvas.addEventListener("click", (e) => {
+            e.stopPropagation();
             this.canvas.focus();
+        });
+
+        // prevent stuck keys
+        this.canvas.addEventListener("blur", () => {
+            this.clearAllKeys();
         });
 
         // start update loop
@@ -231,42 +344,12 @@ export class MazeGame {
     }
 
     reset() {
-        // Generate a new maze
-        this.mazeGenerator = new MazeGenerator(
-            40, // maze width
-            40, // maze height
-            50, // attempts to generate rooms
-            50, // winding percent for paths
-            0.03 // random open percent
-        );
-
-        this.maze = this.mazeGenerator.generate();
-        this.rooms = this.mazeGenerator.rooms;
-        this.idToRoomLayout = this.mazeGenerator.roomGenerator.idToRoomTemplate;
+        this.applyPendingMazeData();
         this.currentRoomId = 0;
+        this.roomsCleared.clear();
 
-        // Reset player position to first room
-        const firstRoom = this.mazeGenerator.rooms[0];
-        let playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
-        let playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
-
-        let foundSafeSpot = false;
-        const firstRoomLayout = this.idToRoomLayout[firstRoom.regionID];
-
-        for (let y = firstRoom.y1; y < firstRoom.y2 && !foundSafeSpot; y++) {
-            for (let x = firstRoom.x1; x < firstRoom.x2 && !foundSafeSpot; x++) {
-                if (!firstRoomLayout?.hasEntitiesAtPosition(x, y)) {
-                    playerStartX = x;
-                    playerStartY = y;
-                    foundSafeSpot = true;
-                }
-            }
-        }
-
-        const playerStartPos = new Vector2(
-            (playerStartX + 0.5) * CELL_SIZE,
-            (playerStartY + 0.5) * CELL_SIZE
-        );
+        // Reset player position to hallway near center
+        const playerStartPos = this.findHallwayStartPosition();
 
         // Reset player
         this.player.pos = playerStartPos;
@@ -284,6 +367,8 @@ export class MazeGame {
 
         // Reset camera
         this.camera = Vector2.ZERO;
+        this.doorTransitionActive = false;
+        DoorTransitionState.reset();
     }
 
     detectMobileMode() {
@@ -311,6 +396,14 @@ export class MazeGame {
 
     setShootingJoystickInput(input: Vector2) {
         this.shootingJoystickInput = input;
+    }
+
+    beginDoorEntry(door: DoorEntity) {
+        if (!door || door.isLocked) {
+            return;
+        }
+
+        DoorTransitionState.startHold(door);
     }
 
     getPlayerInput() {
@@ -391,6 +484,41 @@ export class MazeGame {
         this.projectiles.push(projectile);
     }
 
+    private tickDoorTransition(dt: number) {
+        const state = DoorTransitionState;
+
+        if (state.phase === "holding") {
+            const door = state.activeDoor;
+            const stillInside = !!door && door.aabb.collidingWith(this.player.aabb);
+            state.updateHold(dt, stillInside);
+            this.doorTransitionActive = false;
+        } else if (state.phase === "transition") {
+            if (!this.doorTransitionActive) {
+                this.prepareNextFloor();
+                this.doorTransitionActive = true;
+                this.clearAllKeys();
+                this.joystickInput = Vector2.ZERO;
+                this.shootingJoystickInput = Vector2.ZERO;
+                this.player.vel = Vector2.ZERO;
+            }
+            state.tickTransition(dt, this.pendingMazeReady, () => this.completeDoorTransition());
+        } else {
+
+        }
+    }
+
+    private completeDoorTransition() {
+        GameState.completeLevel();
+        this.doorTransitionActive = false;
+
+        if (GameState.isGameEnded) {
+            return;
+        }
+
+        this.reset();
+        GameState.focusGameCanvas();
+    }
+
     updateCameraPos() {
         // TODO
         this.camera.x = this.player.x;
@@ -399,7 +527,15 @@ export class MazeGame {
 
     lastTime = 0;
     deltaTime = 0;
+    wasLastFramePaused = false; // Track pause state changes
+
     update(time: number) {
+        // Check if pause state changed, clear keys if just got paused
+        if (GameState.paused && !this.wasLastFramePaused) {
+            this.clearAllKeys();
+        }
+        this.wasLastFramePaused = GameState.paused;
+
         // Skip game updates if paused or not in running phase, but continue the animation loop
         if (GameState.paused || !GameState.isGameRunning) {
             this.lastTime = time;
@@ -416,11 +552,19 @@ export class MazeGame {
             return;
         }
 
-        this.updateCameraPos();
-        this.updateEntities();
-        this.resolveEntityCollisions();
+        const isTransitioning = DoorTransitionState.phase === "transition";
 
-        // this.collisionResolution(this.player, this.entities[0].aabb);
+        if (!isTransitioning) {
+            this.updateCameraPos();
+            this.updateEntities();
+            this.resolveEntityCollisions();
+        } else {
+            this.player.vel = Vector2.ZERO;
+            this.updateCameraPos();
+        }
+
+        this.tickDoorTransition(this.deltaTime);
+
         this.render();
 
         this.lastTime = time;
@@ -430,6 +574,35 @@ export class MazeGame {
     resolveWallCollisions(entity: Entity) {
         const eCol = Math.floor(entity.x / CELL_SIZE);
         const eRow = Math.floor(entity.y / CELL_SIZE);
+
+        // Add invisible walls
+        if (this.currentRoomId > 0 && this.isRoomLocked(this.currentRoomId) && entity.metadata.entityType !== ENTITY_TYPE.projectile) {
+            const room = this.idToRoomLayout[this.currentRoomId];
+            if (room) {
+                // Create invisible walls at room boundaries
+                const roomLeft = room.left * CELL_SIZE;
+                const roomRight = room.right * CELL_SIZE;
+                const roomTop = room.top * CELL_SIZE;
+                const roomBottom = room.bottom * CELL_SIZE;
+
+                // Left boundary wall
+                if (entity.x < roomLeft + entity.width / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomLeft - 10, roomTop, 10, roomBottom - roomTop));
+                }
+                // Right boundary wall
+                if (entity.x > roomRight - entity.width / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomRight, roomTop, 10, roomBottom - roomTop));
+                }
+                // Top boundary wall
+                if (entity.y < roomTop + entity.height / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomLeft, roomTop - 10, roomRight - roomLeft, 10));
+                }
+                // Bottom boundary wall
+                if (entity.y > roomBottom - entity.height / 2) {
+                    entity.resolveCollision(AABB.fromPosSize(roomLeft, roomBottom, roomRight - roomLeft, 10));
+                }
+            }
+        }
 
         // TODO, filter only the wall that matters
         for (const [dr, dc] of [[-1, 0], [1, 0], [0, 1], [0, -1], [0, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
@@ -557,6 +730,11 @@ export class MazeGame {
         debug.entityCollisions = entityCollisionCount;
         debug.projectileCount = this.projectiles.length;
 
+        // Check for room completion after potential enemy kills
+        if (this.currentRoomId > 0) {
+            this.setRoomCompletionStatus(this.currentRoomId);
+        }
+
     }
     /**
      * updates velocity of all entities and then move according to vel.
@@ -608,6 +786,8 @@ export class MazeGame {
             // Remove destroyed entities
             room.entities = room.entities.filter(e => !e.metadata.destroyed);
             room.dynamicEntities = room.dynamicEntities.filter(e => !e.metadata.destroyed);
+
+            this.setRoomCompletionStatus(this.currentRoomId);
         }
         this.player.update(this, this.deltaTime);
     }
@@ -660,6 +840,43 @@ export class MazeGame {
         grid.addEntity(this.player);
         for (const entity of room.entities) {
             grid.addEntity(entity);
+        }
+    }
+
+    countEnemiesInRoom(roomId: number): number {
+        if (roomId <= 0) return 0;
+
+        const room = this.idToRoomLayout[roomId];
+        if (!room) return 0;
+
+        return room.entities.filter(entity =>
+            entity.metadata.entityType === ENTITY_TYPE.enemy &&
+            (!entity.metadata.destroyed && !(entity as any).isDead)
+        ).length;
+    }
+
+    isRoomLocked(roomId: number): boolean {
+        return roomId > 0 && !this.roomsCleared.get(roomId) && this.countEnemiesInRoom(roomId) > 0;
+    }
+
+    setRoomCompletionStatus(roomId: number): void {
+        if (roomId <= 0) return;
+
+        if (this.countEnemiesInRoom(roomId) === 0) {
+            this.roomsCleared.set(roomId, true);
+            if (roomId === 1) { // room 1 has door
+
+                const roomLayout = this.idToRoomLayout[roomId];
+                const doorX = roomLayout.doorLocation?.[1];
+                const doorY = roomLayout.doorLocation?.[0];
+                if (doorX !== undefined && doorY !== undefined) {
+                    const entity = roomLayout.staticEntities[doorY][doorX];
+                    if (entity && entity.metadata.entityType === ENTITY_TYPE.door) {
+                        const doorEntity = entity as DoorEntity;
+                        doorEntity.isLocked = false;
+                    }
+                }
+            }
         }
     }
 
@@ -923,6 +1140,67 @@ export class MazeGame {
         }
 
         debug.cellRenderCount = renderCount;
+
+
+        // ======= ROOM LOCK SCREEN OVERLAY ======
+
+        const shouldShowOverlay = this.currentRoomId > 0 && this.isRoomLocked(this.currentRoomId);
+
+        if (shouldShowOverlay !== this.lastOverlayState) {
+            this.overlayTargetOpacity = shouldShowOverlay ? 1 : 0;
+            this.lastOverlayState = shouldShowOverlay;
+        }
+
+        // Smoothly animate overlay opacity towards target
+        if (this.overlayOpacity !== this.overlayTargetOpacity) {
+            const diff = this.overlayTargetOpacity - this.overlayOpacity;
+            this.overlayOpacity += diff * this.overlayTransitionSpeed / 60; //adjust 60 to fps if changed
+            if (Math.abs(diff) < 0.01) {
+                this.overlayOpacity = this.overlayTargetOpacity
+            };
+        }
+
+        // Render overlay if it has any opacity
+        if (this.overlayOpacity > 0 && this.currentRoomId > 0) {
+            const currentRoom = this.idToRoomLayout[this.currentRoomId];
+            if (currentRoom) {
+                ctx.resetTransform();
+                ctx.scale(dpr, dpr);
+
+                const spacing = 0.3;
+                const screenCenterX = (this.canvas.width / dpr) / (2 * this.zoom);
+                const screenCenterY = (this.canvas.height / dpr) / (2 * this.zoom);
+                const fadeDistance = (CELL_SIZE * this.zoom) * 0.5;
+                const [screenWidth, screenHeight] = [this.canvas.width / dpr, this.canvas.height / dpr];
+                const maxOpacity = 0.75 * this.overlayOpacity;
+
+                // room screen boundaries
+                const roomScreen = {
+                    left: ((currentRoom.left - spacing) * CELL_SIZE - this.camera.x) * this.zoom + screenCenterX,
+                    right: ((currentRoom.right + spacing) * CELL_SIZE - this.camera.x) * this.zoom + screenCenterX,
+                    top: ((currentRoom.top - spacing) * CELL_SIZE - this.camera.y) * this.zoom + screenCenterY,
+                    bottom: ((currentRoom.bottom + spacing - 0.3) * CELL_SIZE - this.camera.y) * this.zoom + screenCenterY
+                };
+
+                // rectangles with gradients
+                const overlays = [
+                    { condition: roomScreen.top > 0, gradient: [0, Math.max(0, roomScreen.top - fadeDistance), 0, roomScreen.top], stops: [maxOpacity, 0], rect: [0, 0, screenWidth, roomScreen.top] },
+                    { condition: roomScreen.bottom < screenHeight, gradient: [0, roomScreen.bottom, 0, Math.min(screenHeight, roomScreen.bottom + fadeDistance)], stops: [0, maxOpacity], rect: [0, roomScreen.bottom, screenWidth, screenHeight - roomScreen.bottom] },
+                    { condition: roomScreen.left > 0, gradient: [Math.max(0, roomScreen.left - fadeDistance), 0, roomScreen.left, 0], stops: [maxOpacity, 0], rect: [0, 0, roomScreen.left, screenHeight] },
+                    { condition: roomScreen.right < screenWidth, gradient: [roomScreen.right, 0, Math.min(screenWidth, roomScreen.right + fadeDistance), 0], stops: [0, maxOpacity], rect: [roomScreen.right, 0, screenWidth - roomScreen.right, screenHeight] }
+                ];
+
+                overlays.forEach(({ condition, gradient, stops, rect }) => {
+                    if (condition) {
+                        const grad = ctx.createLinearGradient(gradient[0], gradient[1], gradient[2], gradient[3]);
+                        grad.addColorStop(0, `rgba(0, 0, 0, ${stops[0]})`);
+                        grad.addColorStop(1, `rgba(0, 0, 0, ${stops[1]})`);
+                        ctx.fillStyle = grad;
+                        ctx.fillRect(rect[0], rect[1], rect[2], rect[3]);
+                    }
+                });
+            }
+        }
     }
 }
 

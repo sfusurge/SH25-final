@@ -11,6 +11,7 @@ export class RoomGenerator {
     private height: number;
     private regionIDCounter: number = 1;
     private roomIDCounter = 1;
+    private needsDoor: boolean = true;
 
     idToRoomTemplate: { [key: number | string]: RoomLayout } = {};
 
@@ -127,8 +128,11 @@ export class RoomGenerator {
             room.y1,
             room.x2,
             room.y2,
-            obstacleMap
+            obstacleMap,
+            this.needsDoor
         );
+
+        this.needsDoor = false;
 
         // Add walls
         for (let x = room.x1; x < room.x2; x++) {
