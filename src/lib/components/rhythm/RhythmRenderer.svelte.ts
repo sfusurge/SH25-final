@@ -206,6 +206,7 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
+            this.keyDown(trackIds.top);
             const mobileScreenOffset = 50;
             // console.log(e.touches[0].clientY)
             // console.log(this.yStd(mobileSz.btnPos) / 2)
