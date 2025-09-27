@@ -210,6 +210,7 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
+            this.points = e.touches[e.touches.length - 1].identifier;
             if(this.mobileView){
                 //divide by 3, mobile weird
                 if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
