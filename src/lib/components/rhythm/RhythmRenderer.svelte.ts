@@ -592,7 +592,7 @@ export class RhythmRenderer {
             obj.update();
         });
         this.vfxObjs = this.vfxObjs.filter(v => {
-            return (this.musicPlayer.currentTime - v.startTime) < vfxDuration
+            return (this.currentTime - v.startTime) < vfxDuration
         })
     }
 
@@ -660,7 +660,7 @@ export class RhythmRenderer {
             this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
             this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
             [hit ? "hit" : "miss"])
-        vfx.startTime = this.musicPlayer.currentTime;
+        vfx.startTime = this.currentTime;
         this.vfxObjs.push(vfx);
     }
 
