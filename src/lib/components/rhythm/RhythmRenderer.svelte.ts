@@ -164,7 +164,7 @@ export class RhythmRenderer {
         });
 
         let lastNote = this.songData[this.songData.length - 1]
-        this.duration = lastNote.timing + (lastNote.duration ?? 0) + 3000;
+        this.duration = lastNote.timing + (lastNote.duration ?? 0) + 250;
         this.lowScoreThreshold = Math.max(scoreBoundsPercentage.min * this.songData.length) * basePoints;
         this.highScoreThreshold = Math.max(scoreBoundsPercentage.max * this.songData.length) * basePoints;
 
@@ -277,9 +277,6 @@ export class RhythmRenderer {
     }
 
     setupEnvironment() {
-
-
-
         //backboard
         this.staticObjs.push(
             new cQuad(this.pkg,
@@ -454,6 +451,9 @@ export class RhythmRenderer {
         for (let h = 0; h < this.holdKeyTracker.length; h++) {
             let n = this.songData[this.holdKeyTracker[h]];
 
+            if(!n){
+                break;
+            }
             const boundSize = interactionThreshold / 2;
             if (n.noteState == noteState.untouched && (n.timing + boundSize) < lowTime) {
                 n.noteState = noteState.missed;
@@ -490,8 +490,11 @@ export class RhythmRenderer {
         const cloudFadePercentage = 1 - btnTrackPercent;
         //single cloud rendering
         for (let i = 0; i < this.songData.length; i++) {
-            if (!withinTimeRange(this.songData[i].timing)) {
+            if (this.songData[i].timing < lowTime) {
                 continue;
+            }
+            if (this.songData[i].timing > highTime) {
+                break;
             }
             let v = this.songData[i];
 
@@ -504,16 +507,9 @@ export class RhythmRenderer {
             }
 
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
-            // this.ctx.strokeStyle = "orange";
             let progDist = this.mobileView ?
                 calcYByProgress(prog, -(cloudSprites[v.trackNo].height / 2)) :
                 calcXByProgress(prog, -(cloudSprites[v.trackNo].width / 2));
-            // this.ctx.strokeRect(
-            //     progDist,
-            //     (trackYPositions[v.trackNo] + trackWidth / 2) * this.canvas.height -  cloudSprites[v.trackNo].height / 2,
-            //     cloudSprites[v.trackNo].width,
-            //     cloudSprites[v.trackNo].height,
-            // )
 
             this.ctx.globalAlpha = 1;
             if (prog < cloudFadePercentage || prog > (1 - cloudFadePercentage)) {
