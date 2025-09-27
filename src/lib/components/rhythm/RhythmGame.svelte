@@ -164,7 +164,7 @@
             renderer &&
             renderer.songData.length > 0
         ) {
-            renderer.startSong();
+            renderer.startCountDown();
             canvas?.focus();
         }
     });
@@ -176,6 +176,7 @@
 
     function resume() {
         renderer?.resumeGame();
+        GameState.resumeGame();
     }
 </script>
 
@@ -202,7 +203,6 @@
             onClose={() => {
                 GameState.showInstructionsDuringGame = false;
                 GameState.showCloseButtonInInstructions = false;
-                GameState.resumeGame();
                 resume();
             }}
         />
