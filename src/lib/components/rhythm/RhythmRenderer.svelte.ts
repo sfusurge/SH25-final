@@ -205,6 +205,17 @@ export class RhythmRenderer {
             }
         }, { capture: true });
 
+        this.canvas.addEventListener("mousedown", (e) => {
+            console.log(e.layerY)
+            console.log(mobileSz.btnPos - mobileSz.btnRadius)
+            if(this.mobileView){
+                if(e.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) &&
+                    e.clientY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius)){
+                        console.log("CLICK");
+                }
+            }
+        })
+
         this.canvas.addEventListener("keyup", (e) => {
             switch (e.key.toLowerCase()) {
                 case "a":
