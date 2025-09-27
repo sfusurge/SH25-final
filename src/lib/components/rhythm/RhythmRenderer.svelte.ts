@@ -206,22 +206,8 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
-            // this.points = this.yStd(mobileSz.btnPos) / 3;
-            // console.log(e.touches[0].clientY)
-            // console.log(this.yStd(mobileSz.btnPos) / 2)
-            // console.log(this.xStd(mobileSz.trackXs[0] - mobileSz.btnRadius))
-            // console.log(this.xStd(mobileSz.trackXs[0])/2)
-            // console.log(this.xStd(mobileSz.trackXs[0] + mobileSz.trackWidth)/2)
-            // console.log(this.xStd(mobileSz.trackXs[0])/2)
-            // console.log(this.yStd(mobileSz.btnPos + mobileSz.btnRadius))
-
-            // const isWithinBtnI = (i: number) => {
-            //     let l = this.xStd(mobileSz.trackXs[i]) / 2;
-            //     let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
-            //     return e.touches[0].clientX > l && ;
-            // }
             if(this.mobileView){
-                //divide by 2, apparently in mobile mode the height is doubled
+                //divide by 3, mobile weird
                 if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
 
                     if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
@@ -252,24 +238,18 @@ export class RhythmRenderer {
             }
         }, { capture: true });
 
-        this.canvas.addEventListener("mouseup", (e) => {
+        this.canvas.addEventListener("touchend", (e) => {
 
-            const isWithinBtnI = (i: number) => {
-                let l = this.xStd(mobileSz.trackXs[i]) / 2;
-                let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
-                return e.offsetX > l && e.offsetX < r;
-            }
             if(this.mobileView){
-                //divide by 2, apparently in mobile mode the height is doubled
-                if(e.offsetY > this.yStd((mobileSz.btnPos - mobileSz.btnRadius) / 2) &&
-                    e.offsetY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2){
+                //divide by 3, mobile weird
+                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
 
-                    if(isWithinBtnI(trackIds.top)){
+                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
                         this.keyUp(trackIds.top);
-                    }else if(isWithinBtnI(trackIds.middle)){
-                        this.keyUp(trackIds.middle);
-                    }else if(isWithinBtnI(trackIds.bottom)){
+                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
                         this.keyUp(trackIds.bottom);
+                    }else{
+                        this.keyUp(trackIds.middle);
                     }
                 }
             }
