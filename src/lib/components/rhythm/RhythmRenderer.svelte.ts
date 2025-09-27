@@ -155,6 +155,7 @@ export class RhythmRenderer {
     }
 
     setSong(notes: RhythmNote[], song: AudioBuffer) {
+        this.reset();
         this.musicPlayer.song = song;
 
         this.musicPlayer.offsetTime = 0;
@@ -440,7 +441,7 @@ export class RhythmRenderer {
         this.ctx.strokeText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
         this.ctx.fillText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
 
-        if(this.currentTime > this.countDownTimestamp + 1000){
+        if(this.currentTime > this.countDownTimestamp + 750){
             this.countDownMode--;
             this.countDownTimestamp = this.currentTime;
             if(this.countDownMode == 0){
