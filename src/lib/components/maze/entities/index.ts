@@ -4,6 +4,7 @@ import { TrapEntity } from "./TrapEntity";
 import { WalkerEntity } from "./WalkerEntity";
 import { ScrollEntity } from "./ScrollEntity";
 import { Player } from "./Player";
+import { ProjectileEntity } from "./ProjectileEntity";
 
 export const ENTITY_TYPE = Object.freeze({
     player: -1,
@@ -27,5 +28,6 @@ export {
     TrapEntity,
     WalkerEntity,
     ScrollEntity,
-    Player
+    Player,
+    ProjectileEntity
 };

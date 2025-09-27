@@ -1,11 +1,8 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
-import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN } from "$lib/components/maze/entities/index.ts";
+import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN, Player, ProjectileEntity, DoorEntity } from "$lib/components/maze/entities/index.ts";
 import { CELL_TYPE, CELL_SIZE, WALL_SIZE } from "$lib/components/maze/Maze";
 import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
-import { Player } from "./entities/Player.ts";
-import { ProjectileEntity } from "./entities/ProjectileEntity.ts";
-import { DoorEntity } from "./entities/DoorEntity.ts";
 import { GameState } from "./MazeGameState.svelte.ts";
 import { DoorTransitionState } from "./DoorTransitionState.svelte.ts";
 
@@ -506,7 +503,7 @@ export class MazeGame {
             }
             state.tickTransition(dt, this.pendingMazeReady, () => this.completeDoorTransition());
         } else {
-            this.doorTransitionActive = false;
+
         }
     }
 
