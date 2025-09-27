@@ -87,6 +87,14 @@
             notesSrc: "/rhythm/beatmaps/Philosophical Starry [Easy].beatmap",
             songSrc: "/rhythm/beatmaps/philosophicalStarry.mp3",
         },
+        "Scummious Realization": {
+            notesSrc: "/rhythm/beatmaps/Scummious_ Realization [Medium].beatmap",
+            songSrc: "/rhythm/beatmaps/scummiousRealization.mp3",
+        },
+        "Stormy & Sparky Training Arc": {
+            notesSrc: "/rhythm/beatmaps/Stormy&Sparky_s Training Arc [Hard].beatmap",
+            songSrc: "/rhythm/beatmaps/stormy&sparkysTrainingArc.mp3",
+        },
     });
 
     let selectedSongTitle: string = $state("");
