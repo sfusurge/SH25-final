@@ -205,21 +205,25 @@ export class RhythmRenderer {
             }
         }, { capture: true });
 
-        this.canvas.addEventListener("mousedown", (e) => {
-            // console.log(e.offsetX)
+        this.canvas.addEventListener("touchstart", (e) => {
+            const mobileScreenOffset = 50;
+            // console.log(e.touches[0].clientY)
+            // console.log(this.yStd(mobileSz.btnPos) / 2)
+            // console.log(this.xStd(mobileSz.trackXs[0] - mobileSz.btnRadius))
             // console.log(this.xStd(mobileSz.trackXs[0])/2)
             // console.log(this.xStd(mobileSz.trackXs[0] + mobileSz.trackWidth)/2)
+            // console.log(this.xStd(mobileSz.trackXs[0])/2)
             // console.log(this.yStd(mobileSz.btnPos + mobileSz.btnRadius))
 
             const isWithinBtnI = (i: number) => {
                 let l = this.xStd(mobileSz.trackXs[i]) / 2;
                 let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
-                return e.offsetX > l && e.offsetX < r;
+                return e.touches[0].clientX > l && e.touches[0].clientX < r;
             }
             if(this.mobileView){
                 //divide by 2, apparently in mobile mode the height is doubled
-                if(e.offsetY > this.yStd((mobileSz.btnPos - mobileSz.btnRadius) / 2) &&
-                    e.offsetY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2){
+                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 2 + mobileScreenOffset &&
+                    e.touches[0].clientY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2 + mobileScreenOffset){
 
                     if(isWithinBtnI(trackIds.top)){
                         this.keyDown(trackIds.top);
