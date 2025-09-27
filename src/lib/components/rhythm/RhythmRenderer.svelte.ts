@@ -206,15 +206,31 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("mousedown", (e) => {
-            console.log(e.layerY)
-            console.log(mobileSz.btnPos - mobileSz.btnRadius)
+            // console.log(e.offsetX)
+            // console.log(this.xStd(mobileSz.trackXs[0])/2)
+            // console.log(this.xStd(mobileSz.trackXs[0] + mobileSz.trackWidth)/2)
+            // console.log(this.yStd(mobileSz.btnPos + mobileSz.btnRadius))
+
+            const isWithinBtnI = (i: number) => {
+                let l = this.xStd(mobileSz.trackXs[i]) / 2;
+                let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
+                return e.offsetX > l && e.offsetX < r;
+            }
             if(this.mobileView){
-                if(e.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) &&
-                    e.clientY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius)){
-                        console.log("CLICK");
+                //divide by 2, apparently in mobile mode the height is doubled
+                if(e.offsetY > this.yStd((mobileSz.btnPos - mobileSz.btnRadius) / 2) &&
+                    e.offsetY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2){
+
+                    if(isWithinBtnI(trackIds.top)){
+                        this.keyDown(trackIds.top);
+                    }else if(isWithinBtnI(trackIds.middle)){
+                        this.keyDown(trackIds.middle);
+                    }else if(isWithinBtnI(trackIds.bottom)){
+                        this.keyDown(trackIds.bottom);
+                    }
                 }
             }
-        })
+        }, { capture: true });
 
         this.canvas.addEventListener("keyup", (e) => {
             switch (e.key.toLowerCase()) {
@@ -232,6 +248,29 @@ export class RhythmRenderer {
                     break;
             }
         }, { capture: true });
+
+        this.canvas.addEventListener("mouseup", (e) => {
+
+            const isWithinBtnI = (i: number) => {
+                let l = this.xStd(mobileSz.trackXs[i]) / 2;
+                let r = this.xStd(mobileSz.trackXs[i] + mobileSz.trackWidth) / 2;
+                return e.offsetX > l && e.offsetX < r;
+            }
+            if(this.mobileView){
+                //divide by 2, apparently in mobile mode the height is doubled
+                if(e.offsetY > this.yStd((mobileSz.btnPos - mobileSz.btnRadius) / 2) &&
+                    e.offsetY < this.yStd(mobileSz.btnPos + mobileSz.btnRadius) / 2){
+
+                    if(isWithinBtnI(trackIds.top)){
+                        this.keyUp(trackIds.top);
+                    }else if(isWithinBtnI(trackIds.middle)){
+                        this.keyUp(trackIds.middle);
+                    }else if(isWithinBtnI(trackIds.bottom)){
+                        this.keyUp(trackIds.bottom);
+                    }
+                }
+            }
+        }, { capture: true })
 
         const handleResize = () => {
             const box = this.canvas.getBoundingClientRect();
