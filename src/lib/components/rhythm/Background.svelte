@@ -11,6 +11,16 @@
                 extraCss: "height: 100%; left: 100%;",
             },
         ],
+        [
+            {
+                src: "cloud1.1.webp",
+                extraCss: "height:55%; top:unset; bottom: 0; left: 100px;",
+            },
+            {
+                src: "cloud1.2.webp",
+                extraCss: "height:100%; top:unset; bottom: 0; left: 700px;",
+            },
+        ],
 
         [
             {
@@ -71,17 +81,6 @@
                 extraCss: "bottom: 0; top:unset; height:45%; left: 1400px;",
             },
         ],
-      
-        [
-            {
-                src: "cloud1.1.webp",
-                extraCss: "height:55%; top:unset; bottom: 0; left: 100px;",
-            },
-            {
-                src: "cloud1.2.webp",
-                extraCss: "height:40%; top:unset; bottom: 0; left: 700px;",
-            },
-        ],
     ];
 
     const backgroundLoopDuration: number = 80;
@@ -136,7 +135,7 @@
         left: 0;
         top: 0;
         height: 100%;
-        width: 100%;
+        width: 1800px;
 
         display: flex;
         flex-direction: row;
