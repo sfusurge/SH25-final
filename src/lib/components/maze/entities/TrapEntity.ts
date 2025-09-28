@@ -20,7 +20,7 @@ export class TrapEntity extends Entity {
         }
     }
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         const aabb = this.aabb;
         ctx.drawImage(this.sprite, aabb.x, aabb.y);
     }

@@ -26,7 +26,7 @@ export class BlockerEntity extends Entity {
 
     // static, no updates
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         // TODO
         const aabb = this.aabb;
         const center = aabb.center;

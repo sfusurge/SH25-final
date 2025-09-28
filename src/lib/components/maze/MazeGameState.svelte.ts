@@ -26,7 +26,7 @@ export function formatDuration(ms: number): string {
 class _GameState {
     score = $state(0);
     enemiesKilled = $state(0);
-    health = $state(100);
+    health = $state(6);
     phase = $state<GamePhaseType>(GamePhase.PRE);
     gameStartTime = $state(-1);
     finalElapsedTime = $state(0);

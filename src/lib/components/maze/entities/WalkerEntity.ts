@@ -195,7 +195,7 @@ export class WalkerEntity extends Entity {
         }
     }
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         const mag = this.vel.mag();
 
         let verOffset = 0;

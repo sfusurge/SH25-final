@@ -86,7 +86,7 @@ export class ProjectileEntity extends Entity {
         return isColliding;
     }
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         // Calculate shadow based on height
         const shadowSize = this.radius * 1.5;
         const shadowOpacity = Math.max(0.1, 0.5 - this.height / 100);

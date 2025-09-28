@@ -526,7 +526,7 @@ export class MazeGame {
         this.camera.y = this.player.y;
     }
 
-    lastTime = 0;
+    currentTime = 0;
     deltaTime = 0;
     wasLastFramePaused = false; // Track pause state changes
 
@@ -536,19 +536,12 @@ export class MazeGame {
             this.clearAllKeys();
         }
         this.wasLastFramePaused = GameState.paused;
+        this.deltaTime = (time - this.currentTime) / 1000;
+        this.currentTime = time;
 
         // Skip game updates if paused or not in running phase, but continue the animation loop
-        if (GameState.paused || !GameState.isGameRunning) {
-            this.lastTime = time;
-            requestAnimationFrame(this.update.bind(this));
-            return;
-        }
-
-        this.deltaTime = (time - this.lastTime) / 1000;
-        debug.delta = this.deltaTime.toFixed(4);
-
-        if (this.deltaTime > 0.1) {
-            this.lastTime = time;
+        if (GameState.paused || !GameState.isGameRunning || this.deltaTime > 0.1) {
+            this.currentTime = time;
             requestAnimationFrame(this.update.bind(this));
             return;
         }
@@ -568,7 +561,6 @@ export class MazeGame {
 
         this.render();
 
-        this.lastTime = time;
         requestAnimationFrame(this.update.bind(this));
     }
 
@@ -743,6 +735,7 @@ export class MazeGame {
     updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
+        GameState.health = this.player.currentHealth;
 
         // Handle shooting input
         const shootDirection = this.getShootingInput();
@@ -1039,7 +1032,7 @@ export class MazeGame {
                         if (e) {
                             const col = Math.floor(e.x / CELL_SIZE);
                             if (col >= lowX && col < highX) {
-                                e.render(ctx, this.lastTime);
+                                e.render(ctx, this.currentTime);
                             }
                         }
                     }
@@ -1063,14 +1056,14 @@ export class MazeGame {
                         break;
                     }
 
-                    entity.render(ctx, this.lastTime);
+                    entity.render(ctx, this.currentTime);
                     dynamicRenderIdx += 1;
                 }
             }
 
             // ====== PLAYER ====== //
             if (row === playerDepth) {
-                this.player.render(ctx, this.lastTime);
+                this.player.render(ctx, this.currentTime);
             }
 
             // ====== PROJECTILES ====== //
@@ -1079,7 +1072,7 @@ export class MazeGame {
                 if (projectileDepth === row) {
                     const col = Math.floor(projectile.x / CELL_SIZE);
                     if (col >= lowX && col < highX) {
-                        projectile.render(ctx, this.lastTime);
+                        projectile.render(ctx, this.currentTime);
                     }
                 }
             }

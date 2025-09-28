@@ -3,7 +3,6 @@ import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN } from ".";
 import { Vector2 } from "$lib/Vector2";
 import { ProjectileEntity } from "./ProjectileEntity";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
-import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 export class Player extends Entity {
     renderWidth = 50;
@@ -21,10 +20,8 @@ export class Player extends Entity {
     shootCooldown = 0;
     shootCooldownTime = 0.4; // seconds
 
-    isHurt = false;
-    hurtDuration = 0;
-    hurtDisplayTime = 0.5; // seconds
 
+    useOverlay: boolean = true;
 
     constructor(pos: Vector2) {
         super(pos, 30, 25);
@@ -120,34 +117,11 @@ export class Player extends Entity {
     }
 
     update(game: MazeGame, dt: number): void {
-        if (this.immuneDuration > 0) {
-            this.immuneDuration -= dt;
-        }
 
-        // Update hurt state timer
-        if (this.isHurt && this.hurtDuration > 0) {
-            this.hurtDuration -= dt;
-            if (this.hurtDuration <= 0) {
-                this.isHurt = false;
-                this.hurtDuration = 0;
-            }
-        }
     }
 
     onCollision(other: Entity, game?: any): void {
 
-        if (other.metadata.entityType === ENTITY_TYPE.enemy && this.immuneDuration <= 0) {
-            if ((other as any).isDead) {
-                return;
-            }
-            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(800));
-            this.immuneDuration = 1;
-
-            this.isHurt = true;
-            this.hurtDuration = this.hurtDisplayTime;
-
-            GameState.reduceHealth(10);
-        }
     }
 
     onShootInput(direction: number, game: any): void {
@@ -180,7 +154,7 @@ export class Player extends Entity {
     }
 
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         const trans = ctx.getTransform();
 
         const mag = this.vel.mag();
@@ -199,7 +173,7 @@ export class Player extends Entity {
 
         ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
         ctx.translate(-sprite.width / 2, -sprite.height);
-        this.renderWithDamageState(ctx, sprite, this.x, this.y, this.isHurt);
+        ctx.drawImage(sprite, 0, 0);
 
         ctx.setTransform(trans);
     }

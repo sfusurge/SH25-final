@@ -21,7 +21,7 @@ export class ScrollEntity extends Entity {
         }
     }
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         const aabb = this.aabb;
         const center = aabb.center
         ctx.drawImage(this.sprite, center.x - this.sprite.width / 2, center.y - this.sprite.height / 2);
