@@ -403,11 +403,11 @@ export class RhythmRenderer {
             this.canvas.height = this.pkg.h;
         }
 
-        this.countDownUpdate();
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
         this.renderNotesVfx();
+        this.countDownUpdate();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
