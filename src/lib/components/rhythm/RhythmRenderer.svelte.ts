@@ -486,10 +486,6 @@ export class RhythmRenderer {
 
         const timeRange = highTime - lowTime;
 
-        const withinTimeRange = (t: number) => {
-            return t <= highTime && t >= lowTime;
-        }
-
         const calcXByProgress = (prog: number, additionalShift: number = 0) => {
             return this.xStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
         }
