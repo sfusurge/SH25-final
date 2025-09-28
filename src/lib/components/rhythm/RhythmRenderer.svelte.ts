@@ -60,6 +60,13 @@ const cloudSprites = spriteNames.map(sN => {
     return s;
 })
 
+const vfxNames = ["hit", "miss"];
+const vfxSprites = vfxNames.map(vN => {
+    let s: HTMLImageElement = new Image();
+    s.src = getSrc(vN);
+    return s;
+})
+
 const interactionThreshold = 350;
 const vfxDuration = 200;
 
@@ -576,8 +583,6 @@ export class RhythmRenderer {
     }
 
     heldKeyCheck() {
-        let hitVfx = new Image();
-        hitVfx.src = getSrc("hit");
         this.heldKeys.forEach((k, i) => {
             if (k == this.empty) {
                 return;
@@ -591,7 +596,7 @@ export class RhythmRenderer {
                 this.setOtter(3, 1000);
             } else {
                 this.ctx.drawImage(
-                    hitVfx,
+                    vfxSprites[0],
                     this.xStd(this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 - .045 : (trackLength - .025)),
                     this.yStd(this.mobileView ? mobileSz.btnPos - .0125 : (trackYPositions[i] + .0125))
                 )
