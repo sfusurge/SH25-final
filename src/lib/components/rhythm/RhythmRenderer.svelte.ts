@@ -86,6 +86,7 @@ export class RhythmRenderer {
 
     empty = -1
     heldKeys: number[] = [this.empty, this.empty, this.empty];
+    touchTracking: number[] = [this.empty, this.empty, this.empty];
     //tracks hold keys by index
     holdKeyTracker: number[] = [];
 
@@ -181,6 +182,7 @@ export class RhythmRenderer {
     reset() {
         this.holdKeyTracker = [];
         this.heldKeys = [this.empty, this.empty, this.empty];
+        this.touchTracking = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
         this.notesVfx = null;
@@ -210,15 +212,23 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
+            const registerTouch = (btn: number, id: number) => {
+                if(this.touchTracking[btn] == this.empty){
+                    this.touchTracking[btn] = id;
+                }
+            }
             if(this.mobileView){
+                let touch = e.touches[e.touches.length - 1];
                 //divide by 3, mobile weird
-                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
-
-                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
+                if(touch.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
+                    if(touch.clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 2){
+                        registerTouch(trackIds.top, touch.identifier);
                         this.keyDown(trackIds.top);
-                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
+                    }else if(touch.clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 2){
+                        registerTouch(trackIds.bottom, touch.identifier);
                         this.keyDown(trackIds.bottom);
                     }else{
+                        registerTouch(trackIds.middle, touch.identifier);
                         this.keyDown(trackIds.middle);
                     }
                 }
@@ -245,17 +255,34 @@ export class RhythmRenderer {
         this.canvas.addEventListener("touchend", (e) => {
 
             if(this.mobileView){
-                //divide by 3, mobile weird
-                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
-
-                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
-                        this.keyUp(trackIds.top);
-                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
-                        this.keyUp(trackIds.bottom);
-                    }else{
-                        this.keyUp(trackIds.middle);
+                for(let i = 0; i < this.touchTracking.length; i++){
+                    let tTracker = this.touchTracking[i];
+                    if(tTracker == this.empty){
+                        continue;
+                    }
+                    let held = false;
+                    for(let x = 0; x < e.touches.length; x++){
+                        let touch = e.touches[x]
+                        if(touch.identifier == tTracker){
+                            held = true;
+                            break;
+                        }
+                    }
+                    if(!held){
+                        this.keyUp(i);
                     }
                 }
+                
+                // if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
+
+                //     if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
+                //         this.keyUp(trackIds.top);
+                //     }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
+                //         this.keyUp(trackIds.bottom);
+                //     }else{
+                //         this.keyUp(trackIds.middle);
+                //     }
+                // }
             }
         }, { capture: true })
 
