@@ -272,17 +272,6 @@ export class RhythmRenderer {
                         this.keyUp(i);
                     }
                 }
-                
-                // if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
-
-                //     if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
-                //         this.keyUp(trackIds.top);
-                //     }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
-                //         this.keyUp(trackIds.bottom);
-                //     }else{
-                //         this.keyUp(trackIds.middle);
-                //     }
-                // }
             }
         }, { capture: true })
 
