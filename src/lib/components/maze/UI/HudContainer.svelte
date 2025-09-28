@@ -65,8 +65,8 @@
 
     /* Mobile styles */
     .mobile {
-        width: 9.43vw;
-        height: 3.98vh;
+        width: 25vw;
+        height: 4vh;
     }
 
     .mobile .value {
@@ -75,10 +75,6 @@
     }
 
     @container (max-width: 640px) {
-        .mobile {
-            width: 25vw;
-            height: 4vh;
-        }
 
         .mobile .icon {
             width: 2.2cqw !important;

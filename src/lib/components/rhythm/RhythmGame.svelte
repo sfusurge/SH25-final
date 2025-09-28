@@ -16,6 +16,7 @@
     import HoverEffectButton from "../landing/HoverEffectButton.svelte";
     import BlockPatternVertical from "../landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "../landing/svgs/RockFilter.svelte";
+    import { global } from "../../../routes/+layout.svelte";
 
     let canvas: HTMLCanvasElement | undefined;
 
@@ -37,6 +38,7 @@
     let displayScore = $state(0);
     let otterState = $state("idle");
     let lastTime = 0;
+    let gameStarted = $state(false);
 
     $effect(() => {
         if (renderer?.points !== undefined) {
@@ -78,20 +80,22 @@
             song?: AudioBuffer;
         };
     } = $state({
-        "BAD APPLE": {
-            notesSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.beatmap",
-            songSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.mp3",
-        },
+        // "BAD APPLE": {
+        //     notesSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.beatmap",
+        //     songSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.mp3",
+        // },
         "Philosophical Starry": {
             notesSrc: "/rhythm/beatmaps/Philosophical Starry [Easy].beatmap",
             songSrc: "/rhythm/beatmaps/philosophicalStarry.mp3",
         },
         "Scummious Realization": {
-            notesSrc: "/rhythm/beatmaps/Scummious_ Realization [Medium].beatmap",
+            notesSrc:
+                "/rhythm/beatmaps/Scummious_ Realization [Medium].beatmap",
             songSrc: "/rhythm/beatmaps/scummiousRealization.mp3",
         },
         "Stormy & Sparky Training Arc": {
-            notesSrc: "/rhythm/beatmaps/Stormy&Sparky_s Training Arc [Hard].beatmap",
+            notesSrc:
+                "/rhythm/beatmaps/Stormy&Sparky_s Training Arc [Hard].beatmap",
             songSrc: "/rhythm/beatmaps/stormy&sparkysTrainingArc.mp3",
         },
     });
@@ -163,6 +167,7 @@
             renderer &&
             renderer.songData.length > 0
         ) {
+            gameStarted = true;
             renderer.startCountDown();
             canvas?.focus();
         }
@@ -221,6 +226,7 @@
                     ? "win"
                     : null}
             actionButton={createGameActionButton("restart", () => {
+                gameStarted = false;
                 renderer?.reset();
                 GameState.startGame();
                 selectedSongTitle = "";
@@ -228,22 +234,46 @@
         />
     {/if}
     <ScalableFrame style="flex:1;">
-        <div class="uistuff songSelection">
-            <label for="songOption">
-                <!-- TODO: placeholder, remove -->
+        {#if !gameStarted}
+            {#if !global.mobile}
+                <div class="uistuff songSelection flex">
+                    <BlockPatternVertical className="h-11" />
+                    <span class="w-40 text-center">Pick your song</span>
+                    <BlockPatternVertical className="h-11 rotate-180 ml-2" />
+                </div>
 
-                Pick your song:
-                <select
-                    name="songOption"
-                    id="songOption"
-                    bind:value={selectedSongTitle}
-                >
-                    {#each Object.entries(songs) as [title, song], index (title)}
-                        <option value={title}>{title}</option>
+                <div class="songs">
+                    {#each Object.entries(songs) as [title] (title)}
+                        <HoverEffectButton
+                            className="w-full h-11 px-3 bg-[#060605] text-[#8A6F6A] text-[14px] truncate"
+                            onClick={() => {
+                                selectedSongTitle = title;
+                                // gameStarted = true;
+                            }}
+                        >
+                            {title}
+                        </HoverEffectButton>
                     {/each}
-                </select>
-            </label>
-        </div>
+                </div>
+            {:else}
+                <div class="mobileSongSelection">
+                    <label class="mobileLabel" for="songOption">
+                        <!-- TODO: placeholder, remove -->
+
+                        Pick your song:
+                        <select
+                            name="songOption"
+                            id="songOption"
+                            bind:value={selectedSongTitle}
+                        >
+                            {#each Object.entries(songs) as [title, song], index (title)}
+                                <option value={title}>{title}</option>
+                            {/each}
+                        </select>
+                    </label>
+                </div>
+            {/if}
+        {/if}
 
         <Background />
         <img class="cloud" src="/rhythm/pinkCloud.webp" alt="cloud" />
@@ -324,7 +354,7 @@
     }
 
     .songSelection {
-        top: 100px;
+        top: 80px;
         left: 50%;
         z-index: 11;
         transform: translate(-50%, 0);
@@ -333,12 +363,43 @@
     .uistuff {
         position: absolute;
         background-color: var(--color-background);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .mobileLabel {
+        margin-bottom: 1rem;
+    }
+
+    .mobileSongSelection {
+        position: absolute;
+        background-color: var(--color-background);
         padding: 1rem;
+        top: 80px;
+        left: 50%;
+        z-index: 11;
+        transform: translate(-50%, 0);
+        width: 50%;
     }
 
     select {
         border: 1px solid var(--border);
         padding: 0.5rem;
+        margin-top: 0.25rem;
+        width: 100%;
+    }
+
+    .songs {
+        position: absolute;
+        top: 140px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 11;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        width: 75%;
     }
 
     canvas {

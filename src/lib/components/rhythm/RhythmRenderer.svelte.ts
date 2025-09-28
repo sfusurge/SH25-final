@@ -53,12 +53,19 @@ const cloudDespawnPercent: number = 0.85;
 const cloudVerticalDisplace = 0.045;
 const cloudPresenceDuration = 3000;
 
-const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
-const cloudSprites = spriteNames.map(sN => {
-    let s: HTMLImageElement = new Image();
-    s.src = getSrc(sN);
-    return s;
-})
+const loadSprites = (names: string[]) => {
+    return names.map(n => {
+        let s: HTMLImageElement = new Image();
+        s.src = getSrc(n);
+        return s;
+    })
+}
+
+const cloudSprites = loadSprites(["red clouds", "green clouds", "yellow clouds"]);
+
+const vfxSprites = loadSprites(["hit", "miss"]);
+
+const noteVfxSprites = loadSprites(["vfxNice", "vfxBad"]);
 
 const interactionThreshold = 350;
 const vfxDuration = 200;
@@ -86,6 +93,7 @@ export class RhythmRenderer {
 
     empty = -1
     heldKeys: number[] = [this.empty, this.empty, this.empty];
+    touchTracking: number[] = [this.empty, this.empty, this.empty];
     //tracks hold keys by index
     holdKeyTracker: number[] = [];
 
@@ -155,6 +163,7 @@ export class RhythmRenderer {
     }
 
     setSong(notes: RhythmNote[], song: AudioBuffer) {
+        this.reset();
         this.musicPlayer.song = song;
 
         this.musicPlayer.offsetTime = 0;
@@ -180,6 +189,7 @@ export class RhythmRenderer {
     reset() {
         this.holdKeyTracker = [];
         this.heldKeys = [this.empty, this.empty, this.empty];
+        this.touchTracking = [this.empty, this.empty, this.empty];
         this.holdKeyTracker = [];
         this.vfxObjs = [];
         this.notesVfx = null;
@@ -209,15 +219,23 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
-            if (this.mobileView) {
+            const registerTouch = (btn: number, id: number) => {
+                if(this.touchTracking[btn] == this.empty){
+                    this.touchTracking[btn] = id;
+                }
+            }
+            if(this.mobileView){
+                let touch = e.touches[e.touches.length - 1];
                 //divide by 3, mobile weird
-                if (e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3) {
-
-                    if (e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3) {
+                if(touch.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
+                    if(touch.clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
+                        registerTouch(trackIds.top, touch.identifier);
                         this.keyDown(trackIds.top);
-                    } else if (e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3) {
+                    }else if(touch.clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
+                        registerTouch(trackIds.bottom, touch.identifier);
                         this.keyDown(trackIds.bottom);
-                    } else {
+                    }else{
+                        registerTouch(trackIds.middle, touch.identifier);
                         this.keyDown(trackIds.middle);
                     }
                 }
@@ -243,16 +261,22 @@ export class RhythmRenderer {
 
         this.canvas.addEventListener("touchend", (e) => {
 
-            if (this.mobileView) {
-                //divide by 3, mobile weird
-                if (e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3) {
-
-                    if (e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3) {
-                        this.keyUp(trackIds.top);
-                    } else if (e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3) {
-                        this.keyUp(trackIds.bottom);
-                    } else {
-                        this.keyUp(trackIds.middle);
+            if(this.mobileView){
+                for(let i = 0; i < this.touchTracking.length; i++){
+                    let tTracker = this.touchTracking[i];
+                    if(tTracker == this.empty){
+                        continue;
+                    }
+                    let held = false;
+                    for(let x = 0; x < e.touches.length; x++){
+                        let touch = e.touches[x]
+                        if(touch.identifier == tTracker){
+                            held = true;
+                            break;
+                        }
+                    }
+                    if(!held){
+                        this.keyUp(i);
                     }
                 }
             }
@@ -402,11 +426,11 @@ export class RhythmRenderer {
             this.canvas.height = this.pkg.h;
         }
 
-        this.countDownUpdate();
         this.renderEnv();
         this.renderClouds();
         this.renderVfx();
         this.renderNotesVfx();
+        this.countDownUpdate();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
             GameState.phase = GamePhase.ENDED;
@@ -438,7 +462,7 @@ export class RhythmRenderer {
         this.ctx.strokeText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
         this.ctx.fillText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
 
-        if (this.currentTime > this.countDownTimestamp + 1000) {
+        if(this.currentTime > this.countDownTimestamp + 750){
             this.countDownMode--;
             this.countDownTimestamp = this.currentTime;
             if (this.countDownMode == 0) {
@@ -466,10 +490,6 @@ export class RhythmRenderer {
         const highTime = cTime + cloudPresenceDuration * btnTrackPercent;
 
         const timeRange = highTime - lowTime;
-
-        const withinTimeRange = (t: number) => {
-            return t <= highTime && t >= lowTime;
-        }
 
         const calcXByProgress = (prog: number, additionalShift: number = 0) => {
             return this.xStd(cloudSpawnPercent + prog * (cloudDespawnPercent - cloudSpawnPercent)) + additionalShift;
@@ -561,8 +581,6 @@ export class RhythmRenderer {
     }
 
     heldKeyCheck() {
-        let hitVfx = new Image();
-        hitVfx.src = getSrc("hit");
         this.heldKeys.forEach((k, i) => {
             if (k == this.empty) {
                 return;
@@ -576,7 +594,7 @@ export class RhythmRenderer {
                 this.setOtter(3, 1000);
             } else {
                 this.ctx.drawImage(
-                    hitVfx,
+                    vfxSprites[0],
                     this.xStd(this.mobileView ? mobileSz.trackXs[i] + mobileSz.trackWidth / 2 - .045 : (trackLength - .025)),
                     this.yStd(this.mobileView ? mobileSz.btnPos - .0125 : (trackYPositions[i] + .0125))
                 )
@@ -646,7 +664,7 @@ export class RhythmRenderer {
             : 0.58 - 0.13;
 
 
-        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? "vfxNice" : "vfxBad"]);
+        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? noteVfxSprites[0] : noteVfxSprites[1]]);
         this.notesVfx.startTime = this.musicPlayer.currentTime;
         this.isFadingOut = false;
     }
@@ -657,7 +675,8 @@ export class RhythmRenderer {
             this.pkg,
             this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
             this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
-            [hit ? "hit" : "miss"])
+            [hit ? vfxSprites[0] : vfxSprites[1]])
+        
         vfx.startTime = this.currentTime;
         this.vfxObjs.push(vfx);
     }

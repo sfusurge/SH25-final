@@ -378,13 +378,14 @@ export class MazeGame {
     }
 
     handleCanvasResize(width: number, height: number) {
-        // Update canvas internal resolution to match display size
+        const dpr = window.devicePixelRatio || 1;
+
+        // Setting width/height resets the context state, including transforms
         this.canvas.width = width;
         this.canvas.height = height;
 
-        // Scale the rendering context to account for device pixel ratio
-        const dpr = window.devicePixelRatio || 1;
-        this.ctx.scale(dpr, dpr);
+        // Apply device-pixel-ratio scaling with a fresh transform matrix
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         // Re-detect mobile mode in case window size changed
         this.detectMobileMode();

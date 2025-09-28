@@ -286,11 +286,25 @@ export class LeafGame {
 
     private startMascotIdle(): void {
         if (this.mascotTimerId) return;
-        this.mascotTimerId = (setInterval(() => {
-            let current: MascotFrame = get(mascotFrame);
-            if (current === 'success' || current === 'failure') return;
-            mascotFrame.set(current === 'default1' ? 'default2' : 'default1');
-        }, 700) as unknown) as number;
+
+        let lastFrameTime = 0;
+        const frameInterval = 700;
+
+        const animateMascot = (currentTime: number) => {
+            if (currentTime - lastFrameTime >= frameInterval) {
+                let current: MascotFrame = get(mascotFrame);
+                if (current === 'success' || current === 'failure') {
+
+                    this.mascotTimerId = requestAnimationFrame(animateMascot) as unknown as number;
+                    return;
+                }
+                mascotFrame.set(current === 'default1' ? 'default2' : 'default1');
+                lastFrameTime = currentTime;
+            }
+            this.mascotTimerId = requestAnimationFrame(animateMascot) as unknown as number;
+        };
+
+        this.mascotTimerId = requestAnimationFrame(animateMascot) as unknown as number;
     }
 
 
@@ -643,7 +657,7 @@ export class LeafGame {
             this.nowTimerId = undefined;
         }
         if (this.mascotTimerId) {
-            clearInterval(this.mascotTimerId);
+            cancelAnimationFrame(this.mascotTimerId);
             this.mascotTimerId = undefined;
         }
     }

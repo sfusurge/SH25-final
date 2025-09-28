@@ -104,7 +104,7 @@
         align-items: center;
 
         min-width: 300px;
-        max-height: 85dvh;
+        max-height: 85%;
         width: fit-content;
         height: auto;
 
