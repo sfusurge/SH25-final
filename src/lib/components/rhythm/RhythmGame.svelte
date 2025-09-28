@@ -394,6 +394,7 @@
     .songs {
         position: absolute;
         top: 140px;
+        left: 50%;
         transform: translateX(-50%);
         z-index: 11;
         display: grid;
