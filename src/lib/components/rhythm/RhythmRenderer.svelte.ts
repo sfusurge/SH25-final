@@ -228,10 +228,10 @@ export class RhythmRenderer {
                 let touch = e.touches[e.touches.length - 1];
                 //divide by 3, mobile weird
                 if(touch.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
-                    if(touch.clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 2){
+                    if(touch.clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
                         registerTouch(trackIds.top, touch.identifier);
                         this.keyDown(trackIds.top);
-                    }else if(touch.clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 2){
+                    }else if(touch.clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
                         registerTouch(trackIds.bottom, touch.identifier);
                         this.keyDown(trackIds.bottom);
                     }else{
