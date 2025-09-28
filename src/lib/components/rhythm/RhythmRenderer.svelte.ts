@@ -277,6 +277,8 @@ export class RhythmRenderer {
                     }
                     if(!held){
                         this.keyUp(i);
+                        this.touchTracking[i] = this.empty;
+                        break;
                     }
                 }
             }
