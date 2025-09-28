@@ -16,7 +16,7 @@
     import HoverEffectButton from "../landing/HoverEffectButton.svelte";
     import BlockPatternVertical from "../landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "../landing/svgs/RockFilter.svelte";
-    import { game } from "../leaf/gameData/LeafGame";
+    import { global } from "../../../routes/+layout.svelte";
 
     let canvas: HTMLCanvasElement | undefined;
 
@@ -168,6 +168,7 @@
             renderer &&
             renderer.songData.length > 0
         ) {
+            gameStarted = true;
             renderer.startCountDown();
             canvas?.focus();
         }
@@ -235,25 +236,44 @@
     {/if}
     <ScalableFrame style="flex:1;">
         {#if !gameStarted}
-            <div class="uistuff songSelection flex">
-                <BlockPatternVertical className="h-11" />
-                <span class="w-40 text-center">Pick your song</span>
-                <BlockPatternVertical className="h-11 rotate-180 ml-2" />
-            </div>
+            {#if !global.mobile}
+                <div class="uistuff songSelection flex">
+                    <BlockPatternVertical className="h-11" />
+                    <span class="w-40 text-center">Pick your song</span>
+                    <BlockPatternVertical className="h-11 rotate-180 ml-2" />
+                </div>
 
-            <div class="songs">
-                {#each Object.entries(songs) as [title] (title)}
-                    <HoverEffectButton
-                        className="w-full h-11 px-3 bg-[#060605] text-[#8A6F6A] text-[14px] truncate"
-                        onClick={() => {
-                            selectedSongTitle = title;
-                            gameStarted = true;
-                        }}
-                    >
-                        {title}
-                    </HoverEffectButton>
-                {/each}
-            </div>
+                <div class="songs">
+                    {#each Object.entries(songs) as [title] (title)}
+                        <HoverEffectButton
+                            className="w-full h-11 px-3 bg-[#060605] text-[#8A6F6A] text-[14px] truncate"
+                            onClick={() => {
+                                selectedSongTitle = title;
+                                // gameStarted = true;
+                            }}
+                        >
+                            {title}
+                        </HoverEffectButton>
+                    {/each}
+                </div>
+            {:else}
+                <div class="mobileSongSelection">
+                    <label class="mobileLabel" for="songOption">
+                        <!-- TODO: placeholder, remove -->
+
+                        Pick your song:
+                        <select
+                            name="songOption"
+                            id="songOption"
+                            bind:value={selectedSongTitle}
+                        >
+                            {#each Object.entries(songs) as [title, song], index (title)}
+                                <option value={title}>{title}</option>
+                            {/each}
+                        </select>
+                    </label>
+                </div>
+            {/if}
         {/if}
 
         <Background />
@@ -349,15 +369,31 @@
         align-items: center;
     }
 
+    .mobileLabel {
+        margin-bottom: 1rem;
+    }
+
+    .mobileSongSelection {
+        position: absolute;
+        background-color: var(--color-background);
+        padding: 1rem;
+        top: 80px;
+        left: 50%;
+        z-index: 11;
+        transform: translate(-50%, 0);
+        width: 50%;
+    }
+
     select {
         border: 1px solid var(--border);
         padding: 0.5rem;
+        margin-top: 0.25rem;
+        width: 100%;
     }
 
     .songs {
         position: absolute;
         top: 140px;
-        left: 50%;
         transform: translateX(-50%);
         z-index: 11;
         display: grid;
