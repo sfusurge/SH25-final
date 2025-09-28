@@ -84,18 +84,16 @@ export class cImg extends component {
     currentSprite: number;
     spriteForms: HTMLImageElement[];
 
-    static imageCache: { [key: string]: HTMLImageElement } = {};
-    constructor(pkg: RenderPkg, x: number, y: number, spriteLocations: string[], currentId: number = 0, setup = () => { }) {
+    static imageCache: { [key: number]: HTMLImageElement } = {};
+    constructor(pkg: RenderPkg, x: number, y: number, sprites: HTMLImageElement[], currentId: number = 0, setup = () => { }) {
         super(pkg, x, y, setup);
         this.currentSprite = currentId;
-        this.spriteForms = spriteLocations.map(loc => {
-            if (loc in cImg.imageCache) {
-                return cImg.imageCache[loc];
+        this.spriteForms = sprites;
+        sprites.forEach((s, i) => {
+            if (i in cImg.imageCache) {
+                return cImg.imageCache[i];
             }
-            let s: HTMLImageElement = new Image();
-            s.src = getSrc(loc);
-            cImg.imageCache[loc] = s;
-            return s;
+            cImg.imageCache[i] = s;
         })
     }
 
@@ -103,6 +101,15 @@ export class cImg extends component {
         this.SpecialSetup();
         this.ctx.drawImage(this.spriteForms[this.currentSprite], this.xStd(this.x), this.yStd(this.y));
     }
+}
+
+export const createImgElementByName = (pkg: RenderPkg, x: number, y: number, sprites: string[], currentId: number = 0, setup = () => { }) => {
+    let imgs = sprites.map((s) => {
+        let i = new HTMLImageElement();
+        i.src = s;
+        return i;
+    })
+    return new cImg(pkg, x, y, imgs, currentId, setup);
 }
 
 export class cText extends component {

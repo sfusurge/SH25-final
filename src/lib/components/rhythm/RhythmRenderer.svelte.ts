@@ -53,19 +53,19 @@ const cloudDespawnPercent: number = 0.85;
 const cloudVerticalDisplace = 0.045;
 const cloudPresenceDuration = 3000;
 
-const spriteNames = ["red clouds", "green clouds", "yellow clouds"]
-const cloudSprites = spriteNames.map(sN => {
-    let s: HTMLImageElement = new Image();
-    s.src = getSrc(sN);
-    return s;
-})
+const loadSprites = (names: string[]) => {
+    return names.map(n => {
+        let s: HTMLImageElement = new Image();
+        s.src = getSrc(n);
+        return s;
+    })
+}
 
-const vfxNames = ["hit", "miss"];
-const vfxSprites = vfxNames.map(vN => {
-    let s: HTMLImageElement = new Image();
-    s.src = getSrc(vN);
-    return s;
-})
+const cloudSprites = loadSprites(["red clouds", "green clouds", "yellow clouds"]);
+
+const vfxSprites = loadSprites(["hit", "miss"]);
+
+const noteVfxSprites = loadSprites(["vfxNice", "vfxBad"]);
 
 const interactionThreshold = 350;
 const vfxDuration = 200;
@@ -666,7 +666,7 @@ export class RhythmRenderer {
             : 0.58 - 0.13;
 
 
-        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? "vfxNice" : "vfxBad"]);
+        this.notesVfx = new cImg(this.pkg, xPos, yPos, [hit ? noteVfxSprites[0] : noteVfxSprites[1]]);
         this.notesVfx.startTime = this.musicPlayer.currentTime;
         this.isFadingOut = false;
     }
@@ -677,7 +677,8 @@ export class RhythmRenderer {
             this.pkg,
             this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
             this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
-            [hit ? "hit" : "miss"])
+            [hit ? vfxSprites[0] : vfxSprites[1]])
+        
         vfx.startTime = this.currentTime;
         this.vfxObjs.push(vfx);
     }
