@@ -137,9 +137,9 @@ export class RhythmRenderer {
 
     renderHandle = -1
     init() {
-        this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
         this.setupEnvironment();
         this.setupEvents();
+        this.renderHandle = requestAnimationFrame(this.eventLoop.bind(this));
     }
 
     getTimeSince(time: number) {
@@ -209,15 +209,15 @@ export class RhythmRenderer {
         }, { capture: true });
 
         this.canvas.addEventListener("touchstart", (e) => {
-            if(this.mobileView){
+            if (this.mobileView) {
                 //divide by 3, mobile weird
-                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
+                if (e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3) {
 
-                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
+                    if (e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3) {
                         this.keyDown(trackIds.top);
-                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
+                    } else if (e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3) {
                         this.keyDown(trackIds.bottom);
-                    }else{
+                    } else {
                         this.keyDown(trackIds.middle);
                     }
                 }
@@ -243,15 +243,15 @@ export class RhythmRenderer {
 
         this.canvas.addEventListener("touchend", (e) => {
 
-            if(this.mobileView){
+            if (this.mobileView) {
                 //divide by 3, mobile weird
-                if(e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
+                if (e.touches[0].clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3) {
 
-                    if(e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
+                    if (e.touches[0].clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3) {
                         this.keyUp(trackIds.top);
-                    }else if(e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
+                    } else if (e.touches[0].clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3) {
                         this.keyUp(trackIds.bottom);
-                    }else{
+                    } else {
                         this.keyUp(trackIds.middle);
                     }
                 }
@@ -395,7 +395,6 @@ export class RhythmRenderer {
     }
 
     render() {
-        this.ctx.save();
         this.ctx.clearRect(0, 0, this.pkg.w, this.pkg.h);
         // update canvas size before rendering to avoid flicker
         if (this.canvas.width !== this.pkg.w || this.canvas.height !== this.pkg.h) {
@@ -414,16 +413,15 @@ export class RhythmRenderer {
             this.songData = [];
         }
 
-        this.ctx.restore();
     }
 
-    startCountDown(){
+    startCountDown() {
         this.countDownMode = this.countDownReset;
         this.countDownTimestamp = this.currentTime;
     }
 
-    countDownUpdate(){
-        if(this.countDownMode == 0){
+    countDownUpdate() {
+        if (this.countDownMode == 0) {
             return;
         }
 
@@ -440,10 +438,10 @@ export class RhythmRenderer {
         this.ctx.strokeText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
         this.ctx.fillText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
 
-        if(this.currentTime > this.countDownTimestamp + 1000){
+        if (this.currentTime > this.countDownTimestamp + 1000) {
             this.countDownMode--;
             this.countDownTimestamp = this.currentTime;
-            if(this.countDownMode == 0){
+            if (this.countDownMode == 0) {
                 this.startSong();
             }
         }
@@ -487,7 +485,7 @@ export class RhythmRenderer {
         for (let h = 0; h < this.holdKeyTracker.length; h++) {
             let n = this.songData[this.holdKeyTracker[h]];
 
-            if(!n){
+            if (!n) {
                 break;
             }
             const boundSize = interactionThreshold / 2;
@@ -682,7 +680,7 @@ export class RhythmRenderer {
 
     pauseGame() {
         this.countDownMode = 0;
-        if(this.musicPlayer.isPlaying){
+        if (this.musicPlayer.isPlaying) {
             this.musicPlayer.pause();
         }
     }

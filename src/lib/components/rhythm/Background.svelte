@@ -1,40 +1,104 @@
 <script lang="ts">
     // order of which elements should appear, from back -> front
-    const backgrounds: string[] = [
-        "skydetail",
-        "sun1",
-        "pillar3",
-        "cloud6",
-        "pillar2",
-        "cloud5",
-        "cloud4",
-        "cloud3",
-        "sun2",
-        "cloud2",
-        "pillar1",
-        "cloud1",
+    const backgrounds = [
+        [
+            {
+                src: "skydetail.webp",
+                extraCss: "height: 100%;",
+            },
+            {
+                src: "skydetail.webp",
+                extraCss: "height: 100%; left: 100%;",
+            },
+        ],
+
+        [
+            {
+                src: "pillar3.1.webp",
+                extraCss: "top:unset; bottom: 0; left: 800px; height: 50%;",
+            },
+            {
+                src: "pillar3.2.webp",
+                extraCss: "top:unset; bottom: 0; left: 1800px; height: 70%;",
+            },
+        ],
+
+        [
+            {
+                src: "cloud5.webp",
+                extraCss: "top:unset; bottom: 0; left: 600px; height: 10%;",
+            },
+        ],
+        [
+            {
+                src: "cloud6.webp",
+                extraCss: "top:unset; bottom: 0; left: 900px; height: 20%;",
+            },
+        ],
+        [
+            {
+                src: "pillar2.1.webp",
+                extraCss: "top: unset; bottom: 0; left: 700px;",
+            },
+            {
+                src: "pillar2.2.webp",
+                extraCss: "top: unset; bottom: 0; left: 1600px;",
+            },
+        ],
+        [
+            {
+                src: "cloud4.webp",
+                extraCss: " top:unset; height: 20%; bottom: 30%; left: 1200px;",
+            },
+        ],
+        [
+            {
+                src: "cloud3.1.webp",
+                extraCss: "top:unset; height: 45%; bottom: 0; left: 200px;",
+            },
+            {
+                src: "cloud3.2.webp",
+                extraCss: " top:25%;  height: 25%;   left: 600px;",
+            },
+        ],
+        [
+            {
+                src: "cloud2.1.webp",
+                extraCss: "height: 15%; top:30% left: 700px;",
+            },
+            {
+                src: "cloud2.2.webp",
+                extraCss: "bottom: 0; top:unset; height:45%; left: 1400px;",
+            },
+        ],
+      
+        [
+            {
+                src: "cloud1.1.webp",
+                extraCss: "height:55%; top:unset; bottom: 0; left: 100px;",
+            },
+            {
+                src: "cloud1.2.webp",
+                extraCss: "height:40%; top:unset; bottom: 0; left: 700px;",
+            },
+        ],
     ];
 
-    const backgroundLoopDuration: number = 160;
+    const backgroundLoopDuration: number = 80;
     const animationSpeedDifferenceFactor: number = 5;
-    const imgType: string = "webp";
-
-    const staticImgNames: string[] = ["sun1", "sun2"];
 </script>
 
 <div id="rhythmBg" class="rhythmBg">
     {#each backgrounds as bg, idx}
-        {#if !staticImgNames.includes(bg)}
+        {#each bg as imgItem}
             <div
                 class="movingBg"
-                style="animation: scroll {backgroundLoopDuration -
-                    idx *
-                        animationSpeedDifferenceFactor}s linear infinite; z-index: {idx}"
+                style="--scrollTime: {backgroundLoopDuration -
+                    idx * animationSpeedDifferenceFactor}s; z-index: {idx}; {imgItem.extraCss}"
             >
-                <img src="/rhythm/{bg}.{imgType}" />
-                <img src="/rhythm/{bg}.{imgType}" />
+                <img src="/rhythm/{imgItem.src}" alt="" />
             </div>
-        {/if}
+        {/each}
     {/each}
 
     <img src="/rhythm/sun1.webp" alt="" class="static" style="opacity: 0.4;" />
@@ -45,7 +109,7 @@
     .static {
         position: absolute;
         top: 0;
-        left: 60%;
+        left: 50%;
         height: 100%;
         transform: translate(-50%, 0);
         width: auto;
@@ -72,10 +136,13 @@
         left: 0;
         top: 0;
         height: 100%;
-        width: fit-content;
+        width: 100%;
 
         display: flex;
         flex-direction: row;
+        will-change: transform;
+        animation: scroll var(--scrollTime) linear infinite;
+        z-index: var(--zidx);
     }
 
     .movingBg > img {
@@ -84,14 +151,17 @@
         max-width: unset;
     }
 
-    @keyframes -global-scroll {
+    img {
+        transform: translate(0, 0, 0);
+    }
+
+    @keyframes scroll {
         0% {
-            transform: translate(0%, 0);
+            transform: translate3d(-100%, 0, 0);
         }
 
         100% {
-            /* update here to avoid teleporting sprites */
-            transform: translate(-100%, 0);
+            transform: translate3d(10%, 0, 0);
         }
     }
 </style>

@@ -49,14 +49,13 @@
     });
 
     const updateIdleFrame = (timestamp: number) => {
-        requestAnimationFrame(updateIdleFrame);
-
         if (timestamp - lastTime >= 1000) {
             if (otterState === "idle" || otterState === "idle2") {
                 otterState = otterState == "idle" ? "idle2" : "idle";
             }
             lastTime = timestamp;
         }
+        requestAnimationFrame(updateIdleFrame);
     };
 
     onMount(() => {
@@ -351,4 +350,6 @@
         z-index: 1;
         background-color: transparent;
     }
+
+
 </style>
