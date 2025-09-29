@@ -1,6 +1,7 @@
 import { GameMusicPlayer } from "$lib/components/rhythm/GmaeMusicPlayer.svelte";
 import { component as Component, cQuad, cCircle, cImg, type RenderPkg as RenderPkg, getSrc, cText } from "./CanvasTools";
 import { GamePhase, GameState } from "$lib/components/rhythm/RhythmGameState.svelte";
+import { updateRhythmBeatsBeaten, updateRhythmSessions } from "$lib/firebase/api";
 
 enum trackIds {
     top = 0,
@@ -101,6 +102,8 @@ export class RhythmRenderer {
     vfxObjs: Component[] = [];
     notesVfx: Component | null = null;
 
+    beatsBeat: number;
+
     countDownReset = 3;
     countDownMode = 0;
     countDownTimestamp = 0;
@@ -138,6 +141,7 @@ export class RhythmRenderer {
             h: canvas.height
         }
         this.mobileView = mobileView;
+        this.beatsBeat = 0;
 
         this.reset();
         this.init();
@@ -198,6 +202,7 @@ export class RhythmRenderer {
         this.musicPlayer.song = undefined;
         this.songData = [];
         this.points = 0;
+        this.beatsBeat = 0;
     }
 
     setupEvents() {
@@ -387,6 +392,7 @@ export class RhythmRenderer {
                 n.noteState = noteState.caught;
             }
             this.addPoints();
+            this.beatsBeat++;
             hit = true;
             break;
         }
@@ -435,8 +441,10 @@ export class RhythmRenderer {
         this.countDownUpdate();
         if (this.duration != this.empty && this.musicPlayer.currentTime > this.duration) {
             this.musicPlayer.pause();
+            this.duration = this.empty;
             GameState.phase = GamePhase.ENDED;
             this.songData = [];
+            updateRhythmBeatsBeaten(this.beatsBeat);
         }
 
     }
@@ -468,6 +476,7 @@ export class RhythmRenderer {
             this.countDownMode--;
             this.countDownTimestamp = this.currentTime;
             if (this.countDownMode == 0) {
+                updateRhythmSessions();
                 this.startSong();
             }
         }

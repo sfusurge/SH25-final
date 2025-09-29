@@ -6,7 +6,7 @@
     import Background from "$lib/components/rhythm/Background.svelte";
     import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
     import { onDestroy, untrack, onMount } from "svelte";
-    import { cImg, parseBeatMap } from "$lib/components/rhythm/CanvasTools";
+    import { parseBeatMap } from "$lib/components/rhythm/CanvasTools";
     import {
         rhythmGameConfig,
         createGameActionButton,

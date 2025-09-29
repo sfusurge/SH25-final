@@ -40,3 +40,21 @@ export async function updateMusicStats() {
 
     await setDoc(docRef, payload, { merge: true });
 }
+
+export async function updateRhythmSessions() {
+    const docRef = doc(db, "game_stats/rhythm");
+
+    const payload = {
+        playSessions: increment(1)
+    }
+    await setDoc(docRef, payload, { merge: true });
+}
+
+export async function updateRhythmBeatsBeaten(beats: number) {
+    const docRef = doc(db, "game_stats/rhythm");
+
+    const payload = {
+        beatsBeaten: increment(beats)
+    }
+    await setDoc(docRef, payload, { merge: true });
+}
