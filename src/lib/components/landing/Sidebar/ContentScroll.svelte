@@ -43,14 +43,40 @@
         </div>
 
         <HoverEffectButton
-            className="flex h-[32px] px-[10px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
+            className="flex text-sm h-[32px] px-[10px] justify-center items-center text-white gap-[10px] self-stretch border border-[#8A6F6A] bg-[rgba(138,111,106,0.60)]"
             onClick={() =>
                 window.open(
                     "https://portal.sfusurge.com/application",
                     "_blank",
                 )}
         >
-            Apply Now
+            Hacker Application
+        </HoverEffectButton>
+    </div>
+
+    <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
+        <h1 class="text-header italic self-stretch leading-normal font-bold">
+            Get Involved
+        </h1>
+        <HoverEffectButton
+                className="flex text-sm h-[32px] px-[10px] transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] s-P75MBUpy42vL"
+                onClick={() =>
+                window.open(
+                    "https://forms.gle/EjCnrSwdFTuKnaiP9",
+                    "_blank",
+                )}
+        >
+            Volunteer Form
+        </HoverEffectButton>
+        <HoverEffectButton
+                className="flex text-sm h-[32px] px-[10px] transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] s-P75MBUpy42vL"
+                onClick={() =>
+                window.open(
+                    "https://forms.gle/uJQp3Yb1VG44BTtH6",
+                    "_blank",
+                )}
+        >
+            Mentor Form
         </HoverEffectButton>
     </div>
 
@@ -78,7 +104,7 @@
                     text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
             />
         </div>
-        <LockedTile release="Releases [09/15/2025]" />
+        <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
@@ -119,9 +145,26 @@
                     text="Stormy and Sparky embark on an adventure, meeting a new friend called Scummy."
             />
         </div>
-        <LockedTile release="Releases [09/15/2025]" />
-        <LockedTile release="Releases [09/22/2025]" />
-        <LockedTile release="Releases [09/29/2025]" />
+        <div class:active-tile={isActiveTile("/webtoon", "#2")}>
+            <WebtoonTile
+                    imageSrc="/assets/ig.svg"
+                    imageAlt="[Ch 2] You Improved."
+                    imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
+                    onClick={() => goto("/webtoon#2")}
+                    header="[Ch 2] You Improved."
+                    text="Scummious and our two heroes’ friendship reaches a strain, changing the course of their journey forever."
+            />
+        </div>
+        <div class:active-tile={isActiveTile("/webtoon", "#3")}>
+            <WebtoonTile
+                    imageSrc="/assets/ig.svg"
+                    imageAlt="[Ch 3] You Improved."
+                    imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
+                    onClick={() => goto("/webtoon#3")}
+                    header="[Ch 3] Let's See How You Struggle."
+                    text="Scummious and Shade's bond grows as Stormy and Sparky begin to make their way through the trials of the gods."
+            />
+        </div>        <LockedTile release="Releases [10/04/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 

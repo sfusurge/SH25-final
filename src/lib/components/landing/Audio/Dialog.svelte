@@ -3,7 +3,6 @@
     import RockFilter from "$lib/components/landing/svgs/RockFilter.svelte";
     import { fade } from "svelte/transition";
     import HorizontalDivider from "../HorizontalDivider.svelte";
-    import LeafGame from "$lib/components/leaf/LeafGame.svelte";
 
     interface Props {
         title: string;
@@ -11,7 +10,8 @@
         mobile?: boolean;
         show?: boolean;
         children?: import("svelte").Snippet;
-        offsetDirection?: "center" | "left" | "right";
+        offsetDirection?: "center" | "x-center" | "left" | "right";
+        dataMazeUi?: boolean; // For maze game pausing stuff
     }
 
     let {
@@ -21,6 +21,7 @@
         children,
         mobile,
         offsetDirection = "center",
+        dataMazeUi = false,
     }: Props = $props();
 
     function handleBackdropClick(e: PointerEvent | MouseEvent) {
@@ -45,6 +46,7 @@
 
 {#if show}
     <div
+        class:xcenter={offsetDirection === "x-center"}
         class:center={offsetDirection === "center"}
         class:left={offsetDirection === "left"}
         class:right={offsetDirection === "right"}
@@ -52,18 +54,21 @@
         class:mobile
         transition:fade={{ duration: 200 }}
         use:clickedOutside
+        data-maze-ui={dataMazeUi ? true : undefined}
     >
         <RockFilter />
-
         <div data-demon="border" class="decorBar"></div>
         <div data-demon="border" class="decorBar" style="top: unset; bottom: 0;"></div>
-
-        <div class="titleBar">
-            <p class="title">{title}</p>
-            <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
+        <div class="contentHolder">
+            <div class="titleBar">
+                <p class="title">{title}</p>
+                {#if onClose}
+                    <HoverEffectButton onClick={onClose} square>X</HoverEffectButton>
+                {/if}
+            </div>
+            <HorizontalDivider />
+            {@render children?.()}
         </div>
-        <HorizontalDivider />
-        {@render children?.()}
     </div>
     {#if mobile}
         <div
@@ -75,25 +80,36 @@
 {/if}
 
 <style>
+    .contentHolder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        padding: 2rem 1.5rem;
+        overflow: auto;
+        height: 100%;
+        width: 100%;
+    }
+
     .dialog {
         position: absolute;
         top: 0;
         border: 1px solid var(--color-border);
 
-        padding: 2rem 1.5rem;
         box-sizing: border-box;
 
         display: flex;
         flex-direction: column;
-        justify-content: center;
+
         align-items: center;
 
-        min-width: 250px;
+        min-width: 300px;
+        max-height: 85%;
         width: fit-content;
-        height: fit-content;
+        height: auto;
 
         background-color: var(--color-background);
-        z-index: 1002;
+        z-index: 10020;
     }
 
     :not(.mobile).left {
@@ -106,9 +122,15 @@
         transform: translate(0, calc(-100% - 1rem));
     }
 
-    :not(.mobile).center {
+    :not(.mobile).xcenter {
         left: 50%;
         transform: translate(-50%, calc(-100% - 1rem));
+    }
+
+    :not(.mobile).center {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
     }
 
     .dialog.mobile {
@@ -144,6 +166,7 @@
         width: 100%;
         height: 0.5rem;
         background-image: url("/assets/block-pattern.svg");
+        z-index: 5;
     }
 
     .titleBar {

@@ -40,7 +40,7 @@
     {/if}
 
     {#if header || text}
-        <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] text-start">
+        <div class="transition-all duration-300 group-hover:brightness-[1.8] group-hover:sepia-[0.2] group-hover:hue-rotate-[15deg] text-start pr-1">
             {#if header}
                 <h1 class="text-header text-xs italic self-stretch leading-normal font-bold">
                     {header}
