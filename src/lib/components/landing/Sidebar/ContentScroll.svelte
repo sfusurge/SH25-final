@@ -87,10 +87,10 @@
         <div class:active-tile={isActiveTile("/rhythm")}>
             <ExperienceTile
                     imageSrc="/assets/experiences/rhythm.png"
-                    imageAlt="Slinky’s Musical Cloud"
+                    imageAlt="Rhythm of the Kingdom"
                     imageClass="w-full h-32 object-cover p-2"
                     onClick={() => goto("/rhythm")}
-                    header="Slinky’s Musical Cloud"
+                    header="Rhythm of the Kingdom"
                     text="Beat the beats in this thrilling music based rhythm game experience. Played osu before? No, this is better."
             />
         </div>
