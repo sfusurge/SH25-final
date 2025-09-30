@@ -16,12 +16,13 @@ export class ProjectileEntity extends Entity {
     gravity: number = 250;
     radius: number = 7;
 
-    constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO) {
+
+    constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO, owner: (typeof ENTITY_TYPE)[keyof typeof ENTITY_TYPE] = ENTITY_TYPE.player) {
         super(pos, 8, 8);
         this.direction = direction;
         this.initialVelocity = initialVelocity.clone();
 
-        this.metadata = { entityType: ENTITY_TYPE.projectile };
+        this.metadata = { entityType: ENTITY_TYPE.projectile, owner };
     }
 
     update(game: MazeGame, dt: number): void {
@@ -61,7 +62,7 @@ export class ProjectileEntity extends Entity {
         // Projectile hits the ground
         if (this.height <= 0) {
             this.height = 0;
-            this.metadata.destroyed = true;
+            this.toBeDeleted = true;
         }
     }
 
@@ -73,7 +74,10 @@ export class ProjectileEntity extends Entity {
             entityType === ENTITY_TYPE.rock ||
             (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
         ) {
-            this.metadata.destroyed = true;
+            this.toBeDeleted = true;
+        }
+        if (entityType !== this.metadata.owner) {
+            other.hit(this, 0.5, 400);
         }
     }
 
@@ -81,7 +85,7 @@ export class ProjectileEntity extends Entity {
         // For projectiles, any wall collision destroys them
         const isColliding = this.aabb.collidingWith(otherAABB);
         if (isColliding) {
-            this.metadata.destroyed = true;
+            this.toBeDeleted = true;
         }
         return isColliding;
     }

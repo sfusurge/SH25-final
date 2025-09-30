@@ -157,22 +157,32 @@ export class Entity {
         this.vel.addi(dv);
     }
 
-    hit(other: Entity, dmg: number) {
-        this.currentHealth = Math.max(this.currentHealth, 0);
-        if (this.currentHealth <= 0) {
-            this.toBeDeleted = true;
+    hit(other: Entity, dmg: number, hitForce = 800) {
+        if (this.immuneRemainTime > 0) {
+            return;
         }
-        this.applyImpulse(this.pos.sub(other.pos).normalize().muli(800));
+        this.currentHealth = Math.max(this.currentHealth - dmg, 0);
+        if (this.currentHealth > 0) {
+            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(hitForce));
+        } else {
+            this.vel = this.pos.sub(other.pos).normalize().muli(hitForce);
+        }
 
         this.immuneRemainTime = this.defaultImmuneDuration;
-        this.hurtRemainTime = this.defaultImmuneDuration;
+        this.hurtRemainTime = Math.max(this.defaultImmuneDuration / 4, 0.2);
     }
 
     /**
-     * do state updates here
+     * do state updates here, please call super :P
      */
     update(game: MazeGame, dt: number) {
+        if (this.hurtRemainTime > 0) {
+            this.hurtRemainTime = Math.max(this.hurtRemainTime - dt, 0);
+        }
 
+        if (this.immuneRemainTime) {
+            this.immuneRemainTime = Math.max(this.immuneRemainTime - dt, 0);
+        }
     }
 
     /**
@@ -196,6 +206,10 @@ export class Entity {
         this.pos.addi(this.vel.mul(dt));
     }
 
+    moveByVel(dt: number) {
+        this.pos.addi(this.vel.mul(dt));
+    }
+
 
     render(ctx: CanvasRenderingContext2D, time: number) {
 
@@ -207,7 +221,13 @@ export class Entity {
             Entity.localCtx.globalCompositeOperation = "source-over";
 
             this.mainRender(Entity.localCtx, time);
-            this.applyOverlay(Entity.localCtx);
+
+            // apply colored filters here
+            if (this.hurtRemainTime > 0) {
+                this.applyOverlay("ff5050");
+            }
+
+
             this.postRender(Entity.localCtx, time);
 
             ctx.drawImage(Entity.localCanvas, this.x - 50, this.y - 50);
@@ -236,14 +256,11 @@ export class Entity {
 
     }
 
-    applyOverlay(ctx: CanvasRenderingContext2D) {
+    applyOverlay(color: string) {
+        const ctx = Entity.localCtx;
         // only render where there is already pixel, ie, overlaying
-        const originalTrans = ctx.getTransform();
-        // Entity.overlayCtx.globalCompositeOperation = "source-out";
-
-
         ctx.globalCompositeOperation = "source-atop";
-        ctx.fillStyle = "#ff04f044";
+        ctx.fillStyle = `#${color}55`
         ctx.fillRect(-50, -50, 100, 100);
     }
 

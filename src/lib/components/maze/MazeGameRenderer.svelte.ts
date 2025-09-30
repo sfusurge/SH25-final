@@ -747,7 +747,7 @@ export class MazeGame {
             projectile.update(this, this.deltaTime);
 
             // Remove if destroyed
-            if (projectile.metadata.destroyed) {
+            if (projectile.toBeDeleted) {
                 this.projectiles.splice(i, 1);
             }
         }
@@ -778,8 +778,8 @@ export class MazeGame {
             }
 
             // Remove destroyed entities
-            room.entities = room.entities.filter(e => !e.metadata.destroyed);
-            room.dynamicEntities = room.dynamicEntities.filter(e => !e.metadata.destroyed);
+            room.entities = room.entities.filter(e => !e.toBeDeleted);
+            room.dynamicEntities = room.dynamicEntities.filter(e => !e.toBeDeleted);
 
             this.setRoomCompletionStatus(this.currentRoomId);
         }
@@ -845,7 +845,7 @@ export class MazeGame {
 
         return room.entities.filter(entity =>
             entity.metadata.entityType === ENTITY_TYPE.enemy &&
-            (!entity.metadata.destroyed && !(entity as any).isDead)
+            (!entity.toBeDeleted)
         ).length;
     }
 

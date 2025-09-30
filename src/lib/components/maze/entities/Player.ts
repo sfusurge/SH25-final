@@ -117,7 +117,7 @@ export class Player extends Entity {
     }
 
     update(game: MazeGame, dt: number): void {
-
+        super.update(game, dt);
     }
 
     onCollision(other: Entity, game?: any): void {

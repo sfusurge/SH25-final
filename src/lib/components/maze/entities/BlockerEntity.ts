@@ -2,8 +2,10 @@ import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { ENTITY_TYPE } from ".";
 import { Vector2 } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
-const RockSprite = loadImageToCanvas("/maze/rock.webp", 40, false, 0);
 
+
+
+const RockSprite = loadImageToCanvas("/maze/rock.webp", 50, false, 0);
 
 export class BlockerEntity extends Entity {
     solid = true;
@@ -31,7 +33,7 @@ export class BlockerEntity extends Entity {
         const aabb = this.aabb;
         const center = aabb.center;
         ctx.drawImage(this.sprite, aabb.x, aabb.y);
-        ctx.strokeStyle = "green";
-        ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height);
+        // ctx.strokeStyle = "green";
+        // ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height);
     }
 }
