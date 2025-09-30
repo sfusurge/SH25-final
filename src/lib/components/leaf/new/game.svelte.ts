@@ -93,7 +93,7 @@ class LeafGame {
     }
 
     unlockPlant(plant: keyof typeof this.shop) {
-        if(this.gamestate != 'running'){
+        if (this.gamestate != 'running') {
             return;
         }
 
@@ -102,7 +102,7 @@ class LeafGame {
     }
 
     restockPlant(plant: keyof typeof this.inventory) {
-        if(this.gamestate != 'running'){
+        if (this.gamestate != 'running') {
             return;
         }
 
@@ -111,7 +111,7 @@ class LeafGame {
 
     // clicking plant -> set it to pending to be delivered 
     clickPlant(plant: keyof typeof this.inventory) {
-        if(this.gamestate != 'running'){
+        if (this.gamestate != 'running') {
             return;
         }
 
@@ -124,7 +124,7 @@ class LeafGame {
 
     //index: customer index
     deliverOrder(index: number) {
-        if(this.gamestate != 'running'){
+        if (this.gamestate != 'running') {
             return;
         }
 
@@ -145,7 +145,7 @@ class LeafGame {
                 delete cust.order[plant];
             }
 
-            if(Object.keys(cust.order).length == 0){
+            if (Object.keys(cust.order).length == 0) {
                 cust.available = true;
                 cust.patience = 100;
             }
@@ -154,3 +154,5 @@ class LeafGame {
         }
     }
 }
+
+export const game = new LeafGame();

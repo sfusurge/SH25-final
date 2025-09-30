@@ -1,18 +1,36 @@
-<script>
+<script lang="ts">
     // plant fields: key, position, narrow, mobile
     let { plant } = $props();
+    import { game } from "./game.svelte.ts";
+
+    let unlocked = $state(false);
+    let stock = $state(0);
+    let disabled = $state(false);
+
+    $effect(() => {
+        const key = plant.key as keyof typeof game.inventory;
+        unlocked = game.shop[key] === true;
+        stock = game.inventory[key] ?? 0;
+        disabled = unlocked && stock === 0;
+    });
 </script>
 
-<img
-    class="plant"
-    src={`/assets/experiences/leaf/plants/${plant.key}.png`}
-    style="
-    left: {plant.position.left};
-    top: {plant.position.top};
-    width: {plant.plantPosition.width};
-    transform: {plant.plantTransform};
-    z-index:{plant.key === 'carrot' ? 3 : plant.key === 'vine' ? 2 : 0};" 
-/>
+{#if unlocked}
+    <img
+        class="plant {disabled ? 'disabled' : ''}"
+        src={`/assets/experiences/leaf/plants/${plant.key}.png`}
+        style="
+      left:{plant.position.left};
+      top:{plant.position.top};
+      width:{plant.plantPosition.width};
+      transform:{plant.plantTransform};
+      z-index:{plant.key === 'carrot' ? 3 : plant.key === 'vine' ? 2 : 0};"
+        on:click={() => {
+            if (!disabled)
+                game.clickPlant(plant.key as keyof typeof game.inventory);
+        }}
+    />
+{/if}
 
 <img
     src={`/assets/experiences/leaf/${plant.pot}/default.png`}
