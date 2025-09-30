@@ -6,40 +6,57 @@
     let unlocked = $state(false);
     let stock = $state(0);
     let disabled = $state(false);
+    let selected = $state<string>("");
 
     $effect(() => {
         const key = plant.key as keyof typeof game.inventory;
         unlocked = game.shop[key] === true;
         stock = game.inventory[key] ?? 0;
         disabled = unlocked && stock === 0;
+        selected = game.pending;
     });
 </script>
 
 {#if unlocked}
     <img
-        class="plant {disabled ? 'disabled' : ''}"
+        class="plant"
+        class:disabled
+        class:selected={selected === plant.key}
         src={`/assets/experiences/leaf/plants/${plant.key}.png`}
         style="
-      left:{plant.position.left};
-      top:{plant.position.top};
-      width:{plant.plantPosition.width};
-      transform:{plant.plantTransform};
-      z-index:{plant.key === 'carrot' ? 3 : plant.key === 'vine' ? 2 : 0};"
+            left:{plant.position.left};
+            top:{plant.position.top};
+            width:{plant.plantPosition.width};
+            transform:{plant.plantTransform};
+            z-index:{plant.key === 'carrot'
+            ? 3
+            : plant.key === 'vine'
+              ? 2
+              : 0};"
         on:click={() => {
             if (!disabled)
                 game.clickPlant(plant.key as keyof typeof game.inventory);
         }}
     />
-{/if}
 
-<img
-    src={`/assets/experiences/leaf/${plant.pot}/default.png`}
-    style="
-    position: absolute;
-    left: {plant.position.left};
-    top: {plant.position.top};
-    width: {plant.position.width}"
-/>
+    <img
+        src={`/assets/experiences/leaf/${plant.pot}/available.png`}
+        style="
+        position: absolute;
+        left: {plant.position.left};
+        top: {plant.position.top};
+        width: {plant.position.width}"
+    />
+{:else}
+    <img
+        src={`/assets/experiences/leaf/${plant.pot}/default.png`}
+        style="
+        position: absolute;
+        left: {plant.position.left};
+        top: {plant.position.top};
+        width: {plant.position.width}"
+    />
+{/if}
 
 <style>
     .plant {

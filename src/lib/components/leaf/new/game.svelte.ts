@@ -58,6 +58,8 @@ class LeafGame {
 
 
     constructor() {
+
+        this.gamestate = "running";
         setInterval(() => {
             this.addOrder();
         }, 2000);

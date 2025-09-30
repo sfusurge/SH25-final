@@ -78,6 +78,8 @@
 	{/each}
 </div>
 
+
+
 <style>
 	.background {
 		position: absolute; /* fill the parent area */
