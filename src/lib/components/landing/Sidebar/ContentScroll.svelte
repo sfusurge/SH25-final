@@ -84,6 +84,16 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             Interactive Experiences
         </h1>
+        <div class:active-tile={isActiveTile("/rhythm")}>
+            <ExperienceTile
+                    imageSrc="/assets/experiences/rhythm.png"
+                    imageAlt="Slinky’s Musical Cloud"
+                    imageClass="w-full h-32 object-cover p-2"
+                    onClick={() => goto("/rhythm")}
+                    header="Slinky’s Musical Cloud"
+                    text="Beat the beats in this thrilling music based rhythm game experience. Played osu before? No, this is better."
+            />
+        </div>
         <div class:active-tile={isActiveTile("/garden")}>
             <ExperienceTile
                     imageSrc="/assets/experiences/garden.webp"
@@ -104,7 +114,6 @@
                     text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
             />
         </div>
-        <LockedTile release="Releases [09/22/2025]" />
         <LockedTile release="Releases [10/04/2025]" />
     </div>
 
@@ -128,7 +137,6 @@
                     text="Take a look at the amazing organizations that helped make StormHacks 2025 a reality."
             />
         </div>
-        <LockedTile release="Coming Soon..." />
     </div>
 
     <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">

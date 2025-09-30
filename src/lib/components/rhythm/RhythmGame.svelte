@@ -182,6 +182,16 @@
         renderer?.resumeGame();
         GameState.resumeGame();
     }
+
+    function cleanupGame() {
+        renderer?.reset();
+        gameStarted = false;
+        selectedSongTitle = "";
+    }
+
+    onDestroy(() => {
+        cleanupGame();
+    });
 </script>
 
 <div style="flex:1; display:flex; width:100%; height:100%; position:relative;">
