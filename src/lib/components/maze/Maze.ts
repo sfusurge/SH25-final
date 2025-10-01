@@ -21,6 +21,7 @@ export const CELL_TYPE = Object.freeze({
 
 export const CELL_SIZE = 100; // px
 export const WALL_SIZE = 25;
+export const HALF_CELL = CELL_SIZE / 2;
 
 export class Maze {
     map: Int32Array;

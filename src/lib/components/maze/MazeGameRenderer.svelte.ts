@@ -5,6 +5,7 @@ import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 import { GameState } from "./MazeGameState.svelte.ts";
 import { DoorTransitionState } from "./DoorTransitionState.svelte.ts";
+import { EffectSystem } from "./EffectSystem.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
 })
@@ -105,6 +106,7 @@ export class MazeGame {
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
     projectiles: ProjectileEntity[] = [];
+    effects = new EffectSystem();
 
     private pendingMazeData: PreparedMazeData | null = null;
     private pendingMazeReady = false;
@@ -138,6 +140,7 @@ export class MazeGame {
 
         const playerStartPos = this.findHallwayStartPosition();
         this.player = new Player(playerStartPos);
+        this.effects.setPlayer(this.player);
         this.detectMobileMode();
         this.init();
     }
@@ -369,6 +372,15 @@ export class MazeGame {
         this.camera = Vector2.ZERO;
         this.doorTransitionActive = false;
         DoorTransitionState.reset();
+
+        // Clear power-up state (only on full game reset, not between levels)
+        // Effects should persist between levels
+        // this.effects.reset();
+    }
+
+    resetEffects() {
+        // Separate method for resetting effects (called only on full game restart)
+        this.effects.reset();
     }
 
     detectMobileMode() {
@@ -526,7 +538,7 @@ export class MazeGame {
         this.camera.y = this.player.y;
     }
 
-    lastTime = 0;
+    currentTime = 0;
     deltaTime = 0;
     wasLastFramePaused = false; // Track pause state changes
 
@@ -536,19 +548,12 @@ export class MazeGame {
             this.clearAllKeys();
         }
         this.wasLastFramePaused = GameState.paused;
+        this.deltaTime = (time - this.currentTime) / 1000;
+        this.currentTime = time;
 
         // Skip game updates if paused or not in running phase, but continue the animation loop
-        if (GameState.paused || !GameState.isGameRunning) {
-            this.lastTime = time;
-            requestAnimationFrame(this.update.bind(this));
-            return;
-        }
-
-        this.deltaTime = (time - this.lastTime) / 1000;
-        debug.delta = this.deltaTime.toFixed(4);
-
-        if (this.deltaTime > 0.1) {
-            this.lastTime = time;
+        if (GameState.paused || !GameState.isGameRunning || this.deltaTime > 0.1) {
+            this.currentTime = time;
             requestAnimationFrame(this.update.bind(this));
             return;
         }
@@ -564,11 +569,12 @@ export class MazeGame {
             this.updateCameraPos();
         }
 
+        this.effects.update(this.deltaTime);
+
         this.tickDoorTransition(this.deltaTime);
 
         this.render();
 
-        this.lastTime = time;
         requestAnimationFrame(this.update.bind(this));
     }
 
@@ -743,6 +749,7 @@ export class MazeGame {
     updateEntities() {
         // update player
         this.player.onMoveInput(this.getPlayerInput(), this.deltaTime);
+        GameState.health = this.player.currentHealth;
 
         // Handle shooting input
         const shootDirection = this.getShootingInput();
@@ -754,7 +761,7 @@ export class MazeGame {
             projectile.update(this, this.deltaTime);
 
             // Remove if destroyed
-            if (projectile.metadata.destroyed) {
+            if (projectile.toBeDeleted) {
                 this.projectiles.splice(i, 1);
             }
         }
@@ -785,8 +792,8 @@ export class MazeGame {
             }
 
             // Remove destroyed entities
-            room.entities = room.entities.filter(e => !e.metadata.destroyed);
-            room.dynamicEntities = room.dynamicEntities.filter(e => !e.metadata.destroyed);
+            room.entities = room.entities.filter(e => !e.toBeDeleted);
+            room.dynamicEntities = room.dynamicEntities.filter(e => !e.toBeDeleted);
 
             this.setRoomCompletionStatus(this.currentRoomId);
         }
@@ -852,7 +859,7 @@ export class MazeGame {
 
         return room.entities.filter(entity =>
             entity.metadata.entityType === ENTITY_TYPE.enemy &&
-            (!entity.metadata.destroyed && !(entity as any).isDead)
+            (!entity.toBeDeleted)
         ).length;
     }
 
@@ -1039,7 +1046,7 @@ export class MazeGame {
                         if (e) {
                             const col = Math.floor(e.x / CELL_SIZE);
                             if (col >= lowX && col < highX) {
-                                e.render(ctx, this.lastTime);
+                                e.render(ctx, this.currentTime);
                             }
                         }
                     }
@@ -1063,14 +1070,25 @@ export class MazeGame {
                         break;
                     }
 
-                    entity.render(ctx, this.lastTime);
+                    entity.render(ctx, this.currentTime);
                     dynamicRenderIdx += 1;
                 }
             }
 
             // ====== PLAYER ====== //
             if (row === playerDepth) {
-                this.player.render(ctx, this.lastTime);
+                this.player.render(ctx, this.currentTime);
+            }
+
+            // ====== PROJECTILE SHADOWS (render first to appear under projectiles) ====== //
+            for (const projectile of this.projectiles) {
+                const projectileDepth = Math.floor(projectile.y / CELL_SIZE);
+                if (projectileDepth === row) {
+                    const col = Math.floor(projectile.x / CELL_SIZE);
+                    if (col >= lowX && col < highX && 'renderShadow' in projectile) {
+                        (projectile as any).renderShadow(ctx);
+                    }
+                }
             }
 
             // ====== PROJECTILES ====== //
@@ -1079,7 +1097,7 @@ export class MazeGame {
                 if (projectileDepth === row) {
                     const col = Math.floor(projectile.x / CELL_SIZE);
                     if (col >= lowX && col < highX) {
-                        projectile.render(ctx, this.lastTime);
+                        projectile.render(ctx, this.currentTime);
                     }
                 }
             }

@@ -1,10 +1,11 @@
 import { DoorEntity } from "./DoorEntity";
 import { BlockerEntity } from "./BlockerEntity";
 import { TrapEntity } from "./TrapEntity";
-import { WalkerEntity } from "./WalkerEntity";
+import { EnemyEntity } from "./Enemy/EnemyEntity";
 import { ScrollEntity } from "./ScrollEntity";
 import { Player } from "./Player";
 import { ProjectileEntity } from "./ProjectileEntity";
+import { WalkerEntity } from "$lib/components/maze/entities/Enemy/WalkerEntity";
 
 export const ENTITY_TYPE = Object.freeze({
     player: -1,
@@ -26,8 +27,9 @@ export {
     DoorEntity,
     BlockerEntity,
     TrapEntity,
-    WalkerEntity,
+    EnemyEntity,
     ScrollEntity,
     Player,
-    ProjectileEntity
+    ProjectileEntity,
+    WalkerEntity
 };

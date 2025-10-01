@@ -26,7 +26,7 @@ export function formatDuration(ms: number): string {
 class _GameState {
     score = $state(0);
     enemiesKilled = $state(0);
-    health = $state(100);
+    health = $state(6);
     phase = $state<GamePhaseType>(GamePhase.PRE);
     gameStartTime = $state(-1);
     finalElapsedTime = $state(0);
@@ -98,7 +98,7 @@ class _GameState {
     resetStats(): void {
         this.score = 0;
         this.enemiesKilled = 0;
-        this.health = 100;
+        this.health = 6; // Match initial health value
         this.levelsCompleted = 0;
         this.gameResult = null;
         this.totalTimerFreezeTime = 0;
@@ -106,18 +106,23 @@ class _GameState {
     }
 
     startGame(): void {
+        // First, clear the ended state completely
+        this.phase = GamePhase.PRE; // Temporarily set to pre to prevent $effect from triggering
+        this.gameResult = null;
         this.resetStats();
+
         this.paused = false;
         this.pauseStartTime = -1;
         this.totalPauseTime = 0;
         this.showInstructionsDuringGame = false;
         this.showCloseButtonInInstructions = false;
-        this.phase = GamePhase.RUNNING;
         const startTime = Date.now();
         this.gameStartTime = startTime;
         this.finalElapsedTime = 0;
         this.now = startTime;
         this.startTimers();
+
+        this.phase = GamePhase.RUNNING;
     }
 
     openInstructions(showCloseButton: boolean = false): void {

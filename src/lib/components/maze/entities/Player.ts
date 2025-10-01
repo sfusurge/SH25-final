@@ -3,7 +3,6 @@ import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN } from ".";
 import { Vector2 } from "$lib/Vector2";
 import { ProjectileEntity } from "./ProjectileEntity";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
-import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 export class Player extends Entity {
     renderWidth = 50;
@@ -21,10 +20,16 @@ export class Player extends Entity {
     shootCooldown = 0;
     shootCooldownTime = 0.4; // seconds
 
-    isHurt = false;
-    hurtDuration = 0;
-    hurtDisplayTime = 0.5; // seconds
 
+    useOverlay: boolean = true;
+    effectModifiers = {
+        moveSpeedMultiplier: 1,
+        shootCooldownMultiplier: 1,
+        damageMultiplier: 1,
+        projectileRangeMultiplier: 1,
+        hasShield: false,
+        multiShotCount: 1, // Number of projectiles to shoot 
+    };
 
     constructor(pos: Vector2) {
         super(pos, 30, 25);
@@ -109,6 +114,8 @@ export class Player extends Entity {
             }
         }
 
+        this.maxVelMod = this.effectModifiers.moveSpeedMultiplier;
+
         this.move(movement, dt);
 
         debug.player = {
@@ -120,40 +127,17 @@ export class Player extends Entity {
     }
 
     update(game: MazeGame, dt: number): void {
-        if (this.immuneDuration > 0) {
-            this.immuneDuration -= dt;
-        }
-
-        // Update hurt state timer
-        if (this.isHurt && this.hurtDuration > 0) {
-            this.hurtDuration -= dt;
-            if (this.hurtDuration <= 0) {
-                this.isHurt = false;
-                this.hurtDuration = 0;
-            }
-        }
+        super.update(game, dt);
     }
 
     onCollision(other: Entity, game?: any): void {
 
-        if (other.metadata.entityType === ENTITY_TYPE.enemy && this.immuneDuration <= 0) {
-            if ((other as any).isDead) {
-                return;
-            }
-            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(800));
-            this.immuneDuration = 1;
-
-            this.isHurt = true;
-            this.hurtDuration = this.hurtDisplayTime;
-
-            GameState.reduceHealth(10);
-        }
     }
 
     onShootInput(direction: number, game: any): void {
         if (direction === -1 || this.shootCooldown > 0) return;
 
-        this.shootCooldown = this.shootCooldownTime;
+        this.shootCooldown = this.shootCooldownTime * this.effectModifiers.shootCooldownMultiplier;
 
         const projectilePos = this.pos.clone();
 
@@ -176,11 +160,41 @@ export class Player extends Entity {
 
         const inheritedVelocity = this.vel.mul(0.3);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
+        projectile.damage *= this.effectModifiers.damageMultiplier;
+        projectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
+
         game.addProjectile(projectile);
+
+        // Multi-shot effect 
+        const extraShots = this.effectModifiers.multiShotCount - 1;
+        if (extraShots > 0) {
+            const isHorizontal = direction === LEFT || direction === RIGHT;
+            const spacing = 15;
+
+            for (let i = 1; i <= extraShots; i++) {
+                const secondPos = projectilePos.clone();
+
+                // Alternate sides evenly: odd indices go positive, even go negative
+                const side = i % 2 === 1 ? 1 : -1;
+                const offsetIndex = Math.ceil(i / 2); // 1,1,2,2,3,3...
+                const actualOffset = offsetIndex * spacing * side;
+
+                if (isHorizontal) {
+                    secondPos.y += actualOffset;
+                } else {
+                    secondPos.x += actualOffset;
+                }
+
+                const extraProjectile = new ProjectileEntity(secondPos, direction, inheritedVelocity);
+                extraProjectile.damage *= this.effectModifiers.damageMultiplier;
+                extraProjectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
+                game.addProjectile(extraProjectile);
+            }
+        }
     }
 
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         const trans = ctx.getTransform();
 
         const mag = this.vel.mag();
@@ -199,8 +213,18 @@ export class Player extends Entity {
 
         ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
         ctx.translate(-sprite.width / 2, -sprite.height);
-        this.renderWithDamageState(ctx, sprite, this.x, this.y, this.isHurt);
+        ctx.drawImage(sprite, 0, 0);
 
         ctx.setTransform(trans);
+    }
+
+    restoreHealth(amount: number): void {
+        this.currentHealth += amount;
+        this.currentHealth = Math.min(this.currentHealth, this.maxHealth);
+    }
+
+    takeDamage(amount: number): void {
+        this.currentHealth -= amount;
+        this.currentHealth = Math.max(this.currentHealth, 0);
     }
 }
