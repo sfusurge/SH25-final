@@ -5,6 +5,7 @@ import { AABB, Vector2 } from "$lib/Vector2";
 import { MazeGenerator } from "./MazeGenerator";
 import { GameState } from "./MazeGameState.svelte.ts";
 import { DoorTransitionState } from "./DoorTransitionState.svelte.ts";
+import { EffectSystem } from "./EffectSystem.svelte.ts";
 
 export const debug = $state<{ [key: string]: any }>({
 })
@@ -105,6 +106,7 @@ export class MazeGame {
     //new Entity(new Vector2(200, 200), 100, 200)
     entities: Entity[] = [];
     projectiles: ProjectileEntity[] = [];
+    effects = new EffectSystem();
 
     private pendingMazeData: PreparedMazeData | null = null;
     private pendingMazeReady = false;
@@ -369,6 +371,9 @@ export class MazeGame {
         this.camera = Vector2.ZERO;
         this.doorTransitionActive = false;
         DoorTransitionState.reset();
+
+        // Clear power-up state
+        this.effects.reset();
     }
 
     detectMobileMode() {
@@ -556,6 +561,8 @@ export class MazeGame {
             this.player.vel = Vector2.ZERO;
             this.updateCameraPos();
         }
+
+        this.effects.update(this.deltaTime);
 
         this.tickDoorTransition(this.deltaTime);
 

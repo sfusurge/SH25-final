@@ -6,8 +6,8 @@
     // HUD data - same for both mobile and desktop
     const hudItems = $derived([
         { iconSrc: "/assets/clock.svg", value: GameState.formattedElapsedTime, alt: "clock" },
-        { iconSrc: "/assets/diamond.svg", value: GameState.score, alt: "Score Icon" },
-        { iconSrc: "/assets/eye-open.svg", value: GameState.health, alt: "Health Icon" },
+        { iconSrc: "/maze/icons/4-pt-star.svg", value: GameState.score, alt: "Score Icon" },
+        { iconSrc: "/maze/icons/heart.svg", value: GameState.health, alt: "Health Icon" },
     ]);
 </script>
 

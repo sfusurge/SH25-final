@@ -195,9 +195,7 @@ export class EnemyEntity extends Entity {
             currentSprite = this.facingDirection === LEFT ? this.deadSpriteLeft : this.deadSprite;
 
             // Calculate fade alpha based on time since death
-            const fadeProgress = Math.min(this.deathTime / this.fadeOutDuration, 1);
-            const alpha = 1 - fadeProgress;
-            ctx.globalAlpha = alpha;
+            ctx.globalAlpha = this.deathTime / this.fadeOutDuration;
         } else if (this.hurtRemainTime > 0) {
             currentSprite = this.facingDirection === LEFT ? this.hurtSpriteLeft : this.hurtSprite;
         } else {

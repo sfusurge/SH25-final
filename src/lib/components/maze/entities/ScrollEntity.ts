@@ -1,11 +1,13 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { ENTITY_TYPE } from ".";
 import { Vector2 } from "$lib/Vector2";
+import type { MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
+import { EffectSource } from "../EffectSystem.svelte";
 
 const ScrollSprite = loadImageToCanvas("/maze/scroll.webp", 40, false, 0);
 
 export class ScrollEntity extends Entity {
-    static: boolean = true;
+    static: boolean = false;
     sprite: HTMLCanvasElement;
 
     constructor(pos: Vector2) {
@@ -14,10 +16,10 @@ export class ScrollEntity extends Entity {
         this.metadata = { entityType: ENTITY_TYPE.scroll };
     }
 
-    onCollision(other: Entity, game?: any): void {
-        if (other.metadata?.entityType === 'player') {
-            this.metadata.destroyed = true;
-            // TODO
+    onCollision(other: Entity, game?: MazeGame): void {
+        if (other.metadata?.entityType === ENTITY_TYPE.player) {
+            this.toBeDeleted = true;
+            game?.effects?.grantRandomEffect(EffectSource.SCROLL);
         }
     }
 
@@ -25,10 +27,5 @@ export class ScrollEntity extends Entity {
         const aabb = this.aabb;
         const center = aabb.center
         ctx.drawImage(this.sprite, center.x - this.sprite.width / 2, center.y - this.sprite.height / 2);
-        ctx.strokeStyle = "red";
-        ctx.strokeRect(center.x - this.sprite.width / 2, center.y - this.sprite.height / 2, this.sprite.width, this.sprite.height);
-
-        ctx.strokeStyle = "green";
-        ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height);
     }
 }
