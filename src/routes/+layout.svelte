@@ -2,9 +2,9 @@
     let width = $state(0);
     let height = $state(0);
     let medium = $derived(700 <= width && width < 1200);
-    let mobile = $derived(width < 700);
+    let mobile = $derived(width < 700 || height < 500);
     let desktop = $derived(width >= 1200);
-    let isLandscape = $derived((mobile || height < 500) && width > height);
+    let isLandscape = $derived(mobile && width > height);
     export const global = {
         get mobile() {
             return mobile;
