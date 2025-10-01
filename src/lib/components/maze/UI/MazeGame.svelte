@@ -68,6 +68,7 @@
     class:mode-desktop={!global.mobile && !global.medium}
     class:mode-tablet={global.medium}
     class:mode-mobile={global.mobile}
+    class:mode-landscape={global.isLandscape}
 >
     <div class="maze-stage">
         <div class="game-area">
@@ -120,6 +121,15 @@
         align-items: stretch;
     }
 
+    .maze-root.mode-landscape {
+        height: 100dvh;
+        max-height: 100dvh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+    }
+
     .maze-stage {
         position: relative;
         width: min(var(--stage-max-width, 100%), 100%);
@@ -143,6 +153,15 @@
     .maze-root.mode-mobile .maze-stage {
         --stage-max-width: 100%;
         --stage-max-height: 100%;
+    }
+
+    .maze-root.mode-landscape .maze-stage {
+        --stage-max-width: 100vw;
+        --stage-max-height: 100dvh;
+        width: 100%;
+        height: 100%;
+        max-width: 100vw;
+        max-height: 100dvh;
     }
 
     .maze-root.mode-tablet {
@@ -185,6 +204,7 @@
         height: 100%;
         display: block;
         background: #000;
+        object-fit: contain;
     }
 
     canvas:focus {

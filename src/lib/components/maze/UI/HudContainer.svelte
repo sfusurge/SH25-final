@@ -66,11 +66,11 @@
     /* Mobile styles */
     .mobile {
         width: 25vw;
-        height: 4vh;
+        height: 7vh;
     }
 
     .mobile .value {
-        font-size: max(0.625vw, 1.11vh);
+        font-size: max(1vw, 2vh);
         color: var(--color-text-primary);
     }
 

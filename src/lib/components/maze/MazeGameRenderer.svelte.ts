@@ -385,7 +385,7 @@ export class MazeGame {
 
     detectMobileMode() {
         const isTouchDevice = 'ontouchstart' in window;
-        const isSmallScreen = window.innerWidth < 640;
+        const isSmallScreen = window.innerWidth < 768;
         this.mobileMode = isTouchDevice || isSmallScreen;
     }
 
