@@ -13,9 +13,9 @@ export const debug = $state<{ [key: string]: any }>({
 const mazeConfig = {
     width: 40,
     height: 40,
-    roomAttempts: 50,
-    windingPercent: 50,
-    randomOpenPercent: 0.03
+    roomAttempts: 70,
+    windingPercent: 40,
+    randomOpenPercent: 0.04
 };
 
 type PreparedMazeData = {

@@ -64,7 +64,7 @@ export interface ActiveEffect {
 const SCROLL_TIMED_EFFECTS: EffectDefinition[] = [
     {
         id: EffectId.MULTI_SHOT,
-        name: "Multi Shot",
+        name: "Multishot: Extra Projectiles",
         description: "Launch multiple projectiles at once. Stacks for more shots!",
         kind: EffectKind.TIMED,
         defaultDuration: 30,
@@ -83,7 +83,7 @@ const SCROLL_TIMED_EFFECTS: EffectDefinition[] = [
     },
     {
         id: EffectId.SHIELD,
-        name: "Shield",
+        name: "Shield: Temporary Immunity",
         description: "Gain temporary immunity against incoming damage.",
         kind: EffectKind.TIMED,
         defaultDuration: 5,
@@ -95,7 +95,7 @@ const SCROLL_TIMED_EFFECTS: EffectDefinition[] = [
 const SCROLL_PASSIVE_EFFECTS: EffectDefinition[] = [
     {
         id: EffectId.RAPID_FIRE,
-        name: "Rapid Fire",
+        name: "Rapid Fire: Fire Rate Up",
         description: "Permanently reduce your firing cooldown.",
         kind: EffectKind.PASSIVE,
         icon: "/maze/icons/double-chevron.svg",
@@ -104,7 +104,7 @@ const SCROLL_PASSIVE_EFFECTS: EffectDefinition[] = [
     },
     {
         id: EffectId.SPEED_BOOST,
-        name: "Fleetfoot",
+        name: "Fleetfoot: Movement Speed Up",
         description: "Permanently increase your movement speed.",
         kind: EffectKind.PASSIVE,
         icon: "/maze/icons/speed.svg",
@@ -113,7 +113,7 @@ const SCROLL_PASSIVE_EFFECTS: EffectDefinition[] = [
     },
     {
         id: EffectId.LONG_RANGE,
-        name: "Longshot",
+        name: "Longshot: Projectile Range Up",
         description: "Permanently extend the range of your projectiles.",
         kind: EffectKind.PASSIVE,
         icon: "/maze/icons/4-pt-star.svg",
@@ -128,7 +128,7 @@ const EFFECT_DEFINITIONS: Record<EffectSource, EffectDefinition[]> = {
     [EffectSource.TRAP]: [
         {
             id: EffectId.SLOW_MOVEMENT,
-            name: "Burdened",
+            name: "Burdened: Slow Movement",
             description: "Your movement speed is drastically reduced.",
             kind: EffectKind.TIMED,
             defaultDuration: 30,
@@ -138,7 +138,7 @@ const EFFECT_DEFINITIONS: Record<EffectSource, EffectDefinition[]> = {
         },
         {
             id: EffectId.SLOW_SHOOTING,
-            name: "Sluggish",
+            name: "Sluggish: Slow Shooting",
             description: "Your weapon firing rate is severely reduced.",
             kind: EffectKind.TIMED,
             defaultDuration: 30,
@@ -148,7 +148,7 @@ const EFFECT_DEFINITIONS: Record<EffectSource, EffectDefinition[]> = {
         },
         {
             id: EffectId.WEAKENED,
-            name: "Weakened",
+            name: "Weakened: Reduced Attack Power",
             description: "Your attack power is reduced.",
             kind: EffectKind.TIMED,
             defaultDuration: 20,
@@ -202,6 +202,7 @@ export class EffectSystem {
                 shootCooldownMultiplier: 1,
                 damageMultiplier: 1,
                 projectileRangeMultiplier: 1,
+                projectileSpeedMultiplier: 1,
                 hasShield: false,
                 multiShotCount: 1,
             };
@@ -270,7 +271,9 @@ export class EffectSystem {
             };
 
             if (existingIndex >= 0) {
-                this.active[existingIndex] = updatedEffect;
+                this.active = this.active.map((effect, i) =>
+                    i === existingIndex ? updatedEffect : effect
+                );
                 this.applyPassive(updatedEffect, previousStacks);
             } else {
                 this.active = [...this.active, updatedEffect];
@@ -294,7 +297,9 @@ export class EffectSystem {
         };
 
         if (existingIndex >= 0) {
-            this.active[existingIndex] = newEffect;
+            this.active = this.active.map((effect, i) =>
+                i === existingIndex ? newEffect : effect
+            );
         } else {
             this.active = [...this.active, newEffect];
         }
@@ -370,6 +375,7 @@ export class EffectSystem {
                 break;
             case EffectId.LONG_RANGE:
                 this.player.effectModifiers.projectileRangeMultiplier += baseValue * scaleDelta;
+                this.player.effectModifiers.projectileSpeedMultiplier += baseValue * scaleDelta;
                 break;
         }
         console.log(`[EffectSystem] Applying passive effect: ${def.name} (stacks: ${effect.stacks}, scale: ${currentScale.toFixed(2)})`);

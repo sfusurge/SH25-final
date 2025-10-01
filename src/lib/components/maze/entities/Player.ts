@@ -27,6 +27,7 @@ export class Player extends Entity {
         shootCooldownMultiplier: 1,
         damageMultiplier: 1,
         projectileRangeMultiplier: 1,
+        projectileSpeedMultiplier: 1,
         hasShield: false,
         multiShotCount: 1, // Number of projectiles to shoot 
     };
@@ -162,32 +163,33 @@ export class Player extends Entity {
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
         projectile.damage *= this.effectModifiers.damageMultiplier;
         projectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
+        projectile.speed *= this.effectModifiers.projectileSpeedMultiplier;
 
         game.addProjectile(projectile);
 
-        // Multi-shot effect 
+        // Multi-shot effect - spawn projectiles at same position with slight spread
         const extraShots = this.effectModifiers.multiShotCount - 1;
         if (extraShots > 0) {
             const isHorizontal = direction === LEFT || direction === RIGHT;
-            const spacing = 15;
+            const spreadVelocity = 50; // Velocity spread perpendicular to shoot direction
 
             for (let i = 1; i <= extraShots; i++) {
-                const secondPos = projectilePos.clone();
-
-                // Alternate sides evenly: odd indices go positive, even go negative
+                // Alternate sides: odd indices go positive, even go negative
                 const side = i % 2 === 1 ? 1 : -1;
                 const offsetIndex = Math.ceil(i / 2); // 1,1,2,2,3,3...
-                const actualOffset = offsetIndex * spacing * side;
+                const spreadAmount = offsetIndex * spreadVelocity * side;
 
-                if (isHorizontal) {
-                    secondPos.y += actualOffset;
-                } else {
-                    secondPos.x += actualOffset;
-                }
+                // Add perpendicular velocity for spread
+                const spreadVector = isHorizontal
+                    ? new Vector2(0, spreadAmount)
+                    : new Vector2(spreadAmount, 0);
 
-                const extraProjectile = new ProjectileEntity(secondPos, direction, inheritedVelocity);
+                const modifiedVelocity = inheritedVelocity.add(spreadVector);
+
+                const extraProjectile = new ProjectileEntity(projectilePos.clone(), direction, modifiedVelocity);
                 extraProjectile.damage *= this.effectModifiers.damageMultiplier;
                 extraProjectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
+                extraProjectile.speed *= this.effectModifiers.projectileSpeedMultiplier;
                 game.addProjectile(extraProjectile);
             }
         }
