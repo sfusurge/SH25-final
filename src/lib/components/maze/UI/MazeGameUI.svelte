@@ -5,6 +5,7 @@
     import { mazeGameConfig, createGameActionButton } from "$lib/components/shared/slideshowConfig";
     import MazeDoorOverlay from "./MazeDoorOverlay.svelte";
     import MazeHud from "./MazeHUD.svelte";
+    import EffectDisplay from "./EffectDisplay.svelte";
 
     // Props
     interface Props {
@@ -87,6 +88,10 @@
 
 <MazeHud />
 <MazeDoorOverlay />
+
+{#if gameRenderer}
+    <EffectDisplay {gameRenderer} />
+{/if}
 
 <style>
     .pause-overlay {
