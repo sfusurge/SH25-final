@@ -7,6 +7,7 @@ export enum EffectId {
     HEAL = 3,
     SPEED_BOOST = 4,
     SHIELD = 5,
+    LONG_RANGE = 6,
 
     // trap
     SLOW_MOVEMENT = -1,
@@ -19,12 +20,13 @@ export enum EffectId {
 export enum EffectKind {
     INSTANT = 0,
     TIMED = 1,
-    PASSIVE = 2 // not used, but just in case?
+    PASSIVE = 2,
 }
 
 export enum EffectSource {
-    SCROLL = 0,
-    TRAP = 1,
+    SCROLL_TIMED = 0,
+    SCROLL_PASSIVE = 1,
+    TRAP = 2,
 }
 
 // Metadata describing an effect type.
@@ -53,53 +55,65 @@ export interface ActiveEffect {
     totalDuration: number | null;
 }
 
+const SCROLL_TIMED_EFFECTS: EffectDefinition[] = [
+    {
+        id: EffectId.DOUBLE_SHOT,
+        name: "Double Shot",
+        description: "Launch two projectiles at once for a short time.",
+        kind: EffectKind.TIMED,
+        defaultDuration: 18,
+        icon: "/maze/icons/double-vert.svg",
+        stacks: false,
+    },
+    {
+        id: EffectId.HEAL,
+        name: "Healing Scroll",
+        description: "Restore a portion of your health instantly.",
+        kind: EffectKind.INSTANT,
+        icon: "/maze/icons/heart.svg",
+        stacks: false,
+    },
+    {
+        id: EffectId.SHIELD,
+        name: "Shield",
+        description: "Gain temporary immunity against incoming damage.",
+        kind: EffectKind.TIMED,
+        defaultDuration: 8,
+        icon: "/maze/icons/shield.svg",
+        stacks: false,
+    },
+];
+
+const SCROLL_PASSIVE_EFFECTS: EffectDefinition[] = [
+    {
+        id: EffectId.RAPID_FIRE,
+        name: "Rapid Fire",
+        description: "Permanently reduce your firing cooldown.",
+        kind: EffectKind.PASSIVE,
+        icon: "/maze/icons/double-chevron.svg",
+        stacks: true,
+    },
+    {
+        id: EffectId.SPEED_BOOST,
+        name: "Fleetfoot",
+        description: "Permanently increase your movement speed.",
+        kind: EffectKind.PASSIVE,
+        icon: "/maze/icons/speed.svg",
+        stacks: true,
+    },
+    {
+        id: EffectId.LONG_RANGE,
+        name: "Longshot",
+        description: "Permanently extend the range of your projectiles.",
+        kind: EffectKind.PASSIVE,
+        icon: "/maze/icons/4-pt-star.svg",
+        stacks: true,
+    },
+];
+
 const EFFECT_DEFINITIONS: Record<EffectSource, EffectDefinition[]> = {
-    [EffectSource.SCROLL]: [
-        {
-            id: EffectId.DOUBLE_SHOT,
-            name: "Double Shot",
-            description: "Launch two projectiles at once for a short time.",
-            kind: EffectKind.TIMED,
-            defaultDuration: 18,
-            icon: "/maze/icons/double-vert.svg",
-            stacks: false,
-        },
-        {
-            id: EffectId.RAPID_FIRE,
-            name: "Rapid Fire",
-            description: "Reduce your firing cooldown dramatically.",
-            kind: EffectKind.TIMED,
-            defaultDuration: 12,
-            icon: "/maze/icons/double-chevron.svg",
-            stacks: false,
-        },
-        {
-            id: EffectId.HEAL,
-            name: "Healing Scroll",
-            description: "Restore a portion of your health instantly.",
-            kind: EffectKind.INSTANT,
-            icon: "/maze/icons/heart.svg",
-            stacks: false,
-        },
-        {
-            id: EffectId.SPEED_BOOST,
-            name: "Haste",
-            description: "Boost your movement speed for a limited time.",
-            kind: EffectKind.TIMED,
-            defaultDuration: 10,
-            icon: "/maze/icons/speed.svg",
-            stacks: true,
-        },
-        {
-            id: EffectId.SHIELD,
-            name: "Shield",
-            description: "Gain temporary immunity against incoming damage.",
-            kind: EffectKind.TIMED,
-            defaultDuration: 8,
-            icon: "/maze/icons/shield.svg",
-            stacks: false,
-        },
-    ],
+    [EffectSource.SCROLL_TIMED]: SCROLL_TIMED_EFFECTS,
+    [EffectSource.SCROLL_PASSIVE]: SCROLL_PASSIVE_EFFECTS,
     [EffectSource.TRAP]: [
         {
             id: EffectId.SLOW_MOVEMENT,
@@ -138,6 +152,10 @@ const EFFECT_DEFINITIONS: Record<EffectSource, EffectDefinition[]> = {
         },
     ],
 };
+
+export function getEffectPool(source: EffectSource): EffectDefinition[] {
+    return EFFECT_DEFINITIONS[source] ?? [];
+}
 
 export class EffectSystem {
     definitions: Record<EffectId, EffectDefinition>;
@@ -181,7 +199,7 @@ export class EffectSystem {
     grantRandomEffect(source: EffectSource): EffectDefinition | null {
         const candidates = EFFECT_DEFINITIONS[source];
 
-        if (!candidates.length) return null;
+        if (!candidates?.length) return null;
 
         const chosen = candidates[Math.floor(Math.random() * candidates.length)];
         this.grantEffect(chosen.id, { source });
@@ -193,7 +211,7 @@ export class EffectSystem {
         const definition = this.definitions[id];
         if (!definition) return null;
 
-        const source = options?.source ?? EffectSource.SCROLL;
+        const source = options?.source ?? EffectSource.SCROLL_TIMED;
         this.lastPickup = { definition, source, timestampMs: this.currentTimeMs };
 
         if (definition.kind === EffectKind.INSTANT) {
@@ -201,8 +219,35 @@ export class EffectSystem {
             return null;
         }
 
-        const duration = definition.defaultDuration ?? null;
         const existingIndex = this.active.findIndex(active => active.id === id);
+
+        if (definition.kind === EffectKind.PASSIVE) {
+            const previousStacks = existingIndex >= 0 ? this.active[existingIndex].stacks : 0;
+            const nextStacks = definition.stacks
+                ? previousStacks + 1
+                : Math.max(previousStacks, 1);
+
+            const updatedEffect: ActiveEffect = {
+                id,
+                definition,
+                startedAtMs: this.currentTimeMs,
+                stacks: nextStacks || 1,
+                remainingDuration: null,
+                totalDuration: null,
+            };
+
+            if (existingIndex >= 0) {
+                this.active[existingIndex] = updatedEffect;
+                this.applyPassive(updatedEffect, previousStacks);
+            } else {
+                this.active = [...this.active, updatedEffect];
+                this.applyPassive(updatedEffect, 0);
+            }
+
+            return updatedEffect;
+        }
+
+        const duration = definition.defaultDuration ?? null;
 
         const newEffect: ActiveEffect = {
             id,
@@ -233,6 +278,12 @@ export class EffectSystem {
     // Apply a timed effect
     private applyTimed(effect: ActiveEffect): void {
         // TODO: Attach modifiers (movement, shooting, etc.) to the player instance.
+    }
+
+    // Apply or update a passive effect
+    private applyPassive(effect: ActiveEffect, previousStacks: number): void {
+        // TODO: Apply permanent modifiers (movement, range, fire rate) to the player instance.
+        // previousStacks can be used to adjust incremental bonuses when stacking.
     }
 
     // Remove an effect when it expires.
