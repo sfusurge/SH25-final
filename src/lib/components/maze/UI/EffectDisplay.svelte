@@ -89,13 +89,14 @@
         recentInstantEffects.map(
             ({ pickup, timestamp }) =>
                 ({
-                    id: pickup.definition.id + timestamp, // Unique key combining ID and timestamp
+                    id: pickup.definition.id,
+                    uniqueKey: `${pickup.definition.id}-${timestamp}`, // Unique key for tracking (id is for effect type)
                     definition: pickup.definition,
                     startedAtMs: timestamp,
                     stacks: 1,
                     remainingDuration: null,
                     totalDuration: null,
-                }) as ActiveEffect
+                }) as ActiveEffect & { uniqueKey: string }
         )
     );
 
@@ -115,7 +116,7 @@
     }
 
     function getEffectColour(pickup: EffectPickup): string {
-        // Negative effect IDs are traps/debuffs
+        // Negative effect IDs are traps/debuffs (red)
         if (pickup.definition.id < 0) return "red";
         // Passives get gold
         if (pickup.definition.kind === EffectKind.PASSIVE) return "gold";
@@ -143,11 +144,11 @@
         class="effect-icons"
         style="left: {effectDisplayPosition.x}px; top: {effectDisplayPosition.y}px;"
     >
-        {#each displayedEffects as effect (effect.id)}
+        {#each displayedEffects as effect ("uniqueKey" in effect ? effect.uniqueKey : effect.id)}
             <div
                 class="effect-icon-wrapper"
                 class:passive={effect.definition.kind === EffectKind.PASSIVE}
-                class:instant={effect.definition.kind === EffectKind.INSTANT}
+                class:instant={effect.definition.kind === EffectKind.INSTANT && effect.id > 0}
                 class:timed-positive={effect.definition.kind === EffectKind.TIMED && effect.id > 0}
                 class:negative={effect.id < 0}
                 title={effect.definition.name}

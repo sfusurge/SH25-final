@@ -22,6 +22,14 @@ export class Player extends Entity {
 
 
     useOverlay: boolean = true;
+    effectModifiers = {
+        moveSpeedMultiplier: 1,
+        shootCooldownMultiplier: 1,
+        damageMultiplier: 1,
+        projectileRangeMultiplier: 1,
+        hasShield: false,
+        multiShotCount: 1, // Number of projectiles to shoot 
+    };
 
     constructor(pos: Vector2) {
         super(pos, 30, 25);
@@ -106,6 +114,8 @@ export class Player extends Entity {
             }
         }
 
+        this.maxVelMod = this.effectModifiers.moveSpeedMultiplier;
+
         this.move(movement, dt);
 
         debug.player = {
@@ -127,7 +137,7 @@ export class Player extends Entity {
     onShootInput(direction: number, game: any): void {
         if (direction === -1 || this.shootCooldown > 0) return;
 
-        this.shootCooldown = this.shootCooldownTime;
+        this.shootCooldown = this.shootCooldownTime * this.effectModifiers.shootCooldownMultiplier;
 
         const projectilePos = this.pos.clone();
 
@@ -150,7 +160,37 @@ export class Player extends Entity {
 
         const inheritedVelocity = this.vel.mul(0.3);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
+        projectile.damage *= this.effectModifiers.damageMultiplier;
+        projectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
+
         game.addProjectile(projectile);
+
+        // Multi-shot effect 
+        const extraShots = this.effectModifiers.multiShotCount - 1;
+        if (extraShots > 0) {
+            const isHorizontal = direction === LEFT || direction === RIGHT;
+            const spacing = 15;
+
+            for (let i = 1; i <= extraShots; i++) {
+                const secondPos = projectilePos.clone();
+
+                // Alternate sides evenly: odd indices go positive, even go negative
+                const side = i % 2 === 1 ? 1 : -1;
+                const offsetIndex = Math.ceil(i / 2); // 1,1,2,2,3,3...
+                const actualOffset = offsetIndex * spacing * side;
+
+                if (isHorizontal) {
+                    secondPos.y += actualOffset;
+                } else {
+                    secondPos.x += actualOffset;
+                }
+
+                const extraProjectile = new ProjectileEntity(secondPos, direction, inheritedVelocity);
+                extraProjectile.damage *= this.effectModifiers.damageMultiplier;
+                extraProjectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
+                game.addProjectile(extraProjectile);
+            }
+        }
     }
 
 
@@ -176,5 +216,15 @@ export class Player extends Entity {
         ctx.drawImage(sprite, 0, 0);
 
         ctx.setTransform(trans);
+    }
+
+    restoreHealth(amount: number): void {
+        this.currentHealth += amount;
+        this.currentHealth = Math.min(this.currentHealth, this.maxHealth);
+    }
+
+    takeDamage(amount: number): void {
+        this.currentHealth -= amount;
+        this.currentHealth = Math.max(this.currentHealth, 0);
     }
 }

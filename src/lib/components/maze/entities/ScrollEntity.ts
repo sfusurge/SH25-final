@@ -13,7 +13,7 @@ export class ScrollEntity extends Entity {
     glowColor: string | null;
 
     constructor(pos: Vector2) {
-        super(pos, 40, 40);
+        super(pos, 10, 2);
         this.sprite = ScrollSprite;
         this.source = Math.random() < 0.7 ? EffectSource.SCROLL_TIMED : EffectSource.SCROLL_PASSIVE;
         this.glowColor = this.source === EffectSource.SCROLL_PASSIVE ? "#ffcc44" : null;

@@ -7,9 +7,10 @@ import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svel
 export class ProjectileEntity extends Entity {
     direction: number;
     speed: number = 450;
-    distanceBeforeDrop: number = 200;
+    distanceBeforeDrop: number = 100;
     distanceTraveled: number = 0;
     initialVelocity: Vector2; // Velocity inherited from player
+    damage: number = 0.5; // Damage dealt to entities
 
     height: number = 15; // Height above ground
     verticalVelocity: number = 0;
@@ -77,7 +78,7 @@ export class ProjectileEntity extends Entity {
             this.toBeDeleted = true;
         }
         if (entityType !== this.metadata.owner) {
-            other.hit(this, 0.5, 400);
+            other.hit(this, this.damage, 400);
         }
     }
 
@@ -91,29 +92,30 @@ export class ProjectileEntity extends Entity {
     }
 
     mainRender(ctx: CanvasRenderingContext2D, time: number): void {
-        // Calculate shadow based on height
-        const shadowSize = this.radius * 1.5;
-        const shadowOpacity = Math.max(0.1, 0.5 - this.height / 100);
-
-        // Draw shadow on the ground
-        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
-        ctx.beginPath();
-        ctx.ellipse(this.x, this.y + 2, shadowSize, shadowSize * 0.6, 0, 0, 2 * Math.PI);
-        ctx.fill();
-
         // Calculate projectile position with height offset
         const renderY = this.y - this.height;
 
         // Draw circular projectile (tear-like)
-        ctx.fillStyle = "#FFD700"; // Gold color for projectile
+        ctx.fillStyle = "#7fd6ff"; // Light blue color for projectile
         ctx.beginPath();
         ctx.arc(this.x, renderY, this.radius, 0, 2 * Math.PI);
         ctx.fill();
 
         // Add a subtle highlight to make it look more 3D
-        ctx.fillStyle = "#FFFF99";
+        ctx.fillStyle = "#e3f6ff";
         ctx.beginPath();
         ctx.arc(this.x - 1, renderY - 1, this.radius * 0.4, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    // Render shadow separately so it appears under other projectiles
+    renderShadow(ctx: CanvasRenderingContext2D): void {
+        const shadowSize = this.radius * 1.5;
+        const shadowOpacity = Math.max(0.1, 0.5 - this.height / 100);
+
+        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
+        ctx.beginPath();
+        ctx.ellipse(this.x, this.y + 2, shadowSize, shadowSize * 0.6, 0, 0, 2 * Math.PI);
         ctx.fill();
     }
 }

@@ -29,6 +29,9 @@ export function loadImageToCanvas(src: string, width: number, flip = false, padd
 export class Entity {
     pos: Vector2;
     vel: Vector2 = Vector2.ZERO;
+    effectModifiers: {
+        hasShield: boolean;
+    } | null = null;
 
     static localCanvas: HTMLCanvasElement;
     static localCtx: CanvasRenderingContext2D;
@@ -161,6 +164,11 @@ export class Entity {
         if (this.immuneRemainTime > 0) {
             return;
         }
+
+        if (this.effectModifiers?.hasShield) {
+            return;
+        }
+
         this.currentHealth = Math.max(this.currentHealth - dmg, 0);
         if (this.currentHealth > 0) {
             this.applyImpulse(this.pos.sub(other.pos).normalize().muli(hitForce));

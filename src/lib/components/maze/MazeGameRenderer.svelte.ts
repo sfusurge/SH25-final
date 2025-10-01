@@ -140,6 +140,7 @@ export class MazeGame {
 
         const playerStartPos = this.findHallwayStartPosition();
         this.player = new Player(playerStartPos);
+        this.effects.setPlayer(this.player);
         this.detectMobileMode();
         this.init();
     }
@@ -372,7 +373,13 @@ export class MazeGame {
         this.doorTransitionActive = false;
         DoorTransitionState.reset();
 
-        // Clear power-up state
+        // Clear power-up state (only on full game reset, not between levels)
+        // Effects should persist between levels
+        // this.effects.reset();
+    }
+
+    resetEffects() {
+        // Separate method for resetting effects (called only on full game restart)
         this.effects.reset();
     }
 
@@ -1071,6 +1078,17 @@ export class MazeGame {
             // ====== PLAYER ====== //
             if (row === playerDepth) {
                 this.player.render(ctx, this.currentTime);
+            }
+
+            // ====== PROJECTILE SHADOWS (render first to appear under projectiles) ====== //
+            for (const projectile of this.projectiles) {
+                const projectileDepth = Math.floor(projectile.y / CELL_SIZE);
+                if (projectileDepth === row) {
+                    const col = Math.floor(projectile.x / CELL_SIZE);
+                    if (col >= lowX && col < highX && 'renderShadow' in projectile) {
+                        (projectile as any).renderShadow(ctx);
+                    }
+                }
             }
 
             // ====== PROJECTILES ====== //

@@ -26,7 +26,7 @@ export class EnemyEntity extends Entity {
     deathTime: number = -1;
     fadeOutDuration: number = 0.5; // seconds to fade out
 
-    defaultImmuneDuration: number = 0.1;
+    defaultImmuneDuration: number = 0;
     useOverlay: boolean = true;
 
     constructor(pos: Vector2) {
