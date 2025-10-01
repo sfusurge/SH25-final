@@ -11,8 +11,8 @@ export const debug = $state<{ [key: string]: any }>({
 })
 
 const mazeConfig = {
-    width: 10,
-    height: 10,
+    width: 40,
+    height: 40,
     roomAttempts: 50,
     windingPercent: 50,
     randomOpenPercent: 0.03
