@@ -5,12 +5,14 @@ import { AABB } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 
 export class ProjectileEntity extends Entity {
-    direction: number;
+    direction: number | null = null;
+    directionVector: Vector2;
     speed: number = 450;
     distanceBeforeDrop: number = 100;
     distanceTraveled: number = 0;
     initialVelocity: Vector2; // Velocity inherited from player
     damage: number = 0.5; // Damage dealt to entities
+    hitForce: number = 400;
 
     height: number = 15; // Height above ground
     verticalVelocity: number = 0;
@@ -18,33 +20,37 @@ export class ProjectileEntity extends Entity {
     radius: number = 7;
 
 
-    constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO, owner: (typeof ENTITY_TYPE)[keyof typeof ENTITY_TYPE] = ENTITY_TYPE.player) {
+    constructor(pos: Vector2, direction: number | Vector2, initialVelocity: Vector2 = Vector2.ZERO, owner: (typeof ENTITY_TYPE)[keyof typeof ENTITY_TYPE] = ENTITY_TYPE.player) {
         super(pos, 8, 8);
-        this.direction = direction;
+        if (direction instanceof Vector2) {
+            const normalized = direction.clone().normalize();
+            this.directionVector = normalized.mag() === 0 ? Vector2.UNIT_X.clone() : normalized;
+        } else {
+            this.direction = direction;
+            this.directionVector = ProjectileEntity.directionToVector(direction);
+        }
         this.initialVelocity = initialVelocity.clone();
 
         this.metadata = { entityType: ENTITY_TYPE.projectile, owner };
     }
 
-    update(game: MazeGame, dt: number): void {
-        // Calculate movement vector based on direction
-        let moveVector = Vector2.ZERO;
-        switch (this.direction) {
+    private static directionToVector(direction: number): Vector2 {
+        switch (direction) {
             case LEFT:
-                moveVector = new Vector2(-1, 0);
-                break;
+                return new Vector2(-1, 0);
             case RIGHT:
-                moveVector = new Vector2(1, 0);
-                break;
+                return new Vector2(1, 0);
             case UP:
-                moveVector = new Vector2(0, -1);
-                break;
+                return new Vector2(0, -1);
             case DOWN:
-                moveVector = new Vector2(0, 1);
-                break;
+                return new Vector2(0, 1);
+            default:
+                return Vector2.UNIT_X.clone();
         }
+    }
 
-        const baseMovement = moveVector.mul(this.speed * dt);
+    update(game: MazeGame, dt: number): void {
+        const baseMovement = this.directionVector.mul(this.speed * dt);
         const inheritedMovement = this.initialVelocity.mul(dt);
         const totalMovement = baseMovement.add(inheritedMovement);
 
@@ -71,14 +77,16 @@ export class ProjectileEntity extends Entity {
         const entityType = other.metadata?.entityType;
 
         // Destroy projectile on collision with solid objects
-        if (
-            entityType === ENTITY_TYPE.rock ||
-            (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
-        ) {
-            this.toBeDeleted = true;
-        }
+
         if (entityType !== this.metadata.owner) {
-            other.hit(this, this.damage, 400);
+            if (
+                entityType === ENTITY_TYPE.rock ||
+                entityType === ENTITY_TYPE.player ||
+                (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
+            ) {
+                this.toBeDeleted = true;
+            }
+            other.hit(this, this.damage, this.hitForce);
         }
     }
 
@@ -95,14 +103,18 @@ export class ProjectileEntity extends Entity {
         // Calculate projectile position with height offset
         const renderY = this.y - this.height;
 
+        const isEnemyProjectile = this.metadata.owner === ENTITY_TYPE.enemy;
+        const fillColor = isEnemyProjectile ? "#7fd6ff" : "#ff7979";
+        const highlightColor = isEnemyProjectile ? "#e3f6ff" : "#ffe1e1";
+
         // Draw circular projectile (tear-like)
-        ctx.fillStyle = "#7fd6ff"; // Light blue color for projectile
+        ctx.fillStyle = fillColor;
         ctx.beginPath();
         ctx.arc(this.x, renderY, this.radius, 0, 2 * Math.PI);
         ctx.fill();
 
         // Add a subtle highlight to make it look more 3D
-        ctx.fillStyle = "#e3f6ff";
+        ctx.fillStyle = highlightColor;
         ctx.beginPath();
         ctx.arc(this.x - 1, renderY - 1, this.radius * 0.4, 0, 2 * Math.PI);
         ctx.fill();

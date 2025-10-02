@@ -1005,10 +1005,38 @@ export class MazeGame {
 
         // ===== ROOM ====== //
         let currentRoomDynamicEntities = undefined;
-        let dynamicRenderIdx = 0;
+        let entitiesByDepth: Map<number, Entity[]> = new Map();
+        // force scrolls/traps to render under players/enemies
         if (this.currentRoomId > 0) {
             currentRoomDynamicEntities = this.idToRoomLayout[this.currentRoomId].dynamicEntities;
-            currentRoomDynamicEntities.sort((a, b) => a.y - b.y);
+
+            // Group entities by depth and apply priority sorting within each depth
+            for (const entity of currentRoomDynamicEntities) {
+                const entityBottom = entity.y + entity.height / 2;
+                const depth = Math.floor(entityBottom / CELL_SIZE);
+
+                if (!entitiesByDepth.has(depth)) {
+                    entitiesByDepth.set(depth, []);
+                }
+                entitiesByDepth.get(depth)!.push(entity);
+            }
+
+            // Sort entities within each depth group by priority (traps/scrolls first)
+            for (const [depth, entities] of entitiesByDepth) {
+                entities.sort((a, b) => {
+                    const aType = a.metadata?.entityType;
+                    const bType = b.metadata?.entityType;
+
+                    const aIsTrapOrScroll = aType === ENTITY_TYPE.trap || aType === ENTITY_TYPE.scroll;
+                    const bIsTrapOrScroll = bType === ENTITY_TYPE.trap || bType === ENTITY_TYPE.scroll;
+
+                    if (aIsTrapOrScroll && !bIsTrapOrScroll) return -1;
+                    if (!aIsTrapOrScroll && bIsTrapOrScroll) return 1;
+
+                    // Same priority, maintain stable order
+                    return 0;
+                });
+            }
         }
 
         for (let row = lowY; row < highY; row++) {
@@ -1054,24 +1082,10 @@ export class MazeGame {
             }
 
             // ====== DYNAMIC ENTITY ====== //
-            if (currentRoomDynamicEntities) {
-                debug.entitiesDepth = (currentRoomDynamicEntities.map(item => item.y.toFixed(0)).join(", "));
-
-                while (dynamicRenderIdx < currentRoomDynamicEntities.length) {
-                    const entity = currentRoomDynamicEntities[dynamicRenderIdx];
-                    const entityBottom = entity.y + entity.height / 2;
-                    const depth = Math.floor(entityBottom / CELL_SIZE);
-
-                    if (row > depth) {
-                        dynamicRenderIdx += 1;
-                        continue;
-                    }
-                    if (depth !== row) {
-                        break;
-                    }
-
+            const entitiesAtThisDepth = entitiesByDepth.get(row);
+            if (entitiesAtThisDepth) {
+                for (const entity of entitiesAtThisDepth) {
                     entity.render(ctx, this.currentTime);
-                    dynamicRenderIdx += 1;
                 }
             }
 

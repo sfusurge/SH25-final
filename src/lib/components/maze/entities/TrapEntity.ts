@@ -11,7 +11,7 @@ export class TrapEntity extends Entity {
     sprite: HTMLCanvasElement;
 
     constructor(pos: Vector2) {
-        super(pos, 10, 10);
+        super(pos, 40, 40, 10, 10);
         this.sprite = TrapSprite;
         this.metadata = { entityType: ENTITY_TYPE.trap };
     }

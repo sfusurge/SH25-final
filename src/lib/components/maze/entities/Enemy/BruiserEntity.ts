@@ -16,14 +16,14 @@ export class BruiserEntity extends EnemyEntity {
         super(
             pos,
             [
-                loadImageToCanvas("/maze/enemy_sprites/enemy_2.png", 50, false, 0),
-                loadImageToCanvas("/maze/enemy_sprites/enemy_2_hurt.png", 50, false, 0),
-                loadImageToCanvas("/maze/enemy_sprites/enemy_2_dead.png", 50, false, 0),
+                loadImageToCanvas("/maze/enemy_sprites/enemy_2.webp", 50, false, 0),
+                loadImageToCanvas("/maze/enemy_sprites/enemy_2_hurt.webp", 50, false, 0),
+                loadImageToCanvas("/maze/enemy_sprites/enemy_2_dead.webp", 50, false, 0),
 
                 // Left-facing 
-                loadImageToCanvas("/maze/enemy_sprites/enemy_2.png", 50, true, 0),
-                loadImageToCanvas("/maze/enemy_sprites/enemy_2_hurt.png", 50, true, 0),
-                loadImageToCanvas("/maze/enemy_sprites/enemy_2_dead.png", 50, true, 0),
+                loadImageToCanvas("/maze/enemy_sprites/enemy_2.webp", 50, true, 0),
+                loadImageToCanvas("/maze/enemy_sprites/enemy_2_hurt.webp", 50, true, 0),
+                loadImageToCanvas("/maze/enemy_sprites/enemy_2_dead.webp", 50, true, 0),
             ]
         );
     }

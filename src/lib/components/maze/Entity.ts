@@ -60,6 +60,8 @@ export class Entity {
     // assume box shaped
     width: number;
     height: number;
+    aabbWidth: number;
+    aabbHeight: number;
 
     // movement
     accel: number = 1900;
@@ -82,9 +84,11 @@ export class Entity {
         return this.pos.y;
     }
 
-    constructor(pos: Vector2, width: number, height: number) {
+    constructor(pos: Vector2, width: number, height: number, aabbWidth?: number, aabbHeight?: number) {
         this.width = width;
         this.height = height;
+        this.aabbWidth = aabbWidth ?? width;
+        this.aabbHeight = aabbHeight ?? height;
 
         this.pos = pos;
     }

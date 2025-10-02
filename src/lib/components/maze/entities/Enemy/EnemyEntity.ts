@@ -18,6 +18,7 @@ export class EnemyEntity extends Entity {
 
     maxVel: number = 100;
     accel: number = 2000;
+    alwaysAnimate: boolean = false;
 
     // Facing direction (LEFT = 0, RIGHT = 2 to match player consts)
     facingDirection: number = RIGHT;
@@ -177,7 +178,7 @@ export class EnemyEntity extends Entity {
         let angleOffset = 0;
 
         // bounce animation
-        if (mag > 0.5) {
+        if (mag > 0.5 || this.alwaysAnimate) {
             const period = ((time % 1000) / 1000) * Math.PI * 2;
             verOffset = Math.abs(Math.sin(period) * 10); // 15px bounce
             angleOffset = Math.cos(period) * Math.PI / 30;
