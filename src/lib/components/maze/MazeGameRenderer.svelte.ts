@@ -1075,15 +1075,10 @@ export class MazeGame {
                 }
             }
 
-            // ====== PLAYER ====== //
-            if (row === playerDepth) {
-                this.player.render(ctx, this.currentTime);
-            }
-
-            // ====== PROJECTILE SHADOWS (render first to appear under projectiles) ====== //
+            // ====== PROJECTILE SHADOWS ====== //
             for (const projectile of this.projectiles) {
-                const projectileDepth = Math.floor(projectile.y / CELL_SIZE);
-                if (projectileDepth === row) {
+                const shadowDepth = Math.floor(projectile.y / CELL_SIZE);
+                if (shadowDepth === row) {
                     const col = Math.floor(projectile.x / CELL_SIZE);
                     if (col >= lowX && col < highX && 'renderShadow' in projectile) {
                         (projectile as any).renderShadow(ctx);
@@ -1091,15 +1086,23 @@ export class MazeGame {
                 }
             }
 
+
             // ====== PROJECTILES ====== //
             for (const projectile of this.projectiles) {
-                const projectileDepth = Math.floor(projectile.y / CELL_SIZE);
+                // Calculate visual bottom position (where the projectile visually appears)
+                const visualY = projectile.y - (projectile as any).height;
+                const projectileDepth = Math.floor(visualY / CELL_SIZE);
                 if (projectileDepth === row) {
                     const col = Math.floor(projectile.x / CELL_SIZE);
                     if (col >= lowX && col < highX) {
                         projectile.render(ctx, this.currentTime);
                     }
                 }
+            }
+
+            // ====== PLAYER ====== //
+            if (row === playerDepth) {
+                this.player.render(ctx, this.currentTime);
             }
 
             // ======= OTHER WALLS ======
