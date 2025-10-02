@@ -21,8 +21,8 @@
         return () => window.removeEventListener('resize', updateSize);
     });
 
-    $: mainInKindPartners = companies.inKind.filter(company => !company.overflow);
-    $: overflowPartners = companies.inKind.find(item => item.overflow)?.overflow || [];
+    $: mainBronzePartners = companies.monetary.bronze.filter(company => !company.overflow);
+    $: bronzeOverflowPartners = companies.monetary.bronze.find(item => item.overflow)?.overflow || [];
 
 </script>
 
@@ -49,7 +49,7 @@
 
         <div class="flex">
             <div class="grid grid-cols-1 lg:grid-cols-3 items-center gap-6 lg:gap-10 w-full">
-                {#each companies.monetary.bronze as company}
+                {#each mainBronzePartners as company}
                     {#if company.name.toLowerCase() !== 'buffer'}
                         <SponsorFrame
                                 height="93px"
@@ -66,33 +66,10 @@
             </div>
         </div>
 
-        <h1 class="header top-0 bg-inherit z-10 py-4">
-            In-Kind Partners
-        </h1>
-
-        <div class="flex">
-            <div class="grid grid-cols-1 lg:grid-cols-3 items-center gap-6 w-full">
-                {#each mainInKindPartners as company}
-                    {#if company.name.toLowerCase() !== 'buffer'}
-                        <SponsorFrame
-                                height="93px"
-                                width="220px"
-                                src={company.picture}
-                                alt={company.name}
-                                href={company.link}
-                                padding={company.padding}
-                        />
-                    {:else}
-                        <div class="hidden lg:block" style="height:93px; width:220px;"></div>
-                    {/if}
-                {/each}
-            </div>
-        </div>
-
-        {#if overflowPartners.length > 0}
+        {#if bronzeOverflowPartners.length > 0}
             <div class="flex">
                 <div class="grid grid-cols-1 lg:grid-cols-2 items-center gap-6 w-full">
-                    {#each overflowPartners as company}
+                    {#each bronzeOverflowPartners as company}
                         <SponsorFrame
                                 height="93px"
                                 width="220px"
@@ -105,6 +82,29 @@
                 </div>
             </div>
         {/if}
+
+        <h1 class="header top-0 bg-inherit z-10 py-4">
+            In-Kind Partners
+        </h1>
+
+        <div class="flex">
+            <div class="grid grid-cols-1 lg:grid-cols-3 items-center gap-6 w-full">
+                {#each companies.inKind as company}
+                    {#if company.name.toLowerCase() !== 'buffer'}
+                        <SponsorFrame
+                                height="93px"
+                                width="220px"
+                                src={company.picture}
+                                alt={company.name}
+                                href={company.link}
+                                padding={company.padding}
+                        />
+                    {:else}
+                        <div class="hidden lg:block" style="height:93px; width:220px;"></div>
+                    {/if}
+                {/each}
+            </div>
+        </div>
     </div>
 </div>
 
