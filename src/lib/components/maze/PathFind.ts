@@ -52,7 +52,10 @@ export function AStar(room: (Entity | undefined)[][], startX: number, startY: nu
         if (cur.x === end.x && cur.y === end.y) {
             // TODO, consider if returning the entire path is needed. 
             // just return the next move for now.
-            const out = [];
+            const out: {
+                x: number;
+                y: number;
+            }[] = [];
             while (cur.parent) {
                 out.push({ x: cur.x, y: cur.y })
                 cur = cur.parent;

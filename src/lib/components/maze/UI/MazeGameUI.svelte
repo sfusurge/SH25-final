@@ -5,6 +5,7 @@
     import { mazeGameConfig, createGameActionButton } from "$lib/components/shared/slideshowConfig";
     import MazeDoorOverlay from "./MazeDoorOverlay.svelte";
     import MazeHud from "./MazeHUD.svelte";
+    import EffectDisplay from "./EffectDisplay.svelte";
 
     // Props
     interface Props {
@@ -75,7 +76,9 @@
         actionButton={createGameActionButton("restart", () => {
             // Reset the game world (new maze, entities, player position)
             if (gameRenderer) {
+                gameRenderer.player.currentHealth = gameRenderer.player.maxHealth; // Reset player health
                 gameRenderer.reset();
+                gameRenderer.resetEffects();
             }
             // Reset the game state (score, health, timer)
             GameState.startGame();
@@ -87,6 +90,10 @@
 
 <MazeHud />
 <MazeDoorOverlay />
+
+{#if gameRenderer}
+    <EffectDisplay {gameRenderer} />
+{/if}
 
 <style>
     .pause-overlay {

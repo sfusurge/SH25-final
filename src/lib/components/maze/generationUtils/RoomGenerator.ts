@@ -87,8 +87,10 @@ export class RoomGenerator {
         // Clear out room; mark room as visited
         this.regionIDCounter++;
 
+        const template = ROOM_TEMPLATES[room.templateID];
+
         // create copy
-        let obstacleMap = ROOM_TEMPLATES[room.templateID].obstacleMap.map(row => [...row]);
+        let obstacleMap = template.obstacleMap.map(row => [...row]);
 
         if (room.flipVertical) {
             obstacleMap.reverse();
@@ -129,7 +131,8 @@ export class RoomGenerator {
             room.x2,
             room.y2,
             obstacleMap,
-            this.needsDoor
+            this.needsDoor,
+            template.spawnRates
         );
 
         this.needsDoor = false;

@@ -236,7 +236,7 @@
         width: 100%;
         height: 100%;
         pointer-events: auto;
-        z-index: 1000;
+        z-index: 10000;
         touch-action: none;
     }
 

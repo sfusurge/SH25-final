@@ -5,44 +5,52 @@ import { AABB } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 
 export class ProjectileEntity extends Entity {
-    direction: number;
+    direction: number | null = null;
+    directionVector: Vector2;
     speed: number = 450;
-    distanceBeforeDrop: number = 200;
+    distanceBeforeDrop: number = 100;
     distanceTraveled: number = 0;
     initialVelocity: Vector2; // Velocity inherited from player
+    damage: number = 0.5; // Damage dealt to entities
+    hitForce: number = 400;
 
     height: number = 15; // Height above ground
     verticalVelocity: number = 0;
     gravity: number = 250;
     radius: number = 7;
 
-    constructor(pos: Vector2, direction: number, initialVelocity: Vector2 = Vector2.ZERO) {
+
+    constructor(pos: Vector2, direction: number | Vector2, initialVelocity: Vector2 = Vector2.ZERO, owner: (typeof ENTITY_TYPE)[keyof typeof ENTITY_TYPE] = ENTITY_TYPE.player) {
         super(pos, 8, 8);
-        this.direction = direction;
+        if (direction instanceof Vector2) {
+            const normalized = direction.clone().normalize();
+            this.directionVector = normalized.mag() === 0 ? Vector2.UNIT_X.clone() : normalized;
+        } else {
+            this.direction = direction;
+            this.directionVector = ProjectileEntity.directionToVector(direction);
+        }
         this.initialVelocity = initialVelocity.clone();
 
-        this.metadata = { entityType: ENTITY_TYPE.projectile };
+        this.metadata = { entityType: ENTITY_TYPE.projectile, owner };
+    }
+
+    private static directionToVector(direction: number): Vector2 {
+        switch (direction) {
+            case LEFT:
+                return new Vector2(-1, 0);
+            case RIGHT:
+                return new Vector2(1, 0);
+            case UP:
+                return new Vector2(0, -1);
+            case DOWN:
+                return new Vector2(0, 1);
+            default:
+                return Vector2.UNIT_X.clone();
+        }
     }
 
     update(game: MazeGame, dt: number): void {
-        // Calculate movement vector based on direction
-        let moveVector = Vector2.ZERO;
-        switch (this.direction) {
-            case LEFT:
-                moveVector = new Vector2(-1, 0);
-                break;
-            case RIGHT:
-                moveVector = new Vector2(1, 0);
-                break;
-            case UP:
-                moveVector = new Vector2(0, -1);
-                break;
-            case DOWN:
-                moveVector = new Vector2(0, 1);
-                break;
-        }
-
-        const baseMovement = moveVector.mul(this.speed * dt);
+        const baseMovement = this.directionVector.mul(this.speed * dt);
         const inheritedMovement = this.initialVelocity.mul(dt);
         const totalMovement = baseMovement.add(inheritedMovement);
 
@@ -61,7 +69,7 @@ export class ProjectileEntity extends Entity {
         // Projectile hits the ground
         if (this.height <= 0) {
             this.height = 0;
-            this.metadata.destroyed = true;
+            this.toBeDeleted = true;
         }
     }
 
@@ -69,11 +77,16 @@ export class ProjectileEntity extends Entity {
         const entityType = other.metadata?.entityType;
 
         // Destroy projectile on collision with solid objects
-        if (
-            entityType === ENTITY_TYPE.rock ||
-            (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
-        ) {
-            this.metadata.destroyed = true;
+
+        if (entityType !== this.metadata.owner) {
+            if (
+                entityType === ENTITY_TYPE.rock ||
+                entityType === ENTITY_TYPE.player ||
+                (entityType === ENTITY_TYPE.enemy && !(other as any)?.isDead)
+            ) {
+                this.toBeDeleted = true;
+            }
+            other.hit(this, this.damage, this.hitForce);
         }
     }
 
@@ -81,35 +94,40 @@ export class ProjectileEntity extends Entity {
         // For projectiles, any wall collision destroys them
         const isColliding = this.aabb.collidingWith(otherAABB);
         if (isColliding) {
-            this.metadata.destroyed = true;
+            this.toBeDeleted = true;
         }
         return isColliding;
     }
 
-    render(ctx: CanvasRenderingContext2D, time: number): void {
-        // Calculate shadow based on height
-        const shadowSize = this.radius * 1.5;
-        const shadowOpacity = Math.max(0.1, 0.5 - this.height / 100);
-
-        // Draw shadow on the ground
-        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
-        ctx.beginPath();
-        ctx.ellipse(this.x, this.y + 2, shadowSize, shadowSize * 0.6, 0, 0, 2 * Math.PI);
-        ctx.fill();
-
+    mainRender(ctx: CanvasRenderingContext2D, time: number): void {
         // Calculate projectile position with height offset
         const renderY = this.y - this.height;
 
+        const isEnemyProjectile = this.metadata.owner === ENTITY_TYPE.enemy;
+        const fillColor = isEnemyProjectile ? "#7fd6ff" : "#ff7979";
+        const highlightColor = isEnemyProjectile ? "#e3f6ff" : "#ffe1e1";
+
         // Draw circular projectile (tear-like)
-        ctx.fillStyle = "#FFD700"; // Gold color for projectile
+        ctx.fillStyle = fillColor;
         ctx.beginPath();
         ctx.arc(this.x, renderY, this.radius, 0, 2 * Math.PI);
         ctx.fill();
 
         // Add a subtle highlight to make it look more 3D
-        ctx.fillStyle = "#FFFF99";
+        ctx.fillStyle = highlightColor;
         ctx.beginPath();
         ctx.arc(this.x - 1, renderY - 1, this.radius * 0.4, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    // Render shadow separately so it appears under other projectiles
+    renderShadow(ctx: CanvasRenderingContext2D): void {
+        const shadowSize = this.radius * 1.5;
+        const shadowOpacity = Math.max(0.1, 0.5 - this.height / 100);
+
+        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
+        ctx.beginPath();
+        ctx.ellipse(this.x, this.y + 2, shadowSize, shadowSize * 0.6, 0, 0, 2 * Math.PI);
         ctx.fill();
     }
 }
