@@ -102,17 +102,22 @@
         "padding": "0px"
       },
       {
-        "name": "buffer"
-      },
-      {
-        "name": "Synexus",
-        "tier": "Bronze",
-        "picture": "/assets/sponsors/Monetary/Logo/Synexus/synexus.png",
-        "link": "https://www.linkedin.com/company/synexus-labs/",
-        "padding": "0px"
-      },
-      {
-        "name": "buffer"
+        "overflow": [
+          {
+            "name": "Synexus",
+            "tier": "Bronze",
+            "picture": "/assets/sponsors/Monetary/Logo/Synexus/synexus.png",
+            "link": "https://www.linkedin.com/company/synexus-labs/",
+            "padding": "0px"
+          },
+          {
+            "name": "MentorMates",
+            "tier": "Bronze",
+            "picture": "/assets/sponsors/Monetary/Logo/MentorMates/mentormates.png",
+            "link": "https://www.mentormates.ai/",
+            "padding": "8px"
+          }
+        ]
       }
     ]
   },
@@ -244,20 +249,22 @@
       "padding": "0px"
     },
     {
-      "overflow": [
-        {
-          "name": "InWorld AI",
-          "picture": "/assets/sponsors/In-Kind/Logos/InWorld/inworld.svg",
-          "link": "https://inworld.ai/",
-          "padding": "8px"
-        },
-        {
-          "name": "Cactus Club Cafe",
-          "picture": "/assets/sponsors/In-Kind/Logos/Cactus/cactus-club-logo.svg",
-          "link": "https://www.cactusclubcafe.com/",
-          "padding": "8px"
-        }
-      ]
+      "name": "InWorld AI",
+      "picture": "/assets/sponsors/In-Kind/Logos/InWorld/inworld.svg",
+      "link": "https://inworld.ai/",
+      "padding": "8px"
+    },
+    {
+      "name": "Cactus Club Cafe",
+      "picture": "/assets/sponsors/In-Kind/Logos/Cactus/cactus-club-logo.svg",
+      "link": "https://www.cactusclubcafe.com/",
+      "padding": "8px"
+    },
+    {
+      "name": "Flyquest",
+      "picture": "/assets/sponsors/In-Kind/Logos/Flyquest/flyquest.png",
+      "link": "https://flyquest.gg/",
+      "padding": "0px"
     }
   ]
 }
