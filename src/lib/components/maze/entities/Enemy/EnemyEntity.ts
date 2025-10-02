@@ -29,18 +29,18 @@ export class EnemyEntity extends Entity {
     defaultImmuneDuration: number = 0;
     useOverlay: boolean = true;
 
-    constructor(pos: Vector2) {
+    constructor(pos: Vector2, spriteArray: HTMLCanvasElement[]) {
         super(pos, 25, 25);
 
         // Right-facing 
-        this.sprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, false, 0);
-        this.hurtSprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1_hurt.webp", 50, false, 0);
-        this.deadSprite = loadImageToCanvas("/maze/enemy_sprites/enemy_1_dead.webp", 50, false, 0);
+        this.sprite = spriteArray[0];
+        this.hurtSprite = spriteArray[1];
+        this.deadSprite = spriteArray[2];
 
         // Left-facing 
-        this.spriteLeft = loadImageToCanvas("/maze/enemy_sprites/enemy_1.webp", 50, true, 0);
-        this.hurtSpriteLeft = loadImageToCanvas("/maze/enemy_sprites/enemy_1_hurt.webp", 50, true, 0);
-        this.deadSpriteLeft = loadImageToCanvas("/maze/enemy_sprites/enemy_1_dead.webp", 50, true, 0);
+        this.spriteLeft = spriteArray[3];
+        this.hurtSpriteLeft = spriteArray[4];
+        this.deadSpriteLeft = spriteArray[5];
 
         this.metadata.entityType = ENTITY_TYPE.enemy;
     }

@@ -1,8 +1,7 @@
-
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { CELL_SIZE } from "$lib/components/maze/Maze";
 import { Vector2 } from "$lib/Vector2";
-import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, DoorEntity, WalkerEntity } from "./entities";
+import { BlockerEntity, ScrollEntity, TrapEntity, ENTITY_TYPE, DoorEntity, WalkerEntity, BruiserEntity } from "./entities";
 
 
 export type Room = {
@@ -99,7 +98,7 @@ export class RoomLayout {
                         // handled dynamically after initial pass
                         break;
                     case ENTITY_TYPE.enemy:
-                        entity = new WalkerEntity(pos,);
+                        entity = Math.random() < 0.5 ? new WalkerEntity(pos) : new BruiserEntity(pos);
                 }
 
                 if (entity) {

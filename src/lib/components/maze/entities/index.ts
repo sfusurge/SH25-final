@@ -6,6 +6,7 @@ import { ScrollEntity } from "./ScrollEntity";
 import { Player } from "./Player";
 import { ProjectileEntity } from "./ProjectileEntity";
 import { WalkerEntity } from "$lib/components/maze/entities/Enemy/WalkerEntity";
+import { BruiserEntity } from "./Enemy/BruiserEntity";
 
 export const ENTITY_TYPE = Object.freeze({
     player: -1,
@@ -31,5 +32,6 @@ export {
     ScrollEntity,
     Player,
     ProjectileEntity,
-    WalkerEntity
+    WalkerEntity,
+    BruiserEntity
 };

@@ -69,8 +69,8 @@ export class Entity {
     // health, immune durations
     hurtRemainTime = 0;
     immuneRemainTime = 0;
-    maxHealth = 6;
-    currentHealth = 6;
+    maxHealth = 10;
+    currentHealth = 10;
     toBeDeleted = false;
     defaultImmuneDuration = 1;
 
