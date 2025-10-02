@@ -1,5 +1,8 @@
 <script lang="ts">
 	import Plant from "./Plant.svelte";
+	import { global } from "../../../../routes/+layout.svelte";
+	import DesktopTimer from "./DesktopTimer.svelte";
+	import DesktopScore from "./DesktopScore.svelte";
 
 	// positions and sizing
 	let plantPositions = [
@@ -78,7 +81,14 @@
 	{/each}
 </div>
 
-
+{#if !global.mobile}
+	<div
+		class="absolute bottom-0 left-1/2 -translate-x-1/2 z-[50] flex justify-center items-start pb-0 gap-8"
+	>
+		<DesktopTimer />
+		<DesktopScore />
+	</div>
+{/if}
 
 <style>
 	.background {
