@@ -452,10 +452,10 @@ export class MazeGame {
         }
 
         // DEBUG remove
-        if (this.keyMem.space) {
-            this.player.applyImpulse(Vector2.UNIT_Y.mul(600));
-            this.keyMem.space = false;
-        }
+        // if (this.keyMem.space) {
+        //     this.player.applyImpulse(Vector2.UNIT_Y.mul(600));
+        //     this.keyMem.space = false;
+        // }
 
         return new Vector2(x, y).clampMagnitude(1);
     }
