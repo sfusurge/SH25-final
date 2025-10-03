@@ -13,7 +13,7 @@ export class BlockerEntity extends Entity {
     sprite: HTMLCanvasElement;
 
     constructor(pos: Vector2, sprite: HTMLCanvasElement) {
-        super(pos, 40, 40);
+        super(pos, 50, 45);
         this.sprite = RockSprite;
         this.metadata = { entityType: ENTITY_TYPE.rock };
     }

@@ -21,7 +21,7 @@ export class ProjectileEntity extends Entity {
 
 
     constructor(pos: Vector2, direction: number | Vector2, initialVelocity: Vector2 = Vector2.ZERO, owner: (typeof ENTITY_TYPE)[keyof typeof ENTITY_TYPE] = ENTITY_TYPE.player) {
-        super(pos, 8, 8);
+        super(pos, 5, 5);
         if (direction instanceof Vector2) {
             const normalized = direction.clone().normalize();
             this.directionVector = normalized.mag() === 0 ? Vector2.UNIT_X.clone() : normalized;

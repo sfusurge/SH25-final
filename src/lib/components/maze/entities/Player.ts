@@ -36,7 +36,7 @@ export class Player extends Entity {
     };
 
     constructor(pos: Vector2) {
-        super(pos, 20, 15, 25, 40);
+        super(pos, 20, 20, 25, 40);
 
         this.metadata = { entityType: ENTITY_TYPE.player };
 
