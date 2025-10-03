@@ -76,8 +76,18 @@ export class ProjectileEntity extends Entity {
     onCollision(other: Entity, game?: MazeGame): void {
         const entityType = other.metadata?.entityType;
 
-        // Destroy projectile on collision with solid objects
+        // Check collision using hitbox for better hit detection on enemies/players
+        const isHitting = this.aabb.collidingWith(
+            entityType === ENTITY_TYPE.enemy || entityType === ENTITY_TYPE.player
+                ? other.hitbox
+                : other.aabb
+        );
 
+        if (!isHitting) {
+            return;
+        }
+
+        // Destroy projectile on collision with solid objects
         if (entityType !== this.metadata.owner) {
             if (
                 entityType === ENTITY_TYPE.rock ||

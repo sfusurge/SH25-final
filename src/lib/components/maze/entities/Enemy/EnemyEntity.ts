@@ -36,8 +36,10 @@ export class EnemyEntity extends Entity {
     damage: number = 1;
     knockback: number = 550;
 
+    hitboxVerticalOffset: number = 8;
+
     constructor(pos: Vector2, spriteArray: HTMLCanvasElement[]) {
-        super(pos, 25, 25);
+        super(pos, 20, 20, 35, 50);
 
         // Right-facing 
         this.sprite = spriteArray[0];
@@ -69,24 +71,24 @@ export class EnemyEntity extends Entity {
         baseStats: StatRecord,
         level: number,
         scalingConfig: StatRecord = {}
-    )  {
-    
+    ) {
+
         const levelModifier = level - 1;
         const scaled: StatRecord = {};
 
         for (const propertyName in baseStats) {
             const baseValue = baseStats[propertyName];
-    
+
             const scalingKey = `${propertyName}PerLevel`;
             const scalingAmount = scalingConfig[scalingKey] ?? 0;
-    
+
             const scaledValue = baseValue + (scalingAmount * levelModifier);
             scaled[propertyName] = scaledValue;
         }
-    
+
         return scaled;
     }
-    
+
 
     onCollision(other: Entity, game?: any): void {
         // Dead entities don't participate in any collisions
@@ -222,7 +224,7 @@ export class EnemyEntity extends Entity {
         // bounce animation
         if (mag > 0.5 || this.alwaysAnimate) {
             const period = ((time % 1000) / 1000) * Math.PI * 2;
-            verOffset = Math.abs(Math.sin(period) * 10); // 15px bounce
+            verOffset = Math.abs(Math.sin(period) * 7); // 7px bounce
             angleOffset = Math.cos(period) * Math.PI / 30;
         }
 

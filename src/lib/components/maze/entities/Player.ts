@@ -20,6 +20,8 @@ export class Player extends Entity {
     shootCooldown = 0;
     shootCooldownTime = 0.4; // seconds
 
+    hitboxVerticalOffset = 10;
+
 
     useOverlay: boolean = true;
     effectModifiers = {
@@ -34,7 +36,8 @@ export class Player extends Entity {
     };
 
     constructor(pos: Vector2) {
-        super(pos, 30, 25);
+        // Player size: 30x25 for movement/pathfinding, 40x35 for shooting hitbox
+        super(pos, 20, 10, 25, 40);
 
         this.metadata = { entityType: ENTITY_TYPE.player };
 
@@ -215,7 +218,7 @@ export class Player extends Entity {
         }
 
         ctx.translate(0, this.height / 2); // translate origin to bottom of player, then offset by image size
-        ctx.translate(-sprite.width / 2, -sprite.height);
+        ctx.translate(-sprite.width / 2, -sprite.height + this.hitboxVerticalOffset);
         ctx.drawImage(sprite, 0, 0);
 
         ctx.setTransform(trans);

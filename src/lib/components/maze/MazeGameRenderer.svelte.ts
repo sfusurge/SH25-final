@@ -680,15 +680,16 @@ export class MazeGame {
         // TODO, only check for collisions in grid
         // Handle projectile vs entity collisions
         for (const projectile of this.projectiles) {
-            // projectile vs player
-            if (projectile.aabb.collidingWith(this.player.aabb)) {
+            // projectile vs player 
+            if (projectile.aabb.collidingWith(this.player.hitbox)) {
                 projectile.onCollision(this.player, this);
                 this.player.onCollision(projectile, this);
             }
 
-            // projectile vs room entities
+            // projectile vs room entities 
             for (const entity of room.entities) {
-                if (projectile.aabb.collidingWith(entity.aabb)) {
+                const targetBox = entity.metadata?.entityType === ENTITY_TYPE.enemy ? entity.hitbox : entity.aabb;
+                if (projectile.aabb.collidingWith(targetBox)) {
                     projectile.onCollision(entity, this);
                     entity.onCollision(projectile, this);
                 }

@@ -76,6 +76,8 @@ export class Entity {
     toBeDeleted = false;
     defaultImmuneDuration = 1;
 
+    hitboxVerticalOffset: number = 0;
+
     get x() {
         return this.pos.x;
     }
@@ -97,6 +99,13 @@ export class Entity {
         return new AABB(
             this.pos.subp(this.width / 2, this.height / 2),
             this.pos.addp(this.width / 2, this.height / 2)
+        );
+    }
+
+    get hitbox() {
+        return new AABB(
+            this.pos.subp(this.aabbWidth / 2, this.aabbHeight / 2 + this.hitboxVerticalOffset),
+            this.pos.addp(this.aabbWidth / 2, this.aabbHeight / 2 + this.hitboxVerticalOffset)
         );
     }
 
