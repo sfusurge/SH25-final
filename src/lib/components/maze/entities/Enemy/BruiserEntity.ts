@@ -17,7 +17,7 @@ export class BruiserEntity extends EnemyEntity {
     };
 
     static SCALING_CONFIG = {
-        currentHealthPerLevel: 0.75,
+        currentHealthPerLevel: 0.7,
         maxVelPerLevel: 8,
         damagePerLevel: 0.5,
         knockbackPerLevel: 50

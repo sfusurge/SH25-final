@@ -141,6 +141,7 @@ export class MazeGame {
         const playerStartPos = this.findHallwayStartPosition();
         this.player = new Player(playerStartPos);
         this.effects.setPlayer(this.player);
+        this.effects.setGame(this);
         this.detectMobileMode();
         this.init();
     }

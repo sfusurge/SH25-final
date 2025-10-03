@@ -25,7 +25,8 @@ export class Player extends Entity {
     effectModifiers = {
         moveSpeedMultiplier: 1,
         shootCooldownMultiplier: 1,
-        damageMultiplier: 1,
+        baseDamageBonus: 0, // Additive damage bonus from DAMAGE_UP passive (0.5 per stack)
+        tempDamageMultiplier: 1, // Temporary multiplier from WEAKENED debuff
         projectileRangeMultiplier: 1,
         projectileSpeedMultiplier: 1,
         hasShield: false,
@@ -161,7 +162,7 @@ export class Player extends Entity {
 
         const inheritedVelocity = this.vel.mul(0.3);
         const projectile = new ProjectileEntity(projectilePos, direction, inheritedVelocity);
-        projectile.damage *= this.effectModifiers.damageMultiplier;
+        projectile.damage = (projectile.damage + this.effectModifiers.baseDamageBonus) * this.effectModifiers.tempDamageMultiplier;
         projectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
         projectile.speed *= this.effectModifiers.projectileSpeedMultiplier;
 
@@ -187,7 +188,7 @@ export class Player extends Entity {
                 const modifiedVelocity = inheritedVelocity.add(spreadVector);
 
                 const extraProjectile = new ProjectileEntity(projectilePos.clone(), direction, modifiedVelocity);
-                extraProjectile.damage *= this.effectModifiers.damageMultiplier;
+                extraProjectile.damage = (extraProjectile.damage + this.effectModifiers.baseDamageBonus) * this.effectModifiers.tempDamageMultiplier;
                 extraProjectile.distanceBeforeDrop *= this.effectModifiers.projectileRangeMultiplier;
                 extraProjectile.speed *= this.effectModifiers.projectileSpeedMultiplier;
                 game.addProjectile(extraProjectile);

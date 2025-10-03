@@ -15,7 +15,7 @@ export class ScrollEntity extends Entity {
     constructor(pos: Vector2) {
         super(pos, 40, 40, 10, 10);
         this.sprite = ScrollSprite;
-        this.source = Math.random() < 0.7 ? EffectSource.SCROLL_TIMED : EffectSource.SCROLL_PASSIVE;
+        this.source = Math.random() < 0.65 ? EffectSource.SCROLL_TIMED : EffectSource.SCROLL_PASSIVE;
         this.glowColor = this.source === EffectSource.SCROLL_PASSIVE ? "#ffcc44" : null;
         this.metadata = { entityType: ENTITY_TYPE.scroll, scrollSource: this.source };
     }
