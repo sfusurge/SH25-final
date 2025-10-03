@@ -29,7 +29,7 @@ export interface GameSlideConfig {
 // Maze game configuration 
 export const mazeGameConfig: GameSlideConfig = {
     instructions: {
-        title: "The Maze",
+        title: "Celestial Maze",
         slides: [
             {
                 imageSrc: "/maze/slides/maze.png",
@@ -68,20 +68,20 @@ export const mazeGameConfig: GameSlideConfig = {
         slides: {
             win: [
                 {
-                    imageSrc: "/maze/door_open.webp",
+                    imageSrc: "/maze/slides/win.png",
                     content: `You have conquered all 5 floors of the maze!<br>Your bravery and skill have led you through countless dangers<br>to emerge triumphant.<br>The realm is safe thanks to you, champion!<br>`,
                 },
             ],
             lose: [
                 {
-                    imageSrc: "/maze/door_locked.webp",
-                    content: `The maze has claimed another adventurer.<br>Your journey ends here, but the path remains open<br>for those brave enough to try again.<br>Will you face the challenge once more?<br>`,
+                    imageSrc: "/maze/slides/end.png",
+                    content: `The maze has claimed another...<br>Your journey ends here, but the path remains open<br>for those brave enough to try again.<br>Will you face the challenge once more?<br>`,
                 },
             ],
             default: [
                 {
-                    imageSrc: "/maze/scroll.webp",
-                    content: `Your adventure through the maze has concluded.<br>Whether by triumph or defeat, you have tested<br>your mettle against its challenges.<br>The maze awaits your return...<br>`,
+                    imageSrc: "/maze/slides/end.png",
+                    content: `How the heck did you manage to get to this ending?`,
                 },
             ],
         },
