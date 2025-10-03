@@ -680,6 +680,9 @@ export class MazeGame {
         // TODO, only check for collisions in grid
         // Handle projectile vs entity collisions
         for (const projectile of this.projectiles) {
+            // Skip projectiles marked for deletion
+            if (projectile.toBeDeleted) continue;
+
             // projectile vs player 
             if (projectile.aabb.collidingWith(this.player.hitbox)) {
                 projectile.onCollision(this.player, this);
@@ -688,6 +691,9 @@ export class MazeGame {
 
             // projectile vs room entities 
             for (const entity of room.entities) {
+                // Skip entities marked for deletion
+                if (entity.toBeDeleted || projectile.toBeDeleted) continue;
+
                 const targetBox = entity.metadata?.entityType === ENTITY_TYPE.enemy ? entity.hitbox : entity.aabb;
                 if (projectile.aabb.collidingWith(targetBox)) {
                     projectile.onCollision(entity, this);
@@ -721,6 +727,11 @@ export class MazeGame {
                             // Skip if entityB was already checked (avoid doubling up)
                             const entityBIndex = allEntities.indexOf(entityB);
                             if (entityBIndex !== -1 && entityBIndex <= i) {
+                                continue;
+                            }
+
+                            // Skip collision checks for entities already marked for deletion
+                            if (entityA.toBeDeleted || entityB.toBeDeleted) {
                                 continue;
                             }
 

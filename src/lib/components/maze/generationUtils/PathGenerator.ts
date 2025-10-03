@@ -207,7 +207,7 @@ export class PathGenerator {
             // Top edge
             for (let x = room.x1; x < room.x2; x++) {
                 const hasEntityInThisRoom = roomLayout?.hasEntitiesAtPosition(x, room.y1);
-                
+
                 const roomAbove = rooms.find(r => r.y2 === room.y1 && x >= r.x1 && x < r.x2);
                 const hasEntityInRoomAbove = roomAbove ? idToRoomTemplate[roomAbove.regionID]?.hasEntitiesAtPosition(x, room.y1 - 1) : false;
 
@@ -359,5 +359,99 @@ export class PathGenerator {
         }
 
         map[x][y].typeBits = CELL_TYPE.SOLID;
+    }
+
+    /**
+     * Randomly opens walls between hallway tiles if they are far apart in path distance
+     * @param map 
+     * @param rooms 
+     */
+    randomlyOpenHallways(map: Cell[][], rooms: Room[]): void {
+        const hallwayChance = 0.10; // 10% chance to open walls between hallways
+        const minPathDistance = 20; // Only open if current path distance is at least this many tiles
+
+        // Compute APSP once using BFS from each cell
+        const distances = this.computeAllPairsShortestPath(map);
+
+        for (let x = 0; x < this.width - 1; x++) {
+            for (let y = 0; y < this.height - 1; y++) {
+                const cell = map[x][y];
+                if (cell.typeBits !== CELL_TYPE.SOLID && !this.isInRoom(x, y, rooms)) {
+                    // Check right neighbor
+                    if (x < this.width - 1) {
+                        const right = map[x + 1][y];
+                        if (right.typeBits !== CELL_TYPE.SOLID && !this.isInRoom(x + 1, y, rooms)) {
+                            const pathDist = distances.get(`${x},${y},${x + 1},${y}`) ?? Infinity;
+                            if (pathDist >= minPathDistance && Math.random() < hallwayChance) {
+                                cell.typeBits &= ~CELL_TYPE.RIGHT;
+                                right.typeBits &= ~CELL_TYPE.LEFT;
+                            }
+                        }
+                    }
+                    // Check down neighbor
+                    if (y < this.height - 1) {
+                        const down = map[x][y + 1];
+                        if (down.typeBits !== CELL_TYPE.SOLID && !this.isInRoom(x, y + 1, rooms)) {
+                            const pathDist = distances.get(`${x},${y},${x},${y + 1}`) ?? Infinity;
+                            if (pathDist >= minPathDistance && Math.random() < hallwayChance) {
+                                cell.typeBits &= ~CELL_TYPE.DOWN;
+                                down.typeBits &= ~CELL_TYPE.UP;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private computeAllPairsShortestPath(map: Cell[][]): Map<string, number> {
+        const distances = new Map<string, number>();
+
+        // Run BFS from each non-solid cell
+        for (let sx = 0; sx < this.width; sx++) {
+            for (let sy = 0; sy < this.height; sy++) {
+                if (map[sx][sy].typeBits === CELL_TYPE.SOLID) continue;
+
+                // BFS from (sx, sy)
+                const queue: Array<{ x: number; y: number; dist: number }> = [{ x: sx, y: sy, dist: 0 }];
+                const visited = new Set<string>();
+                visited.add(`${sx},${sy}`);
+
+                while (queue.length > 0) {
+                    const current = queue.shift()!;
+                    const key = `${sx},${sy},${current.x},${current.y}`;
+                    distances.set(key, current.dist);
+
+                    const directions = [
+                        { dx: 0, dy: -1, wall: CELL_TYPE.UP },
+                        { dx: 1, dy: 0, wall: CELL_TYPE.RIGHT },
+                        { dx: 0, dy: 1, wall: CELL_TYPE.DOWN },
+                        { dx: -1, dy: 0, wall: CELL_TYPE.LEFT }
+                    ];
+
+                    for (const dir of directions) {
+                        const nx = current.x + dir.dx;
+                        const ny = current.y + dir.dy;
+                        const visitKey = `${nx},${ny}`;
+
+                        if (
+                            nx >= 0 && nx < this.width &&
+                            ny >= 0 && ny < this.height &&
+                            !visited.has(visitKey) &&
+                            !(map[current.x][current.y].typeBits & dir.wall)
+                        ) {
+                            visited.add(visitKey);
+                            queue.push({ x: nx, y: ny, dist: current.dist + 1 });
+                        }
+                    }
+                }
+            }
+        }
+
+        return distances;
+    }
+
+    private isInRoom(x: number, y: number, rooms: Room[]): boolean {
+        return rooms.some(room => x >= room.x1 && x < room.x2 && y >= room.y1 && y < room.y2);
     }
 }

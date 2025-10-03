@@ -49,6 +49,7 @@ export class MazeGenerator {
         this.pathGenerator.generateMazePaths(this.map, this.windingPercent, this.regionIDCounter);
         this.pathGenerator.connectRegions(this.map, this.rooms, this.randomOpenPercent, this.roomGenerator.idToRoomTemplate);
         this.pathGenerator.removeDeadEnds(this.map,);
+        this.pathGenerator.randomlyOpenHallways(this.map, this.rooms);
         return this.mapToMaze();
     }
 
