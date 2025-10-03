@@ -79,7 +79,7 @@ export class MazeBackgroundController {
                     this.gameRenderer = new MazeGame(this.canvas);
                     GameState.setGameCanvas(this.canvas);
                 }
-            }, 0);
+            }, 200);
         }
     }
 
