@@ -8,11 +8,22 @@ import type { Vector2 } from "$lib/Vector2";
 
 
 export class BruiserEntity extends EnemyEntity {
-    maxVel: number = 75;
-    currentHealth: number = 3;
 
+    static BASE_STATS = {
+        currentHealth: 2,
+        maxVel: 60,
+        damage: 1.5,
+        knockback: 800
+    };
 
-    constructor(pos: Vector2) {
+    static SCALING_CONFIG = {
+        currentHealthPerLevel: 0.75,
+        maxVelPerLevel: 8,
+        damagePerLevel: 0.5,
+        knockbackPerLevel: 50
+    };
+
+    constructor(pos: Vector2, level: number = 1) {
         super(
             pos,
             [
@@ -26,12 +37,15 @@ export class BruiserEntity extends EnemyEntity {
                 loadImageToCanvas("/maze/enemy_sprites/enemy_2_dead.webp", 50, true, 0),
             ]
         );
+
+        this.applyScaling(level, BruiserEntity.BASE_STATS, BruiserEntity.SCALING_CONFIG);
+
     }
     onCollision(other: Entity, game?: MazeGame): void {
         super.onCollision(other, game);
 
         if (other.metadata.entityType === ENTITY_TYPE.player) {
-            other.hit(this, 2, 800);
+            other.hit(this, this.damage, this.knockback);
         }
     }
 

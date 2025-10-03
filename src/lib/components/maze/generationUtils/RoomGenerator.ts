@@ -5,33 +5,30 @@ import { type Room, ROOM_TEMPLATES, RoomLayout, type RoomTemplate } from "$lib/c
 
 export class RoomGenerator {
     private rooms: Room[] = [];
-    private minRoomSize: number;
-    private maxRoomSize: number;
     private width: number;
     private height: number;
     private regionIDCounter: number = 1;
     private roomIDCounter = 1;
     private needsDoor: boolean = true;
+    private level: number = 1;
 
     idToRoomTemplate: { [key: number | string]: RoomLayout } = {};
 
     constructor(
         width: number,
         height: number,
-        minRoomSize: number = 3,
-        maxRoomSize: number = 7
+        level: number = 1
     ) {
         this.width = width;
         this.height = height;
-        this.minRoomSize = minRoomSize;
-        this.maxRoomSize = maxRoomSize;
+        this.level = level;
     }
 
     /** Main function: generates rooms on the map (returns generated rooms also)
      * @param map
      * @param attempts
      */
-    generateRooms(map: Cell[][], attempts: number, rectangularity: number): [Room[], number] {
+    generateRooms(map: Cell[][], attempts: number): [Room[], number] {
         this.rooms = [];
 
         for (let i = 0; i < attempts; i++) {
@@ -132,7 +129,8 @@ export class RoomGenerator {
             room.y2,
             obstacleMap,
             this.needsDoor,
-            template.spawnRates
+            template.spawnRates,
+            this.level
         );
 
         this.needsDoor = false;

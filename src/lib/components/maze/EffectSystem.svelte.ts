@@ -134,7 +134,7 @@ const EFFECT_DEFINITIONS: Record<EffectSource, EffectDefinition[]> = {
             defaultDuration: 30,
             icon: "/maze/icons/speed-left.svg",
             stacks: true,
-            multiplier: 0.5, // Reduces movement speed to 50%
+            multiplier: 0.6, // Reduces movement speed by 40%
         },
         {
             id: EffectId.SLOW_SHOOTING,

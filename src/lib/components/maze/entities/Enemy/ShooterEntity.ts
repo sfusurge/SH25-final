@@ -9,18 +9,37 @@ const SHOOT_RANGE = 6 * CELL_SIZE;
 const MIN_FLEE_DISTANCE = 1.5 * CELL_SIZE;
 
 export class ShooterEntity extends EnemyEntity {
+
+    static BASE_STATS = {
+        currentHealth: 0.5,
+        maxVel: 50,
+        damage: 0.5,
+        knockback: 550,
+        projectileSpeed: 300,
+        shootInterval: 2.2
+    };
+
+    static SCALING_CONFIG = {
+        currentHealthPerLevel: 0.3,
+        maxVelPerLevel: 12,
+        damagePerLevel: 0.25,
+        knockbackPerLevel: 40,
+        projectileSpeedPerLevel: 10,
+        shootIntervalPerLevel: -0.15
+    };
+
     maxVel: number = 100;
     accel: number = 1800;
     currentHealth: number = 1;
 
     shootCooldown = 0;
-    shootInterval = 2;
-    projectileSpeed = 320;
-    projectileDamage = 0.5;
-    projectileKnockback = 550;
+    shootInterval = ShooterEntity.BASE_STATS.shootInterval;
+    projectileSpeed = ShooterEntity.BASE_STATS.projectileSpeed;
+    damage = ShooterEntity.BASE_STATS.damage;
+    knockback = ShooterEntity.BASE_STATS.knockback;
     alwaysAnimate: boolean = true;
 
-    constructor(pos: Vector2) {
+    constructor(pos: Vector2, level: number = 1) {
         super(pos, [
             loadImageToCanvas("/maze/enemy_sprites/enemy_3.webp", 50, false, 0),
             loadImageToCanvas("/maze/enemy_sprites/enemy_3_hurt.webp", 50, false, 0),
@@ -29,6 +48,8 @@ export class ShooterEntity extends EnemyEntity {
             loadImageToCanvas("/maze/enemy_sprites/enemy_3_hurt.webp", 50, true, 0),
             loadImageToCanvas("/maze/enemy_sprites/enemy_3_dead.webp", 50, true, 0),
         ]);
+
+        this.applyScaling(level, ShooterEntity.BASE_STATS, ShooterEntity.SCALING_CONFIG);
 
     }
 
@@ -88,9 +109,11 @@ export class ShooterEntity extends EnemyEntity {
 
         const projectile = new ProjectileEntity(projectilePos, shootDirection, this.vel.mul(0.25), ENTITY_TYPE.enemy);
         projectile.speed = this.projectileSpeed;
-        projectile.damage = this.projectileDamage;
+
+        // Round down damage to nearest 0.5 (for slower scaling)
+        projectile.damage = Math.floor(this.damage * 2) / 2;
         projectile.distanceBeforeDrop = 160;
-        projectile.hitForce = this.projectileKnockback;
+        projectile.hitForce = this.knockback;
 
         game.addProjectile(projectile);
     }

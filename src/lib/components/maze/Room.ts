@@ -53,7 +53,7 @@ export class RoomLayout {
     trapSpawnChance: number;
     scrollSpawnChance: number;
 
-    constructor(width: number, height: number, left: number, top: number, right: number, bottom: number, obstacleMap: number[][], needsDoor: boolean, spawnRates?: RoomSpawnRates) {
+    constructor(width: number, height: number, left: number, top: number, right: number, bottom: number, obstacleMap: number[][], needsDoor: boolean, spawnRates?: RoomSpawnRates, level: number = 1) {
         this.width = width;
         this.height = height;
         this.left = left;
@@ -99,12 +99,12 @@ export class RoomLayout {
                         break;
                     case ENTITY_TYPE.enemy:
                         const enemyRoll = Math.random();
-                        if (enemyRoll < 0.45) {
-                            entity = new WalkerEntity(pos);
+                        if (enemyRoll < 0.5) {
+                            entity = new WalkerEntity(pos, level);
                         } else if (enemyRoll < 0.75) {
-                            entity = new ShooterEntity(pos);
+                            entity = new ShooterEntity(pos, level);
                         } else {
-                            entity = new BruiserEntity(pos);
+                            entity = new BruiserEntity(pos, level);
                         }
                 }
 

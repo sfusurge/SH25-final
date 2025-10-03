@@ -151,7 +151,8 @@ export class MazeGame {
             mazeConfig.height,
             mazeConfig.roomAttempts,
             mazeConfig.windingPercent,
-            mazeConfig.randomOpenPercent
+            mazeConfig.randomOpenPercent,
+            GameState.currentLevel
         );
 
         const maze = mazeGenerator.generate();

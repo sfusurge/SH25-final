@@ -4,6 +4,9 @@ import { Vector2 } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 import { AStar, lineOfSight } from "$lib/components/maze/PathFind";
 import { CELL_SIZE, HALF_CELL } from "$lib/components/maze/Maze";
+import { scaleEnemyStats } from "../../EnemyScaling";
+
+type StatRecord = Record<string, number>;
 
 export class EnemyEntity extends Entity {
     static: boolean = false;
@@ -30,6 +33,9 @@ export class EnemyEntity extends Entity {
     defaultImmuneDuration: number = 0;
     useOverlay: boolean = true;
 
+    damage: number = 1;
+    knockback: number = 550;
+
     constructor(pos: Vector2, spriteArray: HTMLCanvasElement[]) {
         super(pos, 25, 25);
 
@@ -45,6 +51,42 @@ export class EnemyEntity extends Entity {
 
         this.metadata.entityType = ENTITY_TYPE.enemy;
     }
+
+    applyScaling(level: number, baseStats: StatRecord, scalingConfig: StatRecord = {}) {
+        const scaled = scaleEnemyStats(baseStats, level, scalingConfig);
+
+        // Automatically apply any stat that exists as a property on this instance
+        for (const [propertyName, scaledValue] of Object.entries(scaled)) {
+            if (propertyName in this) {
+                (this as any)[propertyName] = scaledValue;
+            }
+        }
+
+        return scaled;
+    }
+
+    scaleEnemyStats(
+        baseStats: StatRecord,
+        level: number,
+        scalingConfig: StatRecord = {}
+    )  {
+    
+        const levelModifier = level - 1;
+        const scaled: StatRecord = {};
+
+        for (const propertyName in baseStats) {
+            const baseValue = baseStats[propertyName];
+    
+            const scalingKey = `${propertyName}PerLevel`;
+            const scalingAmount = scalingConfig[scalingKey] ?? 0;
+    
+            const scaledValue = baseValue + (scalingAmount * levelModifier);
+            scaled[propertyName] = scaledValue;
+        }
+    
+        return scaled;
+    }
+    
 
     onCollision(other: Entity, game?: any): void {
         // Dead entities don't participate in any collisions

@@ -14,7 +14,6 @@ export class MazeGenerator {
     height: number;
     attempts: number;
     windingPercent: number;
-    rectangularity: number;
     randomOpenPercent: number;
     map: Cell[][];
     rooms: Room[] = [];
@@ -26,19 +25,16 @@ export class MazeGenerator {
         width: number,
         height: number,
         attempts: number,
-        minRoomSize: number = 3,
-        maxRoomSize: number = 7,
         windingPercent: number = 60,
-        rectangularity: number = 3,
-        randomOpenPercent: number = 0.02
+        randomOpenPercent: number = 0.04,
+        level: number = 1
     ) {
         this.width = width;
         this.height = height;
         this.attempts = attempts;
         this.windingPercent = windingPercent;
-        this.rectangularity = rectangularity;
         this.randomOpenPercent = randomOpenPercent;
-        this.roomGenerator = new RoomGenerator(width, height, minRoomSize, maxRoomSize);
+        this.roomGenerator = new RoomGenerator(width, height, level);
         this.pathGenerator = new PathGenerator(width, height);
         this.map = Array.from({ length: width }, () =>
             Array.from({ length: height }, () => ({
@@ -49,7 +45,7 @@ export class MazeGenerator {
     }
 
     generate(): Maze {
-        [this.rooms, this.regionIDCounter] = this.roomGenerator.generateRooms(this.map, this.attempts, this.rectangularity);
+        [this.rooms, this.regionIDCounter] = this.roomGenerator.generateRooms(this.map, this.attempts);
         this.pathGenerator.generateMazePaths(this.map, this.windingPercent, this.regionIDCounter);
         this.pathGenerator.connectRegions(this.map, this.rooms, this.randomOpenPercent, this.roomGenerator.idToRoomTemplate);
         this.pathGenerator.removeDeadEnds(this.map,);

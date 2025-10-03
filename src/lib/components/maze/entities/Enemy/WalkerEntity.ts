@@ -8,10 +8,21 @@ import { Vector2 } from "$lib/Vector2";
 
 
 export class WalkerEntity extends EnemyEntity {
-    maxVel: number = 125;
-    currentHealth: number = 2;
+    static readonly BASE_STATS = {
+        currentHealth: 1,
+        maxVel: 100,
+        damage: 1,
+        knockback: 550
+    };
 
-    constructor(pos: Vector2) {
+    static readonly SCALING_CONFIG = {
+        currentHealthPerLevel: 0.5,
+        maxVelPerLevel: 15,
+        damagePerLevel: 0.5,
+        knockbackPerLevel: 50
+    };
+
+    constructor(pos: Vector2, level: number = 1) {
         super(
             pos,
             [
@@ -25,13 +36,16 @@ export class WalkerEntity extends EnemyEntity {
                 loadImageToCanvas("/maze/enemy_sprites/enemy_1_dead.webp", 50, true, 0),
             ]
         );
+
+        this.applyScaling(level, WalkerEntity.BASE_STATS, WalkerEntity.SCALING_CONFIG);
+
     }
 
     onCollision(other: Entity, game?: MazeGame): void {
         super.onCollision(other, game);
 
         if (other.metadata.entityType === ENTITY_TYPE.player) {
-            other.hit(this, 1, 550);
+            other.hit(this, this.damage, this.knockback);
         }
     }
 
