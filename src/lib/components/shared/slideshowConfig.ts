@@ -64,7 +64,7 @@ export const mazeGameConfig: GameSlideConfig = {
         ],
     },
     ending: {
-        title: "Maze Complete!",
+        title: "Your adventure is over!",
         slides: {
             win: [
                 {
