@@ -684,7 +684,7 @@ export class MazeGame {
             if (projectile.toBeDeleted) continue;
 
             // projectile vs player 
-            if (projectile.aabb.collidingWith(this.player.hitbox)) {
+            if (projectile.hitbox.collidingWith(this.player.hitbox)) {
                 projectile.onCollision(this.player, this);
                 this.player.onCollision(projectile, this);
             }
@@ -694,8 +694,7 @@ export class MazeGame {
                 // Skip entities marked for deletion
                 if (entity.toBeDeleted || projectile.toBeDeleted) continue;
 
-                const targetBox = entity.metadata?.entityType === ENTITY_TYPE.enemy ? entity.hitbox : entity.aabb;
-                if (projectile.aabb.collidingWith(targetBox)) {
+                if (projectile.hitbox.collidingWith(entity.hitbox)) {
                     projectile.onCollision(entity, this);
                     entity.onCollision(projectile, this);
                 }
@@ -734,7 +733,6 @@ export class MazeGame {
                             if (entityA.toBeDeleted || entityB.toBeDeleted) {
                                 continue;
                             }
-
                             const isColliding = entityA.aabb.collidingWith(entityB.aabb);
 
                             if (isColliding) {

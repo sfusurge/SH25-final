@@ -32,7 +32,7 @@ export class BlockerEntity extends Entity {
         // TODO
         const aabb = this.aabb;
         const center = aabb.center;
-        ctx.drawImage(this.sprite, aabb.x, aabb.y);
+        ctx.drawImage(this.sprite, center.x - this.sprite.width / 2, center.y - this.sprite.height / 2);
         // ctx.strokeStyle = "green";
         // ctx.strokeRect(center.x - this.width / 2, center.y - this.height / 2, this.width, this.height);
     }

@@ -106,8 +106,8 @@ export class Entity {
 
     get hitbox() {
         return new AABB(
-            this.pos.subp(this.aabbWidth / 2, this.aabbHeight / 2 + this.hitboxVerticalOffset),
-            this.pos.addp(this.aabbWidth / 2, this.aabbHeight / 2 + this.hitboxVerticalOffset)
+            this.pos.subp(this.aabbWidth / 2, this.aabbHeight / 2).addp(0, this.hitboxVerticalOffset),
+            this.pos.addp(this.aabbWidth / 2, this.aabbHeight / 2).addp(0, this.hitboxVerticalOffset)
         );
     }
 

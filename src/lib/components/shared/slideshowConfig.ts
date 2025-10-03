@@ -27,25 +27,39 @@ export interface GameSlideConfig {
 }
 
 // Maze game configuration 
-// TODO: Replace with actual images/text
 export const mazeGameConfig: GameSlideConfig = {
     instructions: {
-        title: "Maze Instructions",
+        title: "The Maze",
         slides: [
             {
-                imageSrc: "/assets/experiences/leaf/starting_modal/start_1.png",
+                imageSrc: "/maze/slides/maze.png",
                 content:
-                    "<strong>Welcome to the Maze Adventure!</strong><br><br>Navigate through the maze using the arrow keys or on-screen controls. Your goal is to find the exit while avoiding traps and enemies.",
+                    "<strong><em>WELCOME TO THE MAZE!</em></strong><br><br>Navigate through <strong>5 floors</strong>, finding the exit door to progress<br>If you find a room with a door, defeat the enemies inside to unlock it<br>Enemies get stronger as you progress, <strong>so be prepared</strong>!<br>",
             },
             {
-                imageSrc: "/assets/experiences/leaf/starting_modal/start_2.png",
+                imageSrc: "/maze/slides/controls.png",
                 content:
-                    "<strong>Movement Controls:</strong><br><br>Use <strong>ARROW KEYS</strong> or <strong>WASD</strong> on desktop.<br>On mobile, use the <strong>touch controls</strong> that appear on screen.",
+                    "<strong><em>CONTROLS</em></strong><br><br>Desktop: Use <strong>WASD</strong> to move and <strong>ARROW KEYS</strong> to shoot/aim<br><br>Mobile: Touch the left/right sides, and <strong>JOYSTICKS</strong> will appear to move/aim",
             },
             {
-                imageSrc: "/assets/experiences/leaf/starting_modal/start_3.png",
+                imageSrc: "/maze/slides/what.png",
                 content:
-                    "<strong>Watch out for hazards!</strong><br><br>Avoid traps and enemies as you navigate. Some areas may have special mechanics - explore carefully to find the safest path.",
+                    "Points are awarded for:<br>• Defeating enemies<br>• Clearing rooms<br>• Completing floors<br><em>Score system coming soon!</em>",
+            },
+            {
+                imageSrc: "/maze/slides/scroll.png",
+                content:
+                    "<strong><em>SCROLL EFFECTS</em></strong>: Golden scrolls = permanent effects!<br><strong>Multishot: Extra Spread Projectiles</strong> (stackable)<br><strong>Shield: Temporary Immunity From Enemies</strong> (instant)<br><strong>Heal: +2 Health</strong> (instant)<br><strong>Explosion: Area Damage To All Room Enemies</strong> (instant)",
+            },
+            {
+                imageSrc: "/maze/slides/golden_scroll.png",
+                content:
+                    "<strong>Rapid Fire: Fire Rate Up</strong> (permanent)<br><strong>Fleetfoot: Movement Speed Up</strong> (permanent)<br><strong>Longshot: Projectile Range Up</strong> (permanent)<br><strong>Strength: Damage Increased</strong> (permanent)<br><strong>Vitality: Max Health +1</strong> (permanent)<br>",
+            },
+            {
+                imageSrc: "/maze/slides/trap.png",
+                content:
+                    "<strong><em>TRAP EFFECTS</em></strong>: Watch out!<br><strong>Spikes: -1 Health</strong> (instant)<br><strong>Burdened: Slow Movement</strong> (stackable)<br><strong>Sluggish: Slow Shooting</strong> (unstackable)<br><strong>Weakened: Reduced Attack Power</strong> (unstackable)",
             },
         ],
     },
@@ -54,20 +68,20 @@ export const mazeGameConfig: GameSlideConfig = {
         slides: {
             win: [
                 {
-                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
-                    content: `<strong>Congratulations!</strong><br><br>You successfully navigated the maze and completed your adventure! Well done on reaching the exit.`,
+                    imageSrc: "/maze/door_open.webp",
+                    content: `You have conquered all 5 floors of the maze!<br>Your bravery and skill have led you through countless dangers<br>to emerge triumphant.<br>The realm is safe thanks to you, champion!<br>`,
                 },
             ],
             lose: [
                 {
-                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
-                    content: `<strong>Game Over!</strong><br><br>You didn't make it through the maze this time. Don't worry - every great explorer faces setbacks. Try again!`,
+                    imageSrc: "/maze/door_locked.webp",
+                    content: `The maze has claimed another adventurer.<br>Your journey ends here, but the path remains open<br>for those brave enough to try again.<br>Will you face the challenge once more?<br>`,
                 },
             ],
             default: [
                 {
-                    imageSrc: "/assets/experiences/leaf/ending_modal/image.png",
-                    content: `<strong>Maze Adventure Complete!</strong><br><br>Your journey through the maze has ended. Thanks for playing!`,
+                    imageSrc: "/maze/scroll.webp",
+                    content: `Your adventure through the maze has concluded.<br>Whether by triumph or defeat, you have tested<br>your mettle against its challenges.<br>The maze awaits your return...<br>`,
                 },
             ],
         },

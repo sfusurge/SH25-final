@@ -36,8 +36,7 @@ export class Player extends Entity {
     };
 
     constructor(pos: Vector2) {
-        // Player size: 30x25 for movement/pathfinding, 40x35 for shooting hitbox
-        super(pos, 20, 10, 25, 40);
+        super(pos, 20, 15, 25, 40);
 
         this.metadata = { entityType: ENTITY_TYPE.player };
 
