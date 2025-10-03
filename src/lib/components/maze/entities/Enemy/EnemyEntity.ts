@@ -31,6 +31,7 @@ export class EnemyEntity extends Entity {
     fadeOutDuration: number = 0.5; // seconds to fade out
 
     defaultImmuneDuration: number = 0;
+    defaultKnockbackImmuneDuration: number = 0.2;
     useOverlay: boolean = true;
 
     damage: number = 1;

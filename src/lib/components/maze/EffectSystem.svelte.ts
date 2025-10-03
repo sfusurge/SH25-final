@@ -469,7 +469,7 @@ export class EffectSystem {
             return;
         }
 
-        const explosionForce = 1200;
+        const explosionForce = 800;
 
         room.entities.forEach((enemy: Entity) => {
             // entityType 4 = enemy (avoiding circular dependency by using literal)

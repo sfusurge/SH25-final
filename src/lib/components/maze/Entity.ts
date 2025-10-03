@@ -71,10 +71,12 @@ export class Entity {
     // health, immune durations
     hurtRemainTime = 0;
     immuneRemainTime = 0;
+    knockbackImmuneTime = 0;
     maxHealth = 10;
     currentHealth = 10;
     toBeDeleted = false;
     defaultImmuneDuration = 1;
+    defaultKnockbackImmuneDuration = 0.2;
 
     hitboxVerticalOffset: number = 0;
 
@@ -183,10 +185,14 @@ export class Entity {
         }
 
         this.currentHealth = Math.max(this.currentHealth - dmg, 0);
-        if (this.currentHealth > 0) {
-            this.applyImpulse(this.pos.sub(other.pos).normalize().muli(hitForce));
-        } else {
-            this.vel = this.pos.sub(other.pos).normalize().muli(hitForce);
+
+        if (this.knockbackImmuneTime <= 0) {
+            if (this.currentHealth > 0) {
+                this.applyImpulse(this.pos.sub(other.pos).normalize().muli(hitForce));
+            } else {
+                this.vel = this.pos.sub(other.pos).normalize().muli(hitForce);
+            }
+            this.knockbackImmuneTime = this.defaultKnockbackImmuneDuration;
         }
 
         this.immuneRemainTime = this.defaultImmuneDuration;
@@ -203,6 +209,10 @@ export class Entity {
 
         if (this.immuneRemainTime) {
             this.immuneRemainTime = Math.max(this.immuneRemainTime - dt, 0);
+        }
+
+        if (this.knockbackImmuneTime > 0) {
+            this.knockbackImmuneTime = Math.max(this.knockbackImmuneTime - dt, 0);
         }
     }
 
