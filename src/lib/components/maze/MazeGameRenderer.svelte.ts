@@ -11,8 +11,8 @@ export const debug = $state<{ [key: string]: any }>({
 })
 
 const mazeConfig = {
-    width: 40,
-    height: 40,
+    width: 10,
+    height: 10,
     roomAttempts: 70,
     windingPercent: 40,
     randomOpenPercent: 0.04
@@ -357,7 +357,7 @@ export class MazeGame {
         const playerStartPos = this.findHallwayStartPosition();
 
         // Reset player
-        this.player = new Player(playerStartPos);
+        this.player.pos = playerStartPos;
         this.player.vel = Vector2.ZERO;
         this.player.immuneDuration = 0;
         this.player.shootCooldown = 0;

@@ -79,7 +79,7 @@
     let passiveEffects = $derived.by(() =>
         activeEffects.filter((e) => {
             if (e.definition.kind !== EffectKind.PASSIVE) return false;
-            const age = (Date.now() - e.startedAtMs) / 1000;
+            const age = (gameRenderer.effects.currentTimeMs - e.startedAtMs) / 1000;
             return age < 4; // Show for 4 seconds after gaining
         })
     );

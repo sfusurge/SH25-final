@@ -19,8 +19,9 @@ export class Player extends Entity {
     shootCooldown = 0;
     shootCooldownTime = 0.4; // seconds
 
-    currentHealth: number = 8;
-
+    maxHealth = 8;
+    currentHealth = 8;
+    
     hitboxVerticalOffset = 10;
 
 

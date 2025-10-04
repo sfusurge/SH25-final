@@ -77,6 +77,7 @@
         actionButton={createGameActionButton("restart", () => {
             // Reset the game world (new maze, entities, player position)
             if (gameRenderer) { 
+                gameRenderer.player.currentHealth = gameRenderer.player.maxHealth; // Reset player health
                 gameRenderer.reset();
                 gameRenderer.resetEffects();
             }
