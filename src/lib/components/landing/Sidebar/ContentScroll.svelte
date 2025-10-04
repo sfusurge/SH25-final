@@ -84,7 +84,7 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             Interactive Experiences
         </h1>
-                <div class:active-tile={isActiveTile("/garden")}>
+            <div class:active-tile={isActiveTile("/maze")}>
             <ExperienceTile
                     imageSrc="/assets/experiences/maze.png"
                     imageAlt="Celestial Maze"
