@@ -10,14 +10,14 @@
 
 <div class="hud-item border border-border bg-background" class:mobile>
     <RockFilter />
+    <BlockPatternVertical />
     <div class="hud-inner h-full" class:mobile-inner={mobile} style={mobile ? "" : "width: 10rem;"}>
-        <BlockPatternVertical className={mobile ? "h-full" : "h-11 mr-2"} />
         <div class="flex items-center gap-2">
             <img src={iconSrc} {alt} class="icon" />
             <span class="value">{value}</span>
         </div>
-        <BlockPatternVertical className={mobile ? "h-full rotate-180" : "h-11 rotate-180 ml-2"} />
     </div>
+    <BlockPatternVertical />
 </div>
 
 <style>
@@ -34,9 +34,10 @@
     .hud-inner {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         width: 100%;
         height: 100%;
+        margin: 0.5rem 0;
     }
 
     .value {
@@ -64,41 +65,14 @@
     }
 
     /* Mobile styles */
-    .mobile {
-        width: 25vw;
-        height: 7vh;
+    .hud-item.mobile {
+        flex:1;
+        min-width: 100px;
+        min-height: auto;
     }
 
     .mobile .value {
-        font-size: max(1vw, 2vh);
+        font-size: min( max(1vw, 2vh, ), 1.5rem);
         color: var(--color-text-primary);
-    }
-
-    @container (max-width: 640px) {
-
-        .mobile .icon {
-            width: 2.2cqw !important;
-            height: 2.2cqw !important;
-        }
-
-        .mobile .value {
-            font-size: 2.5cqw !important;
-        }
-    }
-
-    @container (max-width: 400px) {
-        .mobile {
-            width: 25vw;
-            height: 5vh;
-        }
-
-        .mobile .icon {
-            width: 4.5cqw !important;
-            height: 4.5cqw !important;
-        }
-
-        .mobile .value {
-            font-size: 3.5cqw !important;
-        }
     }
 </style>

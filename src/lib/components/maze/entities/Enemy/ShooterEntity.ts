@@ -5,7 +5,7 @@ import { CELL_SIZE } from "$lib/components/maze/Maze";
 import type { MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 import type { Vector2 } from "$lib/Vector2";
 
-const SHOOT_RANGE = 6 * CELL_SIZE;
+const SHOOT_RANGE = 3 * CELL_SIZE;
 const MIN_FLEE_DISTANCE = 1.5 * CELL_SIZE;
 
 export class ShooterEntity extends EnemyEntity {
@@ -28,7 +28,7 @@ export class ShooterEntity extends EnemyEntity {
         shootIntervalPerLevel: -0.15
     };
 
-    maxVel: number = 100;
+    maxVel: number = 230;
     accel: number = 1800;
     currentHealth: number = 1;
 
@@ -66,10 +66,10 @@ export class ShooterEntity extends EnemyEntity {
         const distanceToPlayer = this.distToPlayer(player);
         const hasSight = this.hasSightToPlayer(player, staticEntities, row, col, playerRow, playerCol);
 
-        if (distanceToPlayer < MIN_FLEE_DISTANCE) {
-            this.fleeFromPlayer(player, dt);
-            return;
-        }
+        // if (distanceToPlayer < MIN_FLEE_DISTANCE) {
+        //     this.fleeFromPlayer(player, dt);
+        //     return;
+        // }
 
         if (hasSight && distanceToPlayer <= SHOOT_RANGE) {
             this.facePlayer(player);

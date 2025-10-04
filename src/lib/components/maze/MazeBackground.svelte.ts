@@ -102,6 +102,7 @@ export class MazeBackgroundController {
         const internalWidth = Math.round(displayWidth * dpr);
         const internalHeight = Math.round(displayHeight * dpr);
 
+
         // Ignore redundant updates
         if (internalWidth === this.canvasWidth && internalHeight === this.canvasHeight) {
             return;

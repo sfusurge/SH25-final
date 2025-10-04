@@ -8,6 +8,19 @@
 </script>
 
 <div
-    class={`w-[11px] bg-repeat-x ${className}`}
-    style="background: url('/assets/block-pattern-vertical.svg'); {style}"
+    class="pattern"
+    style="{style}"
 ></div>
+
+
+<style>
+    .pattern {
+        display: block;
+        min-width: 11px;
+        width: 11px;
+        min-height: 100%;
+        height: auto;
+        background: url('/assets/block-pattern-vertical.svg');
+        align-self: stretch;
+    }
+</style>

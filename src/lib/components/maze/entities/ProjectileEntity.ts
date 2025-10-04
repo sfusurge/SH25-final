@@ -4,6 +4,21 @@ import { Vector2 } from "$lib/Vector2";
 import { AABB } from "$lib/Vector2";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 
+
+export function directionToVector(direction: number): Vector2 {
+    switch (direction) {
+        case LEFT:
+            return new Vector2(-1, 0);
+        case RIGHT:
+            return new Vector2(1, 0);
+        case UP:
+            return new Vector2(0, -1);
+        case DOWN:
+            return new Vector2(0, 1);
+        default:
+            return Vector2.UNIT_X.clone();
+    }
+}
 export class ProjectileEntity extends Entity {
     direction: number | null = null;
     directionVector: Vector2;
@@ -27,27 +42,13 @@ export class ProjectileEntity extends Entity {
             this.directionVector = normalized.mag() === 0 ? Vector2.UNIT_X.clone() : normalized;
         } else {
             this.direction = direction;
-            this.directionVector = ProjectileEntity.directionToVector(direction);
+            this.directionVector = directionToVector(direction);
         }
         this.initialVelocity = initialVelocity.clone();
 
         this.metadata = { entityType: ENTITY_TYPE.projectile, owner };
     }
 
-    private static directionToVector(direction: number): Vector2 {
-        switch (direction) {
-            case LEFT:
-                return new Vector2(-1, 0);
-            case RIGHT:
-                return new Vector2(1, 0);
-            case UP:
-                return new Vector2(0, -1);
-            case DOWN:
-                return new Vector2(0, 1);
-            default:
-                return Vector2.UNIT_X.clone();
-        }
-    }
 
     update(game: MazeGame, dt: number): void {
         const baseMovement = this.directionVector.mul(this.speed * dt);

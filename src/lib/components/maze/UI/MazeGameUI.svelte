@@ -6,10 +6,11 @@
     import MazeDoorOverlay from "./MazeDoorOverlay.svelte";
     import MazeHud from "./MazeHUD.svelte";
     import EffectDisplay from "./EffectDisplay.svelte";
+    import type { MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 
     // Props
     interface Props {
-        gameRenderer?: any; // MazeGame type would be imported from renderer
+        gameRenderer?: MazeGame; // MazeGame type would be imported from renderer
     }
     let { gameRenderer }: Props = $props();
 
@@ -75,8 +76,7 @@
         gameResult={GameState.gameResult ?? null}
         actionButton={createGameActionButton("restart", () => {
             // Reset the game world (new maze, entities, player position)
-            if (gameRenderer) {
-                gameRenderer.player.currentHealth = gameRenderer.player.maxHealth; // Reset player health
+            if (gameRenderer) { 
                 gameRenderer.reset();
                 gameRenderer.resetEffects();
             }

@@ -1,24 +1,25 @@
 import { Entity, loadImageToCanvas } from "$lib/components/maze/Entity";
 import { ENTITY_TYPE, LEFT, RIGHT, UP, DOWN } from ".";
 import { Vector2 } from "$lib/Vector2";
-import { ProjectileEntity } from "./ProjectileEntity";
+import { directionToVector, ProjectileEntity } from "./ProjectileEntity";
 import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 
 export class Player extends Entity {
     renderWidth = 50;
 
     // TODO player stats
-    accel = 3500;
-    maxVel: number = 400;
+    accel = 4500;
+    maxVel: number = 330;
 
     direction = DOWN;
     playerSpites: { [key: number]: HTMLCanvasElement[] };
-    playerHurtSprites: { [key: number]: HTMLCanvasElement[] };
 
     immuneDuration = 0;
     // Shooting cooldown
     shootCooldown = 0;
     shootCooldownTime = 0.4; // seconds
+
+    currentHealth: number = 6;
 
     hitboxVerticalOffset = 10;
 
@@ -32,7 +33,7 @@ export class Player extends Entity {
         projectileRangeMultiplier: 1,
         projectileSpeedMultiplier: 1,
         hasShield: false,
-        multiShotCount: 1, // Number of projectiles to shoot 
+        multiShotCount: 1, // Number of projectiles to shoot
     };
 
     constructor(pos: Vector2) {
@@ -62,30 +63,6 @@ export class Player extends Entity {
                 loadImageToCanvas("/maze/player_sprites/player_down_walk_2.webp", this.renderWidth),
             ]
         };
-
-        // Load hurt sprites (red-tinted versions)
-        this.playerHurtSprites = {
-            [LEFT]: [
-                loadImageToCanvas("/maze/player_sprites/player_left_neutral_hurt.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_1_hurt.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_2_hurt.webp", this.renderWidth),
-            ],
-            [RIGHT]: [
-                loadImageToCanvas("/maze/player_sprites/player_left_neutral_hurt.webp", this.renderWidth, true),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_1_hurt.webp", this.renderWidth, true),
-                loadImageToCanvas("/maze/player_sprites/player_left_walk_2_hurt.webp", this.renderWidth, true),
-            ],
-            [UP]: [
-                loadImageToCanvas("/maze/player_sprites/player_up_neutral_hurt.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_up_walk_1_hurt.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_up_walk_2_hurt.webp", this.renderWidth),
-            ],
-            [DOWN]: [
-                loadImageToCanvas("/maze/player_sprites/player_down_neutral_hurt.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_down_walk_1_hurt.webp", this.renderWidth),
-                loadImageToCanvas("/maze/player_sprites/player_down_walk_2_hurt.webp", this.renderWidth),
-            ]
-        };
     }
 
     /**
@@ -106,27 +83,24 @@ export class Player extends Entity {
         if (mag < 0.1) {
             movement = Vector2.ZERO;
         } else {
-            const angle = movement.angle();
-            if (angle >= -135 && angle <= -45) {
-                this.direction = UP;
-            } else if (angle >= -45 && angle < 45) {
-                this.direction = RIGHT;
-            } else if (angle >= 45 && angle < 135) {
-                this.direction = DOWN;
-            } else if (angle >= 135 || angle < -135) {
-                this.direction = LEFT;
-            }
+            this.updateFacing(movement);
         }
 
         this.maxVelMod = this.effectModifiers.moveSpeedMultiplier;
 
         this.move(movement, dt);
+    }
 
-        debug.player = {
-            vel: this.vel,
-            move: movement,
-            angle: this.direction,
-            shootCooldown: this.shootCooldown,
+    updateFacing(dir: Vector2) {
+        const angle = dir.angle();
+        if (angle >= -135 && angle <= -45) {
+            this.direction = UP;
+        } else if (angle >= -45 && angle < 45) {
+            this.direction = RIGHT;
+        } else if (angle >= 45 && angle < 135) {
+            this.direction = DOWN;
+        } else if (angle >= 135 || angle < -135) {
+            this.direction = LEFT;
         }
     }
 
@@ -139,6 +113,9 @@ export class Player extends Entity {
     }
 
     onShootInput(direction: number, game: any): void {
+        if (this.vel.mag() < 1) {
+            this.updateFacing(directionToVector(direction));
+        }
         if (direction === -1 || this.shootCooldown > 0) return;
 
         this.shootCooldown = this.shootCooldownTime * this.effectModifiers.shootCooldownMultiplier;
@@ -196,6 +173,8 @@ export class Player extends Entity {
                 game.addProjectile(extraProjectile);
             }
         }
+
+
     }
 
 
@@ -208,7 +187,6 @@ export class Player extends Entity {
 
         let sprite = sprites[0];
         if (mag > 0.1) {
-            debug.time = time;
             if (Math.round((time % 1000) / 250) % 2 === 0) { // alternate animation every 250 ms
                 sprite = sprites[1];
             } else {

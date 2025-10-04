@@ -243,7 +243,7 @@ export class MazeGame {
                     const cellIndex = y * this.maze.width + x;
                     const cell = this.maze.map[cellIndex];
 
-                    // Check if it's a hallway 
+                    // Check if it's a hallway
                     const roomId = ((cell & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
                     if (cell !== CELL_TYPE.SOLID && roomId === 0) {
                         playerStartX = x;
@@ -357,7 +357,7 @@ export class MazeGame {
         const playerStartPos = this.findHallwayStartPosition();
 
         // Reset player
-        this.player.pos = playerStartPos;
+        this.player = new Player(playerStartPos);
         this.player.vel = Vector2.ZERO;
         this.player.immuneDuration = 0;
         this.player.shootCooldown = 0;
@@ -683,13 +683,13 @@ export class MazeGame {
             // Skip projectiles marked for deletion
             if (projectile.toBeDeleted) continue;
 
-            // projectile vs player 
+            // projectile vs player
             if (projectile.hitbox.collidingWith(this.player.hitbox)) {
                 projectile.onCollision(this.player, this);
                 this.player.onCollision(projectile, this);
             }
 
-            // projectile vs room entities 
+            // projectile vs room entities
             for (const entity of room.entities) {
                 // Skip entities marked for deletion
                 if (entity.toBeDeleted || projectile.toBeDeleted) continue;
@@ -745,10 +745,6 @@ export class MazeGame {
                 }
             }
         }
-
-        debug.entityCollisions = entityCollisionCount;
-        debug.projectileCount = this.projectiles.length;
-
         // Check for room completion after potential enemy kills
         if (this.currentRoomId > 0) {
             this.setRoomCompletionStatus(this.currentRoomId);
@@ -791,7 +787,6 @@ export class MazeGame {
                 roomId = ((this.maze.map[cellIndex] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
             }
         }
-        debug.roomId = roomId;
         this.currentRoomId = roomId;
         if (this.currentRoomId > 0) {
             if (this.currentRoomId !== this.lastRoomId) {
@@ -923,7 +918,6 @@ export class MazeGame {
         const lowY = Math.max(0, Math.floor(((this.camera.y - (canvasHeight / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) - 1);
         const hightY = Math.min(this.maze.height, Math.floor(((this.camera.y + (canvasHeight / (2 * this.zoom))) / (this.maze.height * CELL_SIZE)) * this.maze.height) + 2);
 
-        debug.renderRange = [lowX, hightX, lowY, hightY];
         return [lowX, hightX, lowY, hightY];
     }
 
@@ -1186,8 +1180,6 @@ export class MazeGame {
                 ctx.translate(-col * CELL_SIZE, -row * CELL_SIZE);
             }
         }
-
-        debug.cellRenderCount = renderCount;
 
 
         // ======= ROOM LOCK SCREEN OVERLAY ======

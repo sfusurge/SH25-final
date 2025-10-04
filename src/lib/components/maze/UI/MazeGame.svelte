@@ -6,6 +6,7 @@
     import { MazeBackgroundController } from "../MazeBackground.svelte.ts";
     import { GameState } from "$lib/components/maze/MazeGameState.svelte";
     import { tick } from "svelte";
+    import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
 
     // Initialize the game controller
     const controller = new MazeBackgroundController();
@@ -70,39 +71,41 @@
     class:mode-mobile={global.mobile}
     class:mode-landscape={global.isLandscape}
 >
-    <div class="maze-stage">
-        <div class="game-area">
-            <div class="background">
-                <div class="canvasContainer" bind:this={controller.canvasContainer}>
-                    <canvas bind:this={controller.canvas} tabindex="0"></canvas>
+    <ScalableFrame
+        style="width:100%; height: 100%; max-width:1800px; max-height:{global.mobile
+            ? '100%'
+            : '1200px'};"
+    >
+        <div class="maze-stage">
+            <div class="game-area">
+                <div class="background">
+                    <div class="canvasContainer" bind:this={controller.canvasContainer}>
+                        <canvas bind:this={controller.canvas} tabindex="0"></canvas>
 
-                    {#if global.mobile && controller.showTouchController}
-                        <DualTouchController
-                            onMoveInput={controller.handleMoveInput}
-                            onShootInput={controller.handleShootInput}
-                            canvasElement={controller.canvasContainer}
-                        />
-                    {/if}
+                        {#if (global.mobile || global.isLandscape) && controller.showTouchController}
+                            <DualTouchController
+                                onMoveInput={controller.handleMoveInput}
+                                onShootInput={controller.handleShootInput}
+                                canvasElement={controller.canvasContainer}
+                            />
+                        {/if}
+                    </div>
                 </div>
+
+                <MazeGameUI gameRenderer={controller.gameRenderer} />
+
+                {#if !global.mobile}
+                    <div
+                        class="pause-button"
+                        class:pointer-events-none={!GameState.isGameRunning ||
+                            GameState.showInstructionsDuringGame}
+                    >
+                        <MazePause />
+                    </div>
+                {/if}
             </div>
-
-            <MazeGameUI gameRenderer={controller.gameRenderer} />
-
-            {#if !global.mobile}
-                <div
-                    class="pause-button"
-                    class:pointer-events-none={!GameState.isGameRunning ||
-                        GameState.showInstructionsDuringGame}
-                >
-                    <MazePause />
-                </div>
-            {/if}
         </div>
-
-        {#if !global.mobile}
-            <img src="/assets/frame.svg" alt="" class="frame-overlay" loading="eager" />
-        {/if}
-    </div>
+    </ScalableFrame>
 </div>
 
 <style>
@@ -117,13 +120,17 @@
         align-items: center;
     }
 
-    .maze-root.mode-mobile {
-        align-items: stretch;
+    .maze-root.mode-desktop {
+        padding: 4rem;
+    }
+    .maze-root.mode-tablet:not(.mode-landscape) {
+        padding: 3.5rem;
     }
 
     .maze-root.mode-landscape {
         height: 100dvh;
         max-height: 100dvh;
+        width: 100%;
         position: fixed;
         top: 0;
         left: 0;
@@ -135,38 +142,7 @@
         width: min(var(--stage-max-width, 100%), 100%);
         max-width: var(--stage-max-width, 100%);
         max-height: var(--stage-max-height, 100%);
-        aspect-ratio: var(--stage-aspect, auto);
-    }
-
-    .maze-root.mode-desktop .maze-stage {
-        --stage-max-width: min(85vh, 800px) * 1.744;
-        --stage-max-height: min(85vh, 800px);
-        --stage-aspect: 872 / 511;
-    }
-
-    .maze-root.mode-tablet .maze-stage {
-        --stage-max-width: min(100vw - 2rem, 960px);
-        --stage-max-height: 100%;
-        --stage-aspect: 872 / 511;
-    }
-
-    .maze-root.mode-mobile .maze-stage {
-        --stage-max-width: 100%;
-        --stage-max-height: 100%;
-    }
-
-    .maze-root.mode-landscape .maze-stage {
-        --stage-max-width: 100vw;
-        --stage-max-height: 100dvh;
-        width: 100%;
-        height: 100%;
-        max-width: 100vw;
-        max-height: 100dvh;
-    }
-
-    .maze-root.mode-tablet {
-        padding: 1.25rem 1rem;
-        overflow: auto;
+        /* aspect-ratio: var(--stage-aspect, auto); */
     }
 
     .game-area {
@@ -174,13 +150,6 @@
         inset: 0;
         overflow: hidden;
         z-index: 10;
-    }
-
-    .maze-root.mode-desktop .game-area {
-        top: 2.87%;
-        right: 2.87%;
-        bottom: 2.87%;
-        left: 2.87%;
     }
 
     .background {
@@ -209,20 +178,6 @@
 
     canvas:focus {
         outline: none;
-    }
-
-    .frame-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 30;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-
-    .maze-root.mode-tablet .frame-overlay,
-    .maze-root.mode-mobile .frame-overlay {
-        display: none;
     }
 
     .pause-button {
