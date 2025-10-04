@@ -26,43 +26,43 @@ export interface GameSlideConfig {
     };
 }
 
-// Maze game configuration 
+// Maze game configuration
 export const mazeGameConfig: GameSlideConfig = {
     instructions: {
         title: "Celestial Maze",
         slides: [
             {
-                imageSrc: "/maze/slides/maze.png",
+                imageSrc: "/maze/slides/maze.webp",
                 content:
                     "<strong><em>WELCOME TO THE MAZE!</em></strong><br><br>Navigate through <strong>5 floors</strong>, finding the exit door to progress<br>If you find a room with a door, defeat the enemies inside to unlock it<br>Enemies get stronger as you progress, <strong>so be prepared</strong>!<br>",
             },
             {
-                imageSrc: "/maze/slides/controls.png",
+                imageSrc: "/maze/slides/controls.webp",
                 content:
                     "<strong><em>CONTROLS</em></strong><br><br>Desktop: Use <strong>WASD</strong> to move and <strong>ARROW KEYS</strong> to shoot/aim<br><br>Mobile: Touch the left/right sides, and <strong>JOYSTICKS</strong> will appear to move/aim",
             },
             {
-                imageSrc: "/maze/slides/enemies.png",
+                imageSrc: "/maze/slides/enemies.webp",
                 content:
                     "<strong><em>ENEMIES</em></strong><br><br>Walker (Yellow): Fast but weak<br>Bruiser (Red): Strong and tanky but slow<br>Shooter (Blue): Shoots from a distance",
             },
             {
-                imageSrc: "/maze/slides/scroll.png",
+                imageSrc: "/maze/slides/scroll.webp",
                 content:
                     "<strong><em>SCROLL EFFECTS</em></strong>: Golden scrolls = permanent effects!<br><strong>Multishot: Extra Spread Projectiles</strong> (stackable)<br><strong>Shield: Temporary Immunity From Enemies</strong> (instant)<br><strong>Heal: +2 Health</strong> (instant)<br><strong>Explosion: Area Damage To All Room Enemies</strong> (instant)",
             },
             {
-                imageSrc: "/maze/slides/golden_scroll.png",
+                imageSrc: "/maze/slides/golden_scroll.webp",
                 content:
                     "<strong>Rapid Fire: Fire Rate Up</strong> (permanent)<br><strong>Fleetfoot: Movement Speed Up</strong> (permanent)<br><strong>Longshot: Projectile Range Up</strong> (permanent)<br><strong>Strength: Damage Increased</strong> (permanent)<br><strong>Vitality: Max Health +1</strong> (permanent)<br>",
             },
             {
-                imageSrc: "/maze/slides/trap.png",
+                imageSrc: "/maze/slides/trap.webp",
                 content:
                     "<strong><em>TRAP EFFECTS</em></strong>: Watch out!<br><strong>Spikes: -1 Health</strong> (instant)<br><strong>Burdened: Slow Movement</strong> (stackable)<br><strong>Sluggish: Slow Shooting</strong> (unstackable)<br><strong>Weakened: Reduced Attack Power</strong> (unstackable)",
             },
             {
-                imageSrc: "/maze/slides/what.png",
+                imageSrc: "/maze/slides/what.webp",
                 content:
                     "<strong><em>SCORING</em></strong><br>Defeat enemies: +100<br>Clear rooms: +200<br>Collect Scrolls/Traps: +50/-50<br>Clear maze: +1000, adjusted on time taken",
             },
@@ -73,19 +73,19 @@ export const mazeGameConfig: GameSlideConfig = {
         slides: {
             win: [
                 {
-                    imageSrc: "/maze/slides/win.png",
+                    imageSrc: "/maze/slides/win.webp",
                     content: `You have conquered all 5 floors of the maze!<br>Your bravery and skill have led you through countless dangers<br>to emerge triumphant.<br>The realm is safe thanks to you, champion!<br>`,
                 },
             ],
             lose: [
                 {
-                    imageSrc: "/maze/slides/end.png",
+                    imageSrc: "/maze/slides/end.webp",
                     content: `The maze has claimed another...<br>Your journey ends here, but the path remains open<br>for those brave enough to try again.<br>Will you face the challenge once more?<br>`,
                 },
             ],
             default: [
                 {
-                    imageSrc: "/maze/slides/end.png",
+                    imageSrc: "/maze/slides/end.webp",
                     content: `How the heck did you manage to get to this ending?`,
                 },
             ],

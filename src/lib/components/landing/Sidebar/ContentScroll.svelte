@@ -86,7 +86,7 @@
         </h1>
             <div class:active-tile={isActiveTile("/maze")}>
             <ExperienceTile
-                    imageSrc="/assets/experiences/maze.png"
+                    imageSrc="/assets/experiences/maze.webp"
                     imageAlt="Celestial Maze"
                     imageClass="w-full h-32 object-cover p-2"
                     onClick={() => goto("/maze")}
@@ -96,7 +96,7 @@
         </div>
         <div class:active-tile={isActiveTile("/rhythm")}>
             <ExperienceTile
-                    imageSrc="/assets/experiences/rhythm.png"
+                    imageSrc="/assets/experiences/rhythm.webp"
                     imageAlt="Rhythm of the Kingdom"
                     imageClass="w-full h-32 object-cover p-2"
                     onClick={() => goto("/rhythm")}
