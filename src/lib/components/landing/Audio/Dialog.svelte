@@ -17,7 +17,7 @@
     let {
         title,
         onClose,
-        show = false,
+        show = $bindable(false),
         children,
         mobile,
         offsetDirection = "center",

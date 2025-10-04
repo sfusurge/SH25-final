@@ -1,8 +1,5 @@
 <script lang="ts">
-    import {
-        RhythmRenderer,
-        type RhythmNote,
-    } from "$lib/components/rhythm/RhythmRenderer.svelte";
+    import { RhythmRenderer, type RhythmNote } from "$lib/components/rhythm/RhythmRenderer.svelte";
     import Background from "$lib/components/rhythm/Background.svelte";
     import ScalableFrame from "$lib/components/maze/UI/ScalableFrame.svelte";
     import { onDestroy, untrack, onMount } from "svelte";
@@ -17,16 +14,9 @@
     import BlockPatternVertical from "../landing/svgs/BlockPatternVertical.svelte";
     import RockFilter from "../landing/svgs/RockFilter.svelte";
     import { global } from "../../../routes/+layout.svelte";
+    import Dialog from "$lib/components/landing/Audio/Dialog.svelte";
 
     let canvas: HTMLCanvasElement | undefined;
-
-    let musicFile: FileList | undefined | null = $state();
-    let beatmapFile: FileList | undefined | null = $state();
-    let songTestMode: boolean = $state(false);
-
-    const testSongUpload = () => {
-        songTestMode = true;
-    };
 
     const renderer = $derived.by(() => {
         if (!canvas) {
@@ -80,28 +70,28 @@
             song?: AudioBuffer;
         };
     } = $state({
-
         "Philosophical Starry": {
             notesSrc: "/rhythm/beatmaps/Philosophical Starry [Easy].beatmap",
             songSrc: "/rhythm/beatmaps/philosophicalStarry.mp3",
         },
         "Scummious Realization": {
-            notesSrc:
-                "/rhythm/beatmaps/Scummious_ Realization [Medium].beatmap",
+            notesSrc: "/rhythm/beatmaps/Scummious_ Realization [Medium].beatmap",
             songSrc: "/rhythm/beatmaps/scummiousRealization.mp3",
         },
         "Stormy & Sparky Training Arc": {
-            notesSrc:
-                "/rhythm/beatmaps/Stormy&Sparky_s Training Arc [Hard].beatmap",
+            notesSrc: "/rhythm/beatmaps/Stormy&Sparky_s Training Arc [Hard].beatmap",
             songSrc: "/rhythm/beatmaps/stormy&sparkysTrainingArc.mp3",
         },
     });
+    let showCustom = $state(false);
 
     let selectedSongTitle: string = $state("");
 
     $effect(() => {
         if (selectedSongTitle && selectedSongTitle !== "") {
             untrack(() => {
+                console.log("Loading");
+
                 // impure state skill diffed 😔
                 const song = songs[selectedSongTitle];
 
@@ -127,43 +117,13 @@
                     });
             });
         }
-        if (musicFile && beatmapFile && songTestMode == true) {
-            untrack(() => {
-                // impure state skill diffed 😔
-                let song: {
-                    notes?: RhythmNote[];
-                    song?: AudioBuffer;
-                } = {
-                    notes: undefined,
-                    song: undefined,
-                };
-                Promise.all([beatmapFile?.item(0)!, musicFile?.item(0)!])
-                    .then(async ([notesRes, songRes]) => {
-                        const text = await notesRes.text();
-                        // TODO, do something with title, difficulty
-                        const { notes, difficulty, title } = parseBeatMap(text);
-                        song.notes = notes;
-
-                        const ctx = new window.AudioContext();
-                        const buffer = await songRes.arrayBuffer();
-                        song.song = await ctx.decodeAudioData(buffer);
-                    })
-                    .then(() => {
-                        renderer?.setSong(song.notes!, song.song!);
-                    });
-            });
-        }
     });
 
     // Only start song if game is running and song data is loaded
     $effect(() => {
         const songDataLength = renderer?.songData.length ?? 0; // add songDataLength check to trigger effect
         // when changes happen.
-        if (
-            GameState.isGameRunning &&
-            renderer &&
-            renderer.songData.length > 0
-        ) {
+        if (GameState.isGameRunning && renderer && renderer.songData.length > 0) {
             gameStarted = true;
             renderer.startCountDown();
             canvas?.focus();
@@ -189,9 +149,48 @@
     onDestroy(() => {
         cleanupGame();
     });
+
+    let songFiles = $state<FileList>();
+    let beatmapFiles = $state<FileList>();
+
+    function startCustom() {
+        if (!songFiles || !beatmapFiles || songFiles.length == 0 || beatmapFiles.length == 0) {
+            alert("no file input!");
+            return;
+        }
+
+        const title = songFiles.item(0)!.name;
+        const song = URL.createObjectURL(songFiles.item(0)!);
+        const beatmap = URL.createObjectURL(beatmapFiles.item(0)!);
+        songs[title] = {
+            notesSrc: beatmap,
+            songSrc: song,
+        };
+        selectedSongTitle = title;
+        showCustom = false;
+    }
 </script>
 
 <div style="flex:1; display:flex; width:100%; height:100%; position:relative;">
+    {#if showCustom}
+        <Dialog title="Custom Song" bind:show={showCustom}>
+            <label for="songInput"
+                >Song File: <input id="songInput" type="file" bind:files={songFiles} /></label
+            >
+            <label for="beatmapInput"
+                >Beatmap: <input id="songInput" type="file" bind:files={beatmapFiles} /></label
+            >
+
+            <HoverEffectButton
+                style="padding: 0.25rem; margin: 0.25rem;"
+                onClick={() => {
+                    startCustom();
+                }}
+            >
+                Start!
+            </HoverEffectButton>
+        </Dialog>
+    {/if}
     {#if GameState.isGamePre || GameState.showInstructionsDuringGame}
         <SlideShow
             slides={rhythmGameConfig.instructions.slides}
@@ -261,22 +260,38 @@
                             {title}
                         </HoverEffectButton>
                     {/each}
+                    <HoverEffectButton
+                        style="padding:0.25rem;"
+                        onClick={() => {
+                            showCustom = true;
+                        }}
+                    >
+                        Custom
+                    </HoverEffectButton>
                 </div>
             {:else}
                 <div class="mobileSongSelection">
                     <label class="mobileLabel" for="songOption">
-                        <!-- TODO: placeholder, remove -->
-
                         Pick your song:
-                        <select
-                            name="songOption"
-                            id="songOption"
-                            bind:value={selectedSongTitle}
-                        >
-                            {#each Object.entries(songs) as [title, song], index (title)}
-                                <option value={title}>{title}</option>
-                            {/each}
-                        </select>
+                        <div class="hor">
+                            <select
+                                name="songOption"
+                                id="songOption"
+                                bind:value={selectedSongTitle}
+                            >
+                                {#each Object.entries(songs) as [title, song], index (title)}
+                                    <option value={title}>{title}</option>
+                                {/each}
+                            </select>
+                            <HoverEffectButton
+                                style="padding: 0.25rem;"
+                                onClick={() => {
+                                    showCustom = true;
+                                }}
+                            >
+                                Custom
+                            </HoverEffectButton>
+                        </div>
                     </label>
                 </div>
             {/if}
@@ -303,9 +318,7 @@
         </div>
 
         <div style="position: absolute; right: 20px; top: 20px;;">
-            <div
-                class="mt-auto mb-8 relative border border-border bg-background h-11"
-            >
+            <div class="mt-auto mb-8 relative border border-border bg-background h-11">
                 <RockFilter />
                 <div class="flex justify-between items-center h-full w-40">
                     <BlockPatternVertical className="h-11 mr-2" />
@@ -318,8 +331,7 @@
                         />
                         <span
                             class="text-primary text-sm font-normal leading-normal opacity-100"
-                            style="font-family: var(--font-catriel);"
-                            >{displayScore}</span
+                            style="font-family: var(--font-catriel);">{displayScore}</span
                         >
                     </div>
                     <BlockPatternVertical className="h-11 rotate-180 ml-2" />
@@ -342,6 +354,15 @@
 </div>
 
 <style>
+    input[type="file"] {
+        padding: 0.25rem;
+        border: 1px solid var(--primary);
+    }
+    .hor {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+    }
     .cloud {
         position: absolute;
         top: 50%;
@@ -393,7 +414,6 @@
     select {
         border: 1px solid var(--border);
         padding: 0.5rem;
-        margin-top: 0.25rem;
         width: 100%;
     }
 
@@ -418,6 +438,4 @@
         z-index: 1;
         background-color: transparent;
     }
-
-
 </style>

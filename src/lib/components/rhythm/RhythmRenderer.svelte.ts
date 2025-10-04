@@ -225,21 +225,21 @@ export class RhythmRenderer {
 
         this.canvas.addEventListener("touchstart", (e) => {
             const registerTouch = (btn: number, id: number) => {
-                if(this.touchTracking[btn] == this.empty){
+                if (this.touchTracking[btn] == this.empty) {
                     this.touchTracking[btn] = id;
                 }
             }
-            if(this.mobileView){
+            if (this.mobileView) {
                 let touch = e.touches[e.touches.length - 1];
                 //divide by 3, mobile weird
-                if(touch.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3){
-                    if(touch.clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3){
+                if (touch.clientY > this.yStd(mobileSz.btnPos - mobileSz.btnRadius) / 3) {
+                    if (touch.clientX < this.xStd(mobileSz.trackXs[trackIds.top] + mobileSz.trackWidth) / 3) {
                         registerTouch(trackIds.top, touch.identifier);
                         this.keyDown(trackIds.top);
-                    }else if(touch.clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3){
+                    } else if (touch.clientX > this.xStd(mobileSz.trackXs[trackIds.bottom]) / 3) {
                         registerTouch(trackIds.bottom, touch.identifier);
                         this.keyDown(trackIds.bottom);
-                    }else{
+                    } else {
                         registerTouch(trackIds.middle, touch.identifier);
                         this.keyDown(trackIds.middle);
                     }
@@ -266,21 +266,21 @@ export class RhythmRenderer {
 
         this.canvas.addEventListener("touchend", (e) => {
 
-            if(this.mobileView){
-                for(let i = 0; i < this.touchTracking.length; i++){
+            if (this.mobileView) {
+                for (let i = 0; i < this.touchTracking.length; i++) {
                     let tTracker = this.touchTracking[i];
-                    if(tTracker == this.empty){
+                    if (tTracker == this.empty) {
                         continue;
                     }
                     let held = false;
-                    for(let x = 0; x < e.touches.length; x++){
+                    for (let x = 0; x < e.touches.length; x++) {
                         let touch = e.touches[x]
-                        if(touch.identifier == tTracker){
+                        if (touch.identifier == tTracker) {
                             held = true;
                             break;
                         }
                     }
-                    if(!held){
+                    if (!held) {
                         this.keyUp(i);
                         this.touchTracking[i] = this.empty;
                         break;
@@ -472,7 +472,7 @@ export class RhythmRenderer {
         this.ctx.strokeText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
         this.ctx.fillText(this.countDownMode.toString(), this.xStd(0.5), this.yStd(0.5));
 
-        if(this.currentTime > this.countDownTimestamp + 750){
+        if (this.currentTime > this.countDownTimestamp + 750) {
             this.countDownMode--;
             this.countDownTimestamp = this.currentTime;
             if (this.countDownMode == 0) {
@@ -570,6 +570,7 @@ export class RhythmRenderer {
             if (v.noteState == noteState.caught) {
                 continue;
             }
+            console.log("help", cloudSprites, v);
 
             let prog = 1 - ((v.timing - lowTime) / timeRange); // left = 0%, right = 100%
             let progDist = this.mobileView ?
@@ -648,8 +649,8 @@ export class RhythmRenderer {
 
     /**
      * returns the low and high bound of the current musicplayer time
-     * @param size 
-     * @returns 
+     * @param size
+     * @returns
      */
     getBounds(size: number) {
         return {
@@ -687,7 +688,7 @@ export class RhythmRenderer {
             this.mobileView ? mobileSz.trackXs[track] + mobileSz.trackWidth / 2 - .045 : trackLength - .025,
             this.mobileView ? mobileSz.btnPos - .0125 : trackYPositions[track] + .0125,
             [hit ? vfxSprites[0] : vfxSprites[1]])
-        
+
         vfx.startTime = this.currentTime;
         this.vfxObjs.push(vfx);
     }
