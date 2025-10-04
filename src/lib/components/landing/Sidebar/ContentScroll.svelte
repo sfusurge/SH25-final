@@ -84,6 +84,16 @@
         <h1 class="text-header italic self-stretch leading-normal font-bold">
             Interactive Experiences
         </h1>
+                <div class:active-tile={isActiveTile("/garden")}>
+            <ExperienceTile
+                    imageSrc="/assets/experiences/maze.png"
+                    imageAlt="Celestial Maze"
+                    imageClass="w-full h-32 object-cover p-2"
+                    onClick={() => goto("/maze")}
+                    header="Celestial Maze"
+                    text="Fight your way through this danger-filled maze. Good luck making it out alive. You'll need it!"
+            />
+        </div>
         <div class:active-tile={isActiveTile("/rhythm")}>
             <ExperienceTile
                     imageSrc="/assets/experiences/rhythm.png"
@@ -114,7 +124,6 @@
                     text="Whether you need some time to unwind or lock in on that overdue assignment, use this music player to focus."
             />
         </div>
-        <LockedTile release="Releases [10/04/2025]" />
     </div>
 
     <div class="flex flex-col justify-center pt-5 pr-5 pl-6 pb-10 gap-5">
