@@ -393,7 +393,6 @@ export class EffectSystem {
                 this.player.effectModifiers.tempDamageMultiplier *= (def.multiplier ?? 0.5);
                 break;
         }
-        console.log(`[EffectSystem] Applying timed effect: ${def.name} (stacks: ${effect.stacks})`);
     }
 
     // Apply or update a passive effect
@@ -431,7 +430,6 @@ export class EffectSystem {
                 this.player.restoreHealth(healthIncrease);  // Also restore health
                 break;
         }
-        console.log(`[EffectSystem] Applying passive effect: ${def.name} (stacks: ${effect.stacks}, scale: ${currentScale.toFixed(2)})`);
     }
 
     // Remove an effect when it expires.
@@ -447,13 +445,13 @@ export class EffectSystem {
                 this.player.effectModifiers.hasShield = false;
                 break;
             case EffectId.SLOW_MOVEMENT:
-                this.player.effectModifiers.moveSpeedMultiplier /= (def.multiplier ?? 0.5);
+                this.player.effectModifiers.moveSpeedMultiplier = 1;
                 break;
             case EffectId.SLOW_SHOOTING:
-                this.player.effectModifiers.shootCooldownMultiplier /= (def.multiplier ?? 2);
+                this.player.effectModifiers.shootCooldownMultiplier = 1;
                 break;
             case EffectId.WEAKENED:
-                this.player.effectModifiers.tempDamageMultiplier /= (def.multiplier ?? 0.5);
+                this.player.effectModifiers.tempDamageMultiplier = 1;
                 break;
         }
     }

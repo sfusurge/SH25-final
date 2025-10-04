@@ -5,6 +5,7 @@ import { debug, type MazeGame } from "$lib/components/maze/MazeGameRenderer.svel
 import { AStar, lineOfSight } from "$lib/components/maze/PathFind";
 import { CELL_SIZE, HALF_CELL } from "$lib/components/maze/Maze";
 import { scaleEnemyStats } from "../../EnemyScaling";
+import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 type StatRecord = Record<string, number>;
 
@@ -36,6 +37,8 @@ export class EnemyEntity extends Entity {
 
     damage: number = 1;
     knockback: number = 550;
+    isDead = false;
+    awardedKill = false;
 
     hitboxVerticalOffset: number = 8;
 
@@ -99,6 +102,16 @@ export class EnemyEntity extends Entity {
 
         if (other.metadata.entityType === ENTITY_TYPE.player || other.metadata.entityType === ENTITY_TYPE.enemy) {
             this.resolveCollision(other.aabb, other.vel);
+        }
+    }
+
+    hit(other: Entity, dmg: number, hitForce = this.knockback) {
+        const wasAlive = !this.isDead && this.currentHealth > 0;
+        super.hit(other, dmg, hitForce);
+        if (wasAlive && this.currentHealth <= 0 && !this.awardedKill) {
+            this.isDead = true;
+            this.awardedKill = true;
+            GameState.incrementEnemiesKilled();
         }
     }
 
@@ -208,6 +221,7 @@ export class EnemyEntity extends Entity {
 
         if (this.currentHealth <= 0) {
             this.deathTime = this.fadeOutDuration;
+            this.isDead = true;
         }
 
         if (game.currentRoomId === 0) {

@@ -3,6 +3,7 @@ import { ENTITY_TYPE } from ".";
 import { Vector2 } from "$lib/Vector2";
 import type { MazeGame } from "$lib/components/maze/MazeGameRenderer.svelte";
 import { EffectSource, getEffectPool } from "../EffectSystem.svelte";
+import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 const ScrollSprite = loadImageToCanvas("/maze/scroll.webp", 40, false, 0);
 
@@ -23,6 +24,7 @@ export class ScrollEntity extends Entity {
     onCollision(other: Entity, game?: MazeGame): void {
         if (other.metadata?.entityType === ENTITY_TYPE.player) {
             this.toBeDeleted = true;
+            GameState.collectScroll();
             game?.effects?.grantRandomEffect(this.source);
         }
     }

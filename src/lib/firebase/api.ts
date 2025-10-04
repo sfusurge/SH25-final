@@ -1,5 +1,5 @@
 import { db } from "$lib/firebase/firebase";
-import { doc, updateDoc, increment, setDoc, FieldValue } from "firebase/firestore/lite";
+import { doc, updateDoc, increment, setDoc, FieldValue, getDoc } from "firebase/firestore/lite";
 
 
 
@@ -57,4 +57,57 @@ export async function updateRhythmBeatsBeaten(beats: number) {
         beatsBeaten: increment(beats)
     }
     await setDoc(docRef, payload, { merge: true });
+}
+
+interface MazeStats {
+    score: number;
+    enemiesKilled: number;
+    scrollsCollected: number;
+    trapsTriggered: number;
+    roomsCleared: number;
+    timeMs: number;
+    won: boolean;
+}
+
+export async function updateMazeStats(stats: MazeStats) {
+    const docRef = doc(db, "game_stats/maze");
+
+    const payload: { [key: string]: FieldValue | number } = {
+        totalGames: increment(1),
+        totalScore: increment(stats.score),
+        totalEnemiesKilled: increment(stats.enemiesKilled),
+        totalScrollsCollected: increment(stats.scrollsCollected),
+        totalTrapsTriggered: increment(stats.trapsTriggered),
+        totalRoomsCleared: increment(stats.roomsCleared)
+    };
+
+    if (stats.won) {
+        payload.gamesWon = increment(1);
+    }
+    else {
+        payload.gamesLost = increment(1);
+    }
+
+    payload.totalTimePlayed = increment(stats.timeMs);
+
+    await setDoc(docRef, payload, { merge: true });
+
+    // Track high score and fastest run separately (only if better)
+    if (stats.won) {
+        const highScoreDocRef = doc(db, "game_stats/maze_records");
+        const recordsSnap = await getDoc(highScoreDocRef);
+        const records = recordsSnap.exists() ? recordsSnap.data() : {};
+
+        const updatePayload: { [key: string]: number } = {};
+        if (!records.highScore || stats.score > records.highScore) {
+            updatePayload.highScore = stats.score;
+        }
+        if (!records.fastestRunMs || stats.timeMs < records.fastestRunMs) {
+            updatePayload.fastestRunMs = stats.timeMs;
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+            await setDoc(highScoreDocRef, updatePayload, { merge: true });
+        }
+    }
 }

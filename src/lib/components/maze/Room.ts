@@ -133,7 +133,7 @@ export class RoomLayout {
             const doorEntity = new DoorEntity(pos);
             this.staticEntities[row][col] = doorEntity;
             this.entities.push(doorEntity);
-            console.log(`Door placed at ${row}, ${col}`);
+            // console.log(`Door placed at ${row}, ${col}`);
             this.doorLocation = [row, col];
         }
 

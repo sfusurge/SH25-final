@@ -3,6 +3,7 @@ import { ENTITY_TYPE } from ".";
 import { Vector2 } from "$lib/Vector2";
 import type { MazeGame } from "../MazeGameRenderer.svelte";
 import { EffectSource } from "../EffectSystem.svelte";
+import { GameState } from "$lib/components/maze/MazeGameState.svelte";
 
 const TrapSprite = loadImageToCanvas("/maze/trap.webp", 50, false, 0);
 
@@ -19,6 +20,7 @@ export class TrapEntity extends Entity {
     onCollision(other: Entity, game?: MazeGame): void {
         if (other.metadata?.entityType === ENTITY_TYPE.player) {
             this.toBeDeleted = true;
+            GameState.triggerTrap();
 
             // Effect system integration: Grant a random negative effect (debuff) from trap pool
             // This will trigger the effect system to display the UI and eventually apply the effect

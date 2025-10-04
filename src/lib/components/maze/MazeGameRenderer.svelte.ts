@@ -256,7 +256,7 @@ export class MazeGame {
 
         // Fallback just in case
         if (!foundHallwaySpot) {
-            console.log("No hallway found near center, so using first room as fallback");
+            // console.log("No hallway found near center, so using first room as fallback");
             const firstRoom = this.mazeGenerator.rooms[0];
             playerStartX = Math.floor((firstRoom.x1 + firstRoom.x2) / 2);
             playerStartY = Math.floor((firstRoom.y1 + firstRoom.y2) / 2);
@@ -652,6 +652,9 @@ export class MazeGame {
     }
 
     resolveEntityCollisions() {
+        // Store previous room ID to handle knockback edge case (there was a bug where player could be knocked out of room)
+        const previousRoomId = this.currentRoomId;
+
         this.resolveWallCollisions(this.player);
         this.updateEntityGrid();
         // Handle projectile wall collisions
@@ -660,11 +663,14 @@ export class MazeGame {
         }
 
         if (!this.entityGrid || this.currentRoomId === 0) {
+            this.keepPlayerToLockedRoom(previousRoomId);
             return;
         }
 
         const room = this.idToRoomLayout[this.currentRoomId];
         if (!room) {
+            // Even if room not found, check if we need to constrain player to previous locked room
+            this.keepPlayerToLockedRoom(previousRoomId);
             return;
         }
 
@@ -750,7 +756,33 @@ export class MazeGame {
             this.setRoomCompletionStatus(this.currentRoomId);
         }
 
+        // Re-check wall collisions if player was in a locked room
+        this.keepPlayerToLockedRoom(previousRoomId);
+
     }
+
+    // Forces player within locked room boundaries even if they've been knocked outside.
+    keepPlayerToLockedRoom(previousRoomId: number) {
+        if (previousRoomId > 0 && this.isRoomLocked(previousRoomId)) {
+            // Temporarily restore previous room ID for wall collision check
+            const tempRoomId = this.currentRoomId;
+            this.currentRoomId = previousRoomId;
+            this.resolveWallCollisions(this.player);
+            this.currentRoomId = tempRoomId;
+
+            // Update currentRoomId again in case player was pushed back into the locked room
+            const playerCol = Math.floor(this.player.x / CELL_SIZE);
+            const playerRow = Math.floor(this.player.y / CELL_SIZE);
+            if (playerRow >= 0 && playerRow < this.maze.height &&
+                playerCol >= 0 && playerCol < this.maze.width) {
+                const cellIndex = playerRow * this.maze.width + playerCol;
+                if (cellIndex >= 0 && cellIndex < this.maze.map.length) {
+                    this.currentRoomId = ((this.maze.map[cellIndex] & CELL_TYPE.ROOM_MASK) >> 8) & 0b111111;
+                }
+            }
+        }
+    }
+
     /**
      * updates velocity of all entities and then move according to vel.
      */
@@ -878,7 +910,11 @@ export class MazeGame {
         if (roomId <= 0) return;
 
         if (this.countEnemiesInRoom(roomId) === 0) {
+            const wasCleared = this.roomsCleared.get(roomId);
             this.roomsCleared.set(roomId, true);
+            if (!wasCleared) {
+                GameState.clearRoom();
+            }
             if (roomId === 1) { // room 1 has door
 
                 const roomLayout = this.idToRoomLayout[roomId];

@@ -1,3 +1,5 @@
+import { updateMazeStats } from "$lib/firebase/api";
+
 export const GamePhase = {
     PRE: 0,
     RUNNING: 1,
@@ -8,6 +10,7 @@ export type GamePhaseType = typeof GamePhase[keyof typeof GamePhase];
 
 export const NOW_TICK_MS = 100;
 export const MAX_LEVELS = 5;
+const WIN_BONUS_BASELINE_MS = 15 * 60 * 1000;
 
 export const GameResult = {
     WIN: "win",
@@ -26,6 +29,9 @@ export function formatDuration(ms: number): string {
 class _GameState {
     score = $state(0);
     enemiesKilled = $state(0);
+    scrollsCollected = $state(0);
+    trapsTriggered = $state(0);
+    roomsCleared = $state(0);
     health = $state(6);
     phase = $state<GamePhaseType>(GamePhase.PRE);
     gameStartTime = $state(-1);
@@ -90,14 +96,30 @@ class _GameState {
 
     incrementEnemiesKilled(): void {
         this.enemiesKilled += 1;
+        this.addScore(100);
+    }
 
-        // TODO: adjust scoring values
-        this.addScore(10);
+    collectScroll(): void {
+        this.scrollsCollected += 1;
+        this.addScore(50);
+    }
+
+    triggerTrap(): void {
+        this.trapsTriggered += 1;
+        this.addScore(-50);
+    }
+
+    clearRoom(): void {
+        this.roomsCleared += 1;
+        this.addScore(200);
     }
 
     resetStats(): void {
         this.score = 0;
         this.enemiesKilled = 0;
+        this.scrollsCollected = 0;
+        this.trapsTriggered = 0;
+        this.roomsCleared = 0;
         this.health = 6; // Match initial health value
         this.levelsCompleted = 0;
         this.gameResult = null;
@@ -236,6 +258,13 @@ class _GameState {
         this.now = endTime;
         this.finalElapsedTime = this.computeElapsed(endTime);
 
+        if (result === GameResult.WIN && this.levelsCompleted >= MAX_LEVELS) {
+            const bonus = Math.max(0, Math.round(1000 - (this.finalElapsedTime - WIN_BONUS_BASELINE_MS) / 6000));
+            if (bonus > 0) {
+                this.addScore(bonus);
+            }
+        }
+
         this.phase = GamePhase.ENDED;
         this.gameResult = result;
         this.paused = true;
@@ -243,6 +272,16 @@ class _GameState {
         this.showInstructionsDuringGame = false;
         this.showCloseButtonInInstructions = false;
         this.stopTimers();
+
+        updateMazeStats({
+            score: this.score,
+            enemiesKilled: this.enemiesKilled,
+            scrollsCollected: this.scrollsCollected,
+            trapsTriggered: this.trapsTriggered,
+            roomsCleared: this.roomsCleared,
+            timeMs: this.finalElapsedTime,
+            won: result === GameResult.WIN
+        }).catch(console.error);
     }
 
     private computeElapsed(atTime: number): number {

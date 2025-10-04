@@ -42,9 +42,9 @@ export const mazeGameConfig: GameSlideConfig = {
                     "<strong><em>CONTROLS</em></strong><br><br>Desktop: Use <strong>WASD</strong> to move and <strong>ARROW KEYS</strong> to shoot/aim<br><br>Mobile: Touch the left/right sides, and <strong>JOYSTICKS</strong> will appear to move/aim",
             },
             {
-                imageSrc: "/maze/slides/what.png",
+                imageSrc: "/maze/slides/enemies.png",
                 content:
-                    "Points are awarded for:<br>• Defeating enemies<br>• Clearing rooms<br>• Completing floors<br><em>Score system coming soon!</em>",
+                    "<strong><em>ENEMIES</em></strong><br><br>Walker (Yellow): Fast but weak<br>Bruiser (Red): Strong and tanky but slow<br>Shooter (Blue): Shoots from a distance",
             },
             {
                 imageSrc: "/maze/slides/scroll.png",
@@ -60,6 +60,11 @@ export const mazeGameConfig: GameSlideConfig = {
                 imageSrc: "/maze/slides/trap.png",
                 content:
                     "<strong><em>TRAP EFFECTS</em></strong>: Watch out!<br><strong>Spikes: -1 Health</strong> (instant)<br><strong>Burdened: Slow Movement</strong> (stackable)<br><strong>Sluggish: Slow Shooting</strong> (unstackable)<br><strong>Weakened: Reduced Attack Power</strong> (unstackable)",
+            },
+            {
+                imageSrc: "/maze/slides/what.png",
+                content:
+                    "<strong><em>SCORING</em></strong><br>Defeat enemies: +100<br>Clear rooms: +200<br>Collect Scrolls/Traps: +50/-50<br>Clear maze: +1000, adjusted on time taken",
             },
         ],
     },
