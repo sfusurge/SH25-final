@@ -80,10 +80,7 @@
             song?: AudioBuffer;
         };
     } = $state({
-        // "BAD APPLE": {
-        //     notesSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.beatmap",
-        //     songSrc: "/rhythm/beatmaps/BAD_APPLE_TH4.mp3",
-        // },
+
         "Philosophical Starry": {
             notesSrc: "/rhythm/beatmaps/Philosophical Starry [Easy].beatmap",
             songSrc: "/rhythm/beatmaps/philosophicalStarry.mp3",
