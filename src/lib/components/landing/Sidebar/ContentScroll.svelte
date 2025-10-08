@@ -181,8 +181,27 @@
                     header="[Ch 3] Let's See How You Struggle."
                     text="Scummious and Shade's bond grows as Stormy and Sparky begin to make their way through the trials of the gods."
             />
-        </div>        <LockedTile release="Releases [10/04/2025]" />
-        <LockedTile release="Releases [10/04/2025]" />
+        </div>
+        <div class:active-tile={isActiveTile("/webtoon", "#4")}>
+            <WebtoonTile
+                    imageSrc="/assets/ig.svg"
+                    imageAlt="[Ch 4] I Guess We're a Duo Now?"
+                    imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
+                    onClick={() => goto("/webtoon#4")}
+                    header="[Ch 4] I Guess We're a Duo Now?"
+                    text="Stormy and Sparky makes their way through the trials. After they obtain the last coin, they return to the wishing fountain."
+            />
+        </div>
+        <div class:active-tile={isActiveTile("/webtoon", "#5")}>
+            <WebtoonTile
+                    imageSrc="/assets/ig.svg"
+                    imageAlt="[Ch 5] We Will Always Be There For You."
+                    imageClass="h-[35px] w-[35px] object-cover p-2 header header-[#D9D9D9]"
+                    onClick={() => goto("/webtoon#5")}
+                    header="[Ch 5] We Will Always Be There For You."
+                    text="At the end of their trials, our two heroes' have one final face off with a certain demigod."
+            />
+        </div>
     </div>
 
     {#if global.medium}
